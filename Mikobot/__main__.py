@@ -1,7 +1,4 @@
-# https://github.com/Infamous-Hydra/YaeMiko
-# https://github.com/Team-ProjectCodeX
 
-# <============================================== IMPORTS =========================================================>
 import asyncio
 import contextlib
 import importlib
@@ -98,6 +95,37 @@ DATA_EXPORT = []
 CHAT_SETTINGS = {}
 USER_SETTINGS = {}
 
+PM_START_TEXT = """ 
+
+Hɪ [🥀](https://i.ibb.co/DLdX06d/file-4868.jpg) Dᴇᴀʀ! {} Mʏ ɴᴀᴍᴇ ɪs {} 
+
+I ᴄᴀɴ ʜᴇʟᴘ ᴛᴏ ᴍᴀɴᴀɢᴇ ʏᴏᴜʀ ɢʀᴏᴜᴘs ᴡɪᴛʜ ᴜsᴇғᴜʟ ғᴇᴀᴛᴜʀᴇs, ғᴇᴇʟ ғʀᴇᴇ ᴛᴏ ᴀᴅᴅ ᴍᴇ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘs!
+
+"""
+def private_panel():
+    buttons = [
+        [
+            InlineKeyboardButton(
+                text="➕ ᴀᴅᴅ ᴍᴇ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ➕",
+                url=f"https://t.me/{app.username}?startgroup=s&admin=delete_messages+manage_video_chats+pin_messages+invite_users",
+            )
+        ],
+        [
+            InlineKeyboardButton(text="📚 ʜᴇʟᴘ",callback_data="Main_help"),
+        ],
+        [
+            InlineKeyboardButton(text="ᴜᴘᴅᴀᴛᴇꜱ", url=f"https://t.me/{UPDATE_CHNL}"),
+        ],
+    ]
+    return buttons
+
+HELP_STRINGS = f"""
+» *{BOT_NAME}  ᴄʟɪᴄᴋ ᴏɴ ᴛʜᴇ ʙᴜᴛᴛᴏɴ ʙᴇʟʟᴏᴡ ᴛᴏ ɢᴇᴛ ᴅᴇsᴄʀɪᴘᴛɪᴏɴ ᴀʙᴏᴜᴛ sᴘᴇᴄɪғɪᴄs ᴄᴏᴍᴍᴀɴᴅ*"""
+
+DONATE_STRING = """ʜᴇʏ ʙᴀʙʏ,
+  ʜᴀᴩᴩʏ ᴛᴏ ʜᴇᴀʀ ᴛʜᴀᴛ ʏᴏᴜ ᴡᴀɴɴᴀ ᴅᴏɴᴀᴛᴇ.
+
+ʏᴏᴜ ᴄᴀɴ ᴅɪʀᴇᴄᴛʟʏ ᴄᴏɴᴛᴀᴄᴛ ᴍʏ ᴅᴇᴠᴇʟᴏᴘᴇʀ @sahil30 ғᴏʀ ᴅᴏɴᴀᴛɪɴɢ just type ``` /pay 30 ```."""
 for module_name in ALL_MODULES:
     imported_module = importlib.import_module("Mikobot.plugins." + module_name)
     if not hasattr(imported_module, "__mod_name__"):
@@ -185,7 +213,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             first_name = update.effective_user.first_name
             lol = await message.reply_photo(
                 photo=str(choice(START_IMG)),
-                caption=FIRST_PART_TEXT.format(escape_markdown(first_name)),
+                caption=PM_START_TEXT.format(escape_markdown(first_name,BOT_NAME)),
                 parse_mode=ParseMode.MARKDOWN,
             )
             await asyncio.sleep(0.2)
@@ -193,7 +221,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await asyncio.sleep(1.8)
             await guu.delete()  # Await this line
             await update.effective_message.reply_text(
-                PM_START_TEXT,
+                PM_START_TEXT.format(first_name,BOT_NAME),
                 reply_markup=InlineKeyboardMarkup(START_BTN),
                 parse_mode=ParseMode.MARKDOWN,
                 disable_web_page_preview=False,
@@ -273,7 +301,7 @@ async def ai_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     await update.message.reply_text(
-        "🧠 *Here are the options for* [𝗬𝗔𝗘 𝗠𝗜𝗞𝗢](https://telegra.ph/file/ed2d9c3693cacc9b0464e.jpg):",
+        "🧠 *Here are the options for* :",
         reply_markup=reply_markup,
         parse_mode="Markdown",
     )
@@ -284,7 +312,7 @@ async def ai_command_callback(update: Update, context: ContextTypes.DEFAULT_TYPE
     if query.data == "ai_command_handler":
         await query.answer()
         await query.message.edit_text(
-            "🧠 *Here are the options for* [𝗬𝗔𝗘 𝗠𝗜𝗞𝗢](https://telegra.ph/file/ed2d9c3693cacc9b0464e.jpg):",
+            "🧠 *Here are the options for* :",
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
@@ -309,7 +337,6 @@ async def ai_handler_callback(update: Update, context: ContextTypes.DEFAULT_TYPE
     if query.data == "ai_handler":
         await query.answer()
         await query.message.edit_text(
-            "[𝗔𝗿𝘁𝗶𝗳𝗶𝗰𝗶𝗮𝗹 𝗜𝗻𝘁𝗲𝗹𝗹𝗶𝗴𝗲𝗻𝘁 𝗙𝘂𝗻𝗰𝘁𝗶𝗼𝗻𝘀](https://telegra.ph/file/01a2e0cd1b9d03808c546.jpg):\n\n"
             "All Commands:\n"
             "➽ /askgpt <write query>: A chatbot using GPT for responding to user queries.\n\n"
             "➽ /palm <write prompt>: Performs a Palm search using a chatbot.\n\n"
@@ -411,7 +438,7 @@ async def anime_command_callback(update: Update, context: ContextTypes.DEFAULT_T
     if query.data == "anime_command_handler":
         await query.answer()
         await query.message.edit_text(
-            "⛩[𝗔𝗻𝗶𝗺𝗲 𝗨𝗽𝗱𝗮𝘁𝗲𝘀](https://telegra.ph//file/59d93fede8bf12fec1a51.jpg) :\n\n"
+            "⛩𝗔𝗻𝗶𝗺𝗲 𝗨𝗽𝗱𝗮𝘁𝗲𝘀 :\n\n"
             "**╔ /anime: **fetches info on single anime (includes buttons to look up for prequels and sequels)\n"
             "**╠ /character: **fetches info on multiple possible characters related to query\n"
             "**╠ /manga: **fetches info on multiple possible mangas related to query\n"
@@ -433,9 +460,6 @@ async def anime_command_callback(update: Update, context: ContextTypes.DEFAULT_T
                 [
                     [
                         InlineKeyboardButton("More Info", url="https://anilist.co/"),
-                        InlineKeyboardButton(
-                            "㊋Infamous•Hydra", url="https://t.me/Infamous_Hydra"
-                        ),
                     ],
                     [
                         InlineKeyboardButton(
@@ -453,7 +477,7 @@ async def genshin_command_callback(update: Update, context: ContextTypes.DEFAULT
     if query.data == "genshin_command_handler":
         await query.answer()
         await query.message.edit_text(
-            "⛩ [𝗚𝗲𝗻𝘀𝗵𝗶𝗻 𝗜𝗺𝗽𝗮𝗰𝘁](https://telegra.ph/file/cd03348a4a357624e70db.jpg) ⛩\n\n"
+            "⛩ 𝗚𝗲𝗻𝘀𝗵𝗶𝗻 𝗜𝗺𝗽𝗮𝗰𝘁 ⛩\n\n"
             "*UNDER DEVELOPMENT*",
             reply_markup=InlineKeyboardMarkup(
                 [
@@ -601,7 +625,7 @@ async def stats_back(update: Update, context: ContextTypes.DEFAULT_TYPE):
         mem = psutil.virtual_memory().percent
         disk = psutil.disk_usage("/").percent
         text = f"""
-𝙎𝙮𝙨𝙩𝙚𝙢 𝙨𝙩𝙖𝙩𝙨@𝙔𝙖𝙚𝙈𝙞𝙠𝙤_𝙍𝙤𝙭𝙗𝙤𝙩
+𝙎𝙮𝙨𝙩𝙚𝙢 𝙨𝙩𝙖𝙩𝙨
 ➖➖➖➖➖➖
 UPTIME ➼ {uptime}
 CPU ➼ {cpu}%
@@ -617,38 +641,9 @@ PYROGRAM ➼ {PYROGRAM_VERSION}
         await query.answer(text=text, show_alert=True)
 
 
-async def gitsource_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-
-    if query.data == "git_source":
-        source_link = "https://github.com/Infamous-Hydra/YaeMiko"
-        message_text = (
-            f"*Here is the link for the public source repo*:\n\n{source_link}"
-        )
-
-        # Adding the inline button
-        keyboard = [[InlineKeyboardButton(text="◁", callback_data="Miko_back")]]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-
-        await query.edit_message_text(
-            message_text,
-            parse_mode=ParseMode.MARKDOWN,
-            disable_web_page_preview=False,
-            reply_markup=reply_markup,
-        )
 
 
-async def repo(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    source_link = "https://github.com/Infamous-Hydra/YaeMiko"
-    message_text = f"*Here is the link for the public source repo*:\n\n{source_link}"
 
-    await context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text=message_text,
-        parse_mode=ParseMode.MARKDOWN,
-        disable_web_page_preview=False,
-    )
 
 
 async def Miko_about_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -971,10 +966,8 @@ def main():
 
     function(CommandHandler("settings", get_settings))
     function(CallbackQueryHandler(settings_button, pattern=r"stngs_"))
-    function(CommandHandler("repo", repo))
 
     function(CallbackQueryHandler(Miko_about_callback, pattern=r"Miko_"))
-    function(CallbackQueryHandler(gitsource_callback, pattern=r"git_source"))
     function(CallbackQueryHandler(stats_back, pattern=r"insider_"))
     function(MessageHandler(filters.StatusUpdate.MIGRATE, migrate_chats))
     function(CallbackQueryHandler(ai_handler_callback, pattern=r"ai_handler"))
