@@ -331,7 +331,6 @@ async def kang_sticker(self: Client, ctx: Message, strings):
                                 emoji=sticker_emoji,
                             )
                         ],
-                        animated=animated,
                         videos=videos,
                     )
                 )
