@@ -17,7 +17,7 @@ from telethon.tl.types import (
 from Mikobot import LOGGER, tbot
 from Mikobot.events import register
 
-sudo = 5978107653
+
 CMD_HELP = "/ !"
 
 
@@ -176,4 +176,4 @@ async def get_users(show):
     os.remove("userslist.txt")
 
 
-__mod_name__ = "Unbanll"
+__mod_name__ = "ᴜɴʙᴀɴʟʟ"

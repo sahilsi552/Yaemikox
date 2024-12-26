@@ -120,7 +120,7 @@ dispatcher.add_handler(SUPPORT_HANDLER)
 dispatcher.add_handler(TIGER_HANDLER)
 dispatcher.add_handler(WHITELIST_HANDLER)
 
-__mod_name__ = "Devs"
+__mod_name__ = "ᴅᴇᴠꜱ"
 __handlers__ = [
     SUDO_HANDLER,
     SUPPORT_HANDLER,

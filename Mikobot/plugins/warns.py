@@ -514,7 +514,7 @@ be a sentence, encompass it with quotes, as such: `/addwarn "very angry" This is
 » /strongwarn <on/yes/off/no>: If set to on, exceeding the warn limit will result in a ban. Else, will just kick.
 """
 
-__mod_name__ = "WARN"
+__mod_name__ = "ᴡᴀʀɴ"
 
 WARN_HANDLER = CommandHandler(
     ["warn", "dwarn"], warn_user, filters=filters.ChatType.GROUPS, block=False

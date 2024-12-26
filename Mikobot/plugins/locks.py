@@ -696,7 +696,7 @@ Locking anonchannel will stop anonymous channel from messaging in your group.
 » Unlocking permission *pin* will allow members (non-admins) to pin a message in a group
 """
 
-__mod_name__ = "LOCKS"
+__mod_name__ = "ʟᴏᴄᴋꜱ"
 
 LOCKTYPES_HANDLER = DisableAbleCommandHandler("locktypes", locktypes, block=False)
 LOCK_HANDLER = CommandHandler(

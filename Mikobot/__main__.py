@@ -33,9 +33,10 @@ from telegram.ext import (
 )
 from telegram.helpers import escape_markdown
 
-from Infamous.karma import *
+
 from Mikobot import (
     BOT_NAME,
+    BOT_USERNAME,
     LOGGER,
     OWNER_ID,
     SUPPORT_CHAT,
@@ -50,7 +51,7 @@ from Mikobot import (
 from Mikobot.plugins import ALL_MODULES
 from Mikobot.plugins.helper_funcs.chat_status import is_user_admin
 from Mikobot.plugins.helper_funcs.misc import paginate_modules
-
+from Infamous.karma import START_IMG,GROUP_START_BTN
 # <=======================================================================================================>
 
 PYTHON_VERSION = python_version()
@@ -96,10 +97,13 @@ CHAT_SETTINGS = {}
 USER_SETTINGS = {}
 
 PM_START_TEXT = """ 
+Hello {}🥀.
 
-Hɪ [🥀](https://i.ibb.co/DLdX06d/file-4868.jpg) Dᴇᴀʀ! {} Mʏ ɴᴀᴍᴇ ɪs {} 
+๏ This is {}🖤!
+➻ The most comprehensive Telegram bot for managing and protecting group chats from spammers and rule-breakers.
 
-I ᴄᴀɴ ʜᴇʟᴘ ᴛᴏ ᴍᴀɴᴀɢᴇ ʏᴏᴜʀ ɢʀᴏᴜᴘs ᴡɪᴛʜ ᴜsᴇғᴜʟ ғᴇᴀᴛᴜʀᴇs, ғᴇᴇʟ ғʀᴇᴇ ᴛᴏ ᴀᴅᴅ ᴍᴇ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘs!
+──────────────────
+๏ Click the help button to learn about my modules and commands.
 
 """
 def private_panel():
@@ -107,20 +111,22 @@ def private_panel():
         [
             InlineKeyboardButton(
                 text="➕ ᴀᴅᴅ ᴍᴇ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ➕",
-                url=f"https://t.me/{app.username}?startgroup=s&admin=delete_messages+manage_video_chats+pin_messages+invite_users",
+                url=f"https://t.me/{BOT_USERNAME}?startgroup=s&admin=delete_messages+manage_video_chats+pin_messages+invite_users",
             )
         ],
         [
-            InlineKeyboardButton(text="📚 ʜᴇʟᴘ",callback_data="Main_help"),
+            InlineKeyboardButton(text="📚 ʜᴇʟᴘ",callback_data="extra_command_handler"),
         ],
         [
-            InlineKeyboardButton(text="ᴜᴘᴅᴀᴛᴇꜱ", url=f"https://t.me/{UPDATE_CHNL}"),
+              InlineKeyboardButton(text="ꜱᴜᴘᴘᴏʀᴛ", url=f"https://t.me/{SUPPORT_CHAT}"),
+            InlineKeyboardButton(text="ᴜᴘᴅᴀᴛᴇꜱ", url=f"https://t.me/{SUPPORT_CHAT}"),
         ],
     ]
     return buttons
 
 HELP_STRINGS = f"""
-» *{BOT_NAME}  ᴄʟɪᴄᴋ ᴏɴ ᴛʜᴇ ʙᴜᴛᴛᴏɴ ʙᴇʟʟᴏᴡ ᴛᴏ ɢᴇᴛ ᴅᴇsᴄʀɪᴘᴛɪᴏɴ ᴀʙᴏᴜᴛ sᴘᴇᴄɪғɪᴄs ᴄᴏᴍᴍᴀɴᴅ*"""
+» *{BOT_NAME} ๏ Click on the help button to get information about my modules and commands.
+➻ You can also use the buttons below to get started*"""
 
 DONATE_STRING = """ʜᴇʏ ʙᴀʙʏ,
   ʜᴀᴩᴩʏ ᴛᴏ ʜᴇᴀʀ ᴛʜᴀᴛ ʏᴏᴜ ᴡᴀɴɴᴀ ᴅᴏɴᴀᴛᴇ.
@@ -211,18 +217,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         else:
             first_name = update.effective_user.first_name
-            lol = await message.reply_photo(
-                photo=str(choice(START_IMG)),
-                caption=PM_START_TEXT.format(escape_markdown(first_name,BOT_NAME)),
-                parse_mode=ParseMode.MARKDOWN,
-            )
-            await asyncio.sleep(0.2)
-            guu = await update.effective_message.reply_text("🐾")
-            await asyncio.sleep(1.8)
-            await guu.delete()  # Await this line
+            start=private_panel()
             await update.effective_message.reply_text(
-                PM_START_TEXT.format(first_name,BOT_NAME),
-                reply_markup=InlineKeyboardMarkup(START_BTN),
+                PM_START_TEXT.format(escape_markdown(first_name),BOT_NAME),
+                reply_markup=InlineKeyboardMarkup(start),
                 parse_mode=ParseMode.MARKDOWN,
                 disable_web_page_preview=False,
             )
@@ -240,23 +238,25 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def extra_command_handlered(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     keyboard = [
-        [
-            InlineKeyboardButton("MANAGEMENT", callback_data="help_back"),
-            InlineKeyboardButton("AI", callback_data="ai_command_handler"),
-        ],
-        [
-            InlineKeyboardButton("ANIME", callback_data="anime_command_handler"),
-            InlineKeyboardButton("GENSHIN", callback_data="genshin_command_handler"),
-        ],
-        [
-            InlineKeyboardButton("HOME", callback_data="Miko_back"),
-        ],
+       [
+                        InlineKeyboardButton("ᴍᴀɴᴀɢᴇᴍᴇɴᴛ", callback_data="help_back"),
+                        InlineKeyboardButton("ᴍᴜꜱɪᴄ", callback_data="Music_"),
+                    ],
+                    [
+                        InlineKeyboardButton("ʙᴀꜱɪᴄ", callback_data="basic_command"),
+                        InlineKeyboardButton("ᴀᴅᴠᴀɴᴄᴇ", callback_data="advanced_command"),
+                    ],
+                    [
+                        InlineKeyboardButton("ᴇxᴘᴇʀᴛ",callback_data="expert_command"),
+                       
+                        InlineKeyboardButton("ʜᴏᴍᴇ", callback_data="Miko_back"),
+                    ],
     ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     await update.message.reply_text(
-        "𝙎𝙚𝙡𝙚𝙘𝙩 𝙩𝙝𝙚 [𝙨𝙚𝙘𝙩𝙞𝙤𝙣](https://telegra.ph/file/8c092f4e9d303f9497c83.jpg) 𝙩𝙝𝙖𝙩 𝙮𝙤𝙪 𝙬𝙖𝙣𝙩 𝙩𝙤 𝙤𝙥𝙚𝙣",
+        "𝙎𝙚𝙡𝙚𝙘𝙩 𝙩𝙝𝙚 𝙨𝙚𝙘𝙩𝙞𝙤𝙣 𝙩𝙝𝙖𝙩 𝙮𝙤𝙪 𝙬𝙖𝙣𝙩 𝙩𝙤 𝙤𝙥𝙚𝙣",
         reply_markup=reply_markup,
         parse_mode="Markdown",
     )
@@ -267,29 +267,394 @@ async def extra_command_callback(update: Update, context: ContextTypes.DEFAULT_T
     if query.data == "extra_command_handler":
         await query.answer()  # Use 'await' for asynchronous calls
         await query.message.edit_text(
-            "𝙎𝙚𝙡𝙚𝙘𝙩 𝙩𝙝𝙚 [𝙨𝙚𝙘𝙩𝙞𝙤𝙣](https://telegra.ph/file/8c092f4e9d303f9497c83.jpg) 𝙩𝙝𝙖𝙩 𝙮𝙤𝙪 𝙬𝙖𝙣𝙩 𝙩𝙤 𝙤𝙥𝙚𝙣",
+            "𝙎𝙚𝙡𝙚𝙘𝙩 𝙩𝙝𝙚 𝙨𝙚𝙘𝙩𝙞𝙤𝙣 𝙩𝙝𝙖𝙩 𝙮𝙤𝙪 𝙬𝙖𝙣𝙩 𝙩𝙤 𝙤𝙥𝙚𝙣",
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton("MANAGEMENT", callback_data="help_back"),
-                        InlineKeyboardButton("AI", callback_data="ai_command_handler"),
+                        InlineKeyboardButton("ᴍᴀɴᴀɢᴇᴍᴇɴᴛ", callback_data="help_back"),
+                        InlineKeyboardButton("ᴍᴜꜱɪᴄ", callback_data="Music_"),
                     ],
                     [
-                        InlineKeyboardButton(
-                            "ANIME", callback_data="anime_command_handler"
-                        ),
-                        InlineKeyboardButton(
-                            "GENSHIN", callback_data="genshin_command_handler"
-                        ),
+                        InlineKeyboardButton("ʙᴀꜱɪᴄ", callback_data="basic_command"),
+                        InlineKeyboardButton("ᴀᴅᴠᴀɴᴄᴇ", callback_data="advanced_command"),
                     ],
                     [
-                        InlineKeyboardButton("HOME", callback_data="Miko_back"),
+                        InlineKeyboardButton("ᴇxᴘᴇʀᴛ",callback_data="expert_command"),
+                       
+                        InlineKeyboardButton("ʜᴏᴍᴇ", callback_data="Miko_back"),
                     ],
                 ]
             ),
             parse_mode="Markdown",  # Added this line to explicitly specify Markdown parsing
         )
+async def Music_button(update:Update,context:ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("""ʜᴇʀᴇ ɪꜱ ʜᴇʟᴘ ᴍᴇɴᴜ ꜰᴏʀ ᴍᴜꜱɪᴄ """,
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            text="ᴀᴅᴍɪɴ", callback_data="Music_admin"
+                        ),
+                        InlineKeyboardButton(
+                            text="ᴀᴜᴛʜ", callback_data="Music_auth"
+                        ),
+                        InlineKeyboardButton(
+                            text="ᴄ-ᴘʟᴀʏ", callback_data="Music_c-play" )
+                    ],
+                    [
+                        InlineKeyboardButton(
+                            text="ʟᴏᴏᴘ", callback_data="Music_loop"
+                        ),
+                        InlineKeyboardButton(
+                            text="ᴘɪɴɢ", callback_data="Music_ping"
+                        ),
+                        InlineKeyboardButton(
+                            text="ᴘʟᴀʏ", callback_data="Music_play")
+                    ],
+                    [
+                        InlineKeyboardButton(
+                            text="ꜱʜᴜꜰꜰʟᴇ", callback_data="Music_shuffle"
+                        ),
+                        InlineKeyboardButton(
+                            text="ꜱᴇᴇᴋ", callback_data="Music_seek"
+                        ),
+                        InlineKeyboardButton(
+                            text="ꜱᴏɴɢ", callback_data="Music_song")
+                    ],
+                    [
+                        InlineKeyboardButton(
+                            text="ꜱᴘᴇᴇᴅ", callback_data="Music_speed"
+                        ),
+                        InlineKeyboardButton(
+                            text="ᴍᴏᴅᴇ", callback_data="Music_mode"
+                        ),
+                        InlineKeyboardButton(
+                            text="ᴏᴛʜᴇʀ", callback_data="Music_other")
+                    ],
+                    [
+                        InlineKeyboardButton(text="⬅️ ʙᴀᴄᴋ", callback_data="extra_command_handler")
+                    ],
+                ]
+            ),)
+        
+async def Music_about_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    if query.data == "Music_":
+        await query.message.edit_text(
+            """
+ ʜᴇʀᴇ ɪꜱ ʜᴇʟᴘ ᴍᴇɴᴜ ꜰᴏʀ ᴍᴜꜱɪᴄ 
+""",
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            text="ᴀᴅᴍɪɴ", callback_data="Music_admin"
+                        ),
+                        InlineKeyboardButton(
+                            text="ᴀᴜᴛʜ", callback_data="Music_auth"
+                        ),
+                        InlineKeyboardButton(
+                            text="ᴄ-ᴘʟᴀʏ", callback_data="Music_c-play" )
+                    ],
+                    [
+                        InlineKeyboardButton(
+                            text="ʟᴏᴏᴘ", callback_data="Music_loop"
+                        ),
+                        InlineKeyboardButton(
+                            text="ᴘɪɴɢ", callback_data="Music_ping"
+                        ),
+                        InlineKeyboardButton(
+                            text="ᴘʟᴀʏ", callback_data="Music_play")
+                    ],
+                    [
+                        InlineKeyboardButton(
+                            text="ꜱʜᴜꜰꜰʟᴇ", callback_data="Music_shuffle"
+                        ),
+                        InlineKeyboardButton(
+                            text="ꜱᴇᴇᴋ", callback_data="Music_seek"
+                        ),
+                        InlineKeyboardButton(
+                            text="ꜱᴏɴɢ", callback_data="Music_song")
+                    ],
+                    [
+                        InlineKeyboardButton(
+                            text="ꜱᴘᴇᴇᴅ", callback_data="Music_speed"
+                        ),
+                        InlineKeyboardButton(
+                            text="ᴍᴏᴅᴇ", callback_data="Music_mode"
+                        ),
+                        InlineKeyboardButton(
+                            text="ᴏᴛʜᴇʀ", callback_data="Music_other")
+                    ],
+                    [
+                        InlineKeyboardButton(text="⬅️ ʙᴀᴄᴋ", callback_data="extra_command_handler")
+                    ],
+                ]
+            ),
+        )
+    elif query.data == "Music_admin":
+        await query.message.edit_text(
+            """*» ᴀᴅᴍɪɴ ᴄᴏᴍᴍᴀɴᴅꜱ «*
+ᴊᴜsᴛ ᴀᴅᴅ *ᴄ* ɪɴ ᴛʜᴇ sᴛᴀʀᴛɪɴɢ ᴏғ ᴛʜᴇ ᴄᴏᴍᴍᴀɴᴅs ᴛᴏ ᴜsᴇ ᴛʜᴇᴍ ғᴏʀ ᴄʜᴀɴɴᴇʟ.
 
+/pause : ᴩᴀᴜsᴇ ᴛʜᴇ ᴄᴜʀʀᴇɴᴛ ᴩʟᴀʏɪɴɢ sᴛʀᴇᴀᴍ.
+
+/resume : ʀᴇsᴜᴍᴇ ᴛʜᴇ ᴩᴀᴜsᴇᴅ sᴛʀᴇᴀᴍ.
+
+/skip : sᴋɪᴩ ᴛʜᴇ ᴄᴜʀʀᴇɴᴛ ᴩʟᴀʏɪɴɢ sᴛʀᴇᴀᴍ ᴀɴᴅ sᴛᴀʀᴛ sᴛʀᴇᴀᴍɪɴɢ ᴛʜᴇ ɴᴇxᴛ ᴛʀᴀᴄᴋ ɪɴ ǫᴜᴇᴜᴇ.
+
+/end ᴏʀ /stop : ᴄʟᴇᴀʀs ᴛʜᴇ ǫᴜᴇᴜᴇ ᴀɴᴅ ᴇɴᴅ ᴛʜᴇ ᴄᴜʀʀᴇɴᴛ ᴩʟᴀʏɪɴɢ sᴛʀᴇᴀᴍ.
+
+/player : ɢᴇᴛ ᴀ ɪɴᴛᴇʀᴀᴄᴛɪᴠᴇ ᴩʟᴀʏᴇʀ ᴩᴀɴᴇʟ.
+
+/queue : sʜᴏᴡs ᴛʜᴇ ǫᴜᴇᴜᴇᴅ ᴛʀᴀᴄᴋs ʟɪsᴛ.
+""",
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            text="⬅️ ʙᴀᴄᴋ", callback_data="Music_"
+                        ),
+                       
+                    ]
+                ]
+            ),
+        )
+    elif query.data == "Music_back":
+        first_name = update.effective_user.first_name
+        await query.message.edit_text(PM_START_TEXT.format(escape_markdown(first_name), BOT_NAME),
+            reply_markup=InlineKeyboardMarkup(buttons),
+
+            timeout=60,
+
+        )
+    elif query.data == "Music_auth":
+        await query.message.edit_text(
+            """*» Auth Users «*
+ᴀᴜᴛʜ ᴜsᴇʀs ᴄᴀɴ ᴜsᴇ ᴀᴅᴍɪɴ ʀɪɢʜᴛs ɪɴ ᴛʜᴇ ʙᴏᴛ ᴡɪᴛʜᴏᴜᴛ ᴀᴅᴍɪɴ ʀɪɢʜᴛs ɪɴ ᴛʜᴇ ᴄʜᴀᴛ.
+
+/auth [ᴜsᴇʀɴᴀᴍᴇ/ᴜsᴇʀ_ɪᴅ] : ᴀᴅᴅ ᴀ ᴜsᴇʀ ᴛᴏ ᴀᴜᴛʜ ʟɪsᴛ ᴏғ ᴛʜᴇ ʙᴏᴛ.
+
+/unauth [ᴜsᴇʀɴᴀᴍᴇ/ᴜsᴇʀ_ɪᴅ] : ʀᴇᴍᴏᴠᴇ ᴀ ᴀᴜᴛʜ ᴜsᴇʀs ғʀᴏᴍ ᴛʜᴇ ᴀᴜᴛʜ ᴜsᴇʀs ʟɪsᴛ.
+
+/authusers : sʜᴏᴡs ᴛʜᴇ ʟɪsᴛ ᴏғ ᴀᴜᴛʜ ᴜsᴇʀs ᴏғ ᴛʜᴇ ɢʀᴏᴜᴩ.
+""",
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            text="⬅️ ʙᴀᴄᴋ", callback_data="Music_"
+                        ),
+                        
+                    ]
+                ]
+            ),
+        )
+    elif query.data == "Music_c-play":
+        await query.message.edit_text(
+            """*» channel-play ᴄᴏᴍᴍᴀɴᴅꜱ «*
+ʏᴏᴜ ᴄᴀɴ sᴛʀᴇᴀᴍ ᴀᴜᴅɪᴏ/ᴠɪᴅᴇᴏ ɪɴ ᴄʜᴀɴɴᴇʟ.
+
+/cplay : sᴛᴀʀᴛs sᴛʀᴇᴀᴍɪɴɢ ᴛʜᴇ ʀᴇǫᴜᴇsᴛᴇᴅ ᴀᴜᴅɪᴏ ᴛʀᴀᴄᴋ ᴏɴ ᴄʜᴀɴɴᴇʟ's ᴠɪᴅᴇᴏᴄʜᴀᴛ.
+
+/cvplay : sᴛᴀʀᴛs sᴛʀᴇᴀᴍɪɴɢ ᴛʜᴇ ʀᴇǫᴜᴇsᴛᴇᴅ ᴠɪᴅᴇᴏ ᴛʀᴀᴄᴋ ᴏɴ ᴄʜᴀɴɴᴇʟ's ᴠɪᴅᴇᴏᴄʜᴀᴛ.
+
+/cplayforce or /cvplayforce : sᴛᴏᴩs ᴛʜᴇ ᴏɴɢᴏɪɴɢ sᴛʀᴇᴀᴍ ᴀɴᴅ sᴛᴀʀᴛs sᴛʀᴇᴀᴍɪɴɢ ᴛʜᴇ ʀᴇǫᴜᴇsᴛᴇᴅ ᴛʀᴀᴄᴋ.
+
+/channelplay [ᴄʜᴀᴛ ᴜsᴇʀɴᴀᴍᴇ ᴏʀ ɪᴅ] ᴏʀ [ᴅɪsᴀʙʟᴇ] : ᴄᴏɴɴᴇᴄᴛ ᴄʜᴀɴɴᴇʟ ᴛᴏ ᴀ ɢʀᴏᴜᴩ ᴀɴᴅ sᴛᴀʀᴛs sᴛʀᴇᴀᴍɪɴɢ ᴛʀᴀᴄᴋs ʙʏ ᴛʜᴇ ʜᴇʟᴩ ᴏғ ᴄᴏᴍᴍᴀɴᴅs sᴇɴᴛ ɪɴ ɢʀᴏᴜᴩ.
+""",
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            text="⬅️ ʙᴀᴄᴋ", callback_data="Music_"
+                        ),
+                       
+                    ]
+                ]
+            ),
+        )
+    elif query.data == "Music_loop":
+        await query.message.edit_text(f"*»loop ᴄᴏᴍᴍᴀɴᴅꜱ «*"
+            f"""
+/play or /vplay or /cplay  - ʙᴏᴛ ᴡɪʟʟ ꜱᴛᴀʀᴛ ᴘʟᴀʏɪɴɢ ʏᴏᴜʀ ɢɪᴠᴇɴ ϙᴜᴇʀʏ on ᴠᴏɪᴄᴇ ᴄʜᴀᴛ ᴏʀ ꜱᴛʀᴇᴀᴍ ʟɪᴠᴇ ʟɪɴᴋꜱ ᴏɴ ᴠᴏɪᴄᴇ ᴄʜᴀᴛꜱ.
+ʟᴏᴏᴘ sᴛʀᴇᴀᴍ :
+
+sᴛᴀʀᴛs sᴛʀᴇᴀᴍɪɴɢ ᴛʜᴇ ᴏɴɢᴏɪɴɢ sᴛʀᴇᴀᴍ ɪɴ ʟᴏᴏᴘ
+
+/loop [enable/disable] : ᴇɴᴀʙʟᴇs/ᴅɪsᴀʙʟᴇs ʟᴏᴏᴘ ғᴏʀ ᴛʜᴇ ᴏɴɢᴏɪɴɢ sᴛʀᴇᴀᴍ
+
+/loop [1, 2, 3, ...] : ᴇɴᴀʙʟᴇs ᴛʜᴇ ʟᴏᴏᴘ ғᴏʀ ᴛʜᴇ ɢɪᴠᴇɴ ᴠᴀʟᴜᴇ.
+""",
+          reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(text="⬅️ ʙᴀᴄᴋ", callback_data="Music_"),
+                  
+                    ]
+                ]
+            ),
+        ) 
+    elif query.data == "Music_ping":
+        await query.message.edit_text(
+         f"""                    
+  ᴘɪɴɢ & sᴛᴀᴛs :
+
+/start : sᴛᴀʀᴛs ᴛʜᴇ ᴍᴜsɪᴄ ʙᴏᴛ.
+
+/help : ɢᴇᴛ ʜᴇʟᴩ ᴍᴇɴᴜ ᴡɪᴛʜ ᴇxᴩʟᴀɴᴀᴛɪᴏɴ ᴏғ ᴄᴏᴍᴍᴀɴᴅs.
+
+/mping : sʜᴏᴡs ᴛʜᴇ ᴩɪɴɢ ᴀɴᴅ sʏsᴛᴇᴍ sᴛᴀᴛs ᴏғ ᴛʜᴇ ʙᴏᴛ.
+
+/mstats : sʜᴏᴡs ᴛʜᴇ ᴏᴠᴇʀᴀʟʟ sᴛᴀᴛs ᴏғ ᴛʜᴇ ʙᴏᴛ.
+
+/topusers : ᴍᴏꜱᴛ Qᴜᴇʀɪᴇꜱ ʙʏ ᴜꜱᴇʀꜱ
+ 
+/trend : ᴍᴏꜱᴛ ᴘʟᴀʏᴇᴅ ꜱᴏɴɢꜱ ɪɴ ᴄᴜʀʀᴇɴᴛ ᴡᴇᴇᴋ  
+""",
+        
+          reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(text="⬅️ ʙᴀᴄᴋ", callback_data="Music_"),
+                       
+                    ]
+                ]
+            ),
+        ) 
+    elif query.data == "Music_play":
+        await query.message.edit_text(PLAYFORCE,
+        
+          reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(text="⬅️ ʙᴀᴄᴋ", callback_data="Music_"),
+                      
+                    ]
+                ]
+            ),
+        ) 
+    elif query.data == "Music_shuffle":
+        await query.message.edit_text(QUEUE,
+        
+          reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(text="⬅️ ʙᴀᴄᴋ", callback_data="Music_"),
+                       
+                    ]
+                ]
+            ),
+        ) 
+    elif query.data == "Music_seek":
+        await query.message.edit_text(SEEKBACK,
+        
+          reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(text="⬅️ ʙᴀᴄᴋ", callback_data="Music_"),
+                       
+                    ]
+                ]
+            ),
+        )
+    elif query.data == "Music_song":
+        await query.message.edit_text(SONG,
+        
+          reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(text="⬅️ ʙᴀᴄᴋ", callback_data="Music_"),
+                      
+                    ]
+                ]
+            ),
+        )
+    elif query.data == "Music_speed":
+        await query.message.edit_text("music mode text hereeeee"
+ """*»sᴘᴇᴇᴅ ᴄᴏᴍᴍᴀɴᴅꜱ «*
+sᴘᴇᴇᴅ ᴄᴏᴍᴍᴀɴᴅs :
+
+ʏᴏᴜ ᴄᴀɴ ᴄᴏɴᴛʀᴏʟ ᴛʜᴇ ᴘʟᴀʏʙᴀᴄᴋ sᴘᴇᴇᴅ ᴏғ ᴛʜᴇ ᴏɴɢᴏɪɴɢ sᴛʀᴇᴀᴍ. [ᴀᴅᴍɪɴs ᴏɴʟʏ]
+
+/speed or /playback : ғᴏʀ ᴀᴅᴊᴜsᴛɪɴɢ ᴛʜᴇ ᴀᴜᴅɪᴏ ᴘʟᴀʏʙᴀᴄᴋ sᴘᴇᴇᴅ ɪɴ ɢʀᴏᴜᴘ.
+
+/cspeed or /cplayback : ғᴏʀ ᴀᴅᴊᴜsᴛɪɴɢ ᴛʜᴇ ᴀᴜᴅɪᴏ ᴘʟᴀʏʙᴀᴄᴋ sᴘᴇᴇᴅ ɪɴ ᴄʜᴀɴɴᴇʟ.
+""",
+        
+          reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(text="⬅️ ʙᴀᴄᴋ", callback_data="Music_"),
+                      
+                    ]
+                ]
+            ),
+        )
+    elif query.data == "Music_mode":
+         await query.message.edit_text("music mode text hereeeee"
+ """*» ᴄʜᴀɴɢᴇ ꜱᴇᴛᴛɪɴɢꜱ ᴄᴏᴍᴍᴀɴᴅꜱ «*
+ᴄʜᴀɴɢᴇ ꜱᴇᴛᴛɪɴɢꜱ :
+
+/playmode : ꜰᴏʀ ᴄʜᴀɴɢᴇ ᴘʟᴀʏᴍᴏᴅᴇ ɪɴ ɢʀᴏᴜᴘꜱ ʙᴇᴛᴡᴇᴇɴ ᴍᴇᴍʙᴇʀꜱ ᴀɴᴅ ᴀᴅᴍɪɴꜱ
+
+/msettings : ꜰᴏʀ ᴄʜᴀɴɢᴇ ᴀᴜᴛʜ ᴜꜱᴇʀꜱ ᴀɴᴅ ʟᴀɴɢᴜᴀɢᴇ 
+
+/reload : ʀᴇʟᴏᴀᴅ ᴀᴅᴍɪɴ ᴄᴀᴄʜᴇꜱ
+/mreboot : ʀᴇꜱᴛᴀʀᴛ ʙᴏᴛ ꜰᴏʀ ʏᴏᴜʀ ɢʀᴏᴜᴘ
+/language : ᴄʜᴀɴɢᴇ ʟᴀɴɢᴜᴀɢᴇ ꜰᴏʀ ʏᴏᴜʀ ᴄʜᴀᴛ [Same : /lang /setlang ]
+/vclogger : ᴅɪꜱᴀʙʟᴇ/ᴇɴᴀʙʟᴇ ᴠɪᴅᴇᴏ ᴄʜᴀᴛ ʟᴏɢꜱ
+""",
+          reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(text="⬅️ ʙᴀᴄᴋ", callback_data="Music_"),
+                      
+                    ]
+                ]
+            ),
+        )
+    elif query.data == "Music_other":
+        await query.message.edit_text("music other text here"
+"""*» ᴄᴏᴍᴍᴀɴᴅꜱ «*
+ᴊᴜsᴛ ᴀᴅᴅ *ᴄ* ɪɴ ᴛʜᴇ sᴛᴀʀᴛɪɴɢ ᴏғ ᴛʜᴇ ᴄᴏᴍᴍᴀɴᴅs ᴛᴏ ᴜsᴇ ᴛʜᴇᴍ ғᴏʀ ᴄʜᴀɴɴᴇʟ.
+
+[Only for SUDO] :
+/broadcast [MSG or reply to MSG] : Broadcast a MSG. 
+[>> details /broadcastinfo]
+/blacklistchat [ChatID] : Blacklist a chat.
+/whitelistchat [ChatID] : Whitelist a chat.
+/blacklistedchat : List of Blacklisted chats.
+/block [Username or Reply] : Block the user access.
+/unblock [Username or Reply] : Unblock the user access.
+/blockedusers : List of blocked users.
+/logs : Get logs of bot.
+/logger [on/off] : Logging activities in log group.
+/maintenance [on/off] : Maintenance mode of bot...
+/addfreechat : free from autoend/autoleave 
+/rmfreechat : remove a free chat
+/freechats : list of free chats 
+/setassist chat_id assist_id : renew assistant
+/sysinfo : system realtime info
+/spt : speedtest
+/getinfo [ID] : info of a chat 
+/eval : evaluate a code
+/gban /ungban /forcegban & /gbanlist are generic
+/msbanall  ok: ban all
+/activevc: list of active vc
+/autorestart: automatic restart 4am(ist)
+more cmd get help with cmd /autoend, /autoleave, /directplay
+""",                                
+        
+          reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(text="⬅️ ʙᴀᴄᴋ", callback_data="Music_"),
+                      
+                    ]
+                ]
+            ),
+        )
 
 async def ai_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
@@ -432,9 +797,87 @@ async def more_aihandlered_callback(update: Update, context: ContextTypes.DEFAUL
             ),
         )
 
+async def main_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    if query.data=="basic_command":
+        await query.message.edit_text("""Bᴀsɪᴄ Cᴏᴍᴍᴀɴᴅs.
+👮🏻Aᴠᴀɪʟᴀʙʟᴇ ᴛᴏ Aᴅᴍɪɴs & Mᴏᴅᴇʀᴀᴛᴏʀs.
+🕵🏻Aᴠᴀɪʟᴀʙʟᴇ ᴛᴏ Aᴅᴍɪɴs.
+
+👮🏻 /reload ᴜᴘᴅᴀᴛᴇs ᴛʜᴇ Aᴅᴍɪɴs ʟɪsᴛ ᴀɴᴅ ᴛʜᴇɪʀ ᴘʀɪᴠɪʟᴇɢᴇs.
+🕵🏻 /settings ʟᴇᴛs ʏᴏᴜ ᴍᴀɴᴀɢᴇ ᴀʟʟ ᴛʜᴇ Bᴏᴛ sᴇᴛᴛɪɴɢs ɪɴ ᴀ ɢʀᴏᴜᴘ.
+👮🏻 /ban ʟᴇᴛs ʏᴏᴜ ʙᴀɴ ᴀ ᴜsᴇʀ ғʀᴏᴍ ᴛʜᴇ ɢʀᴏᴜᴘ ᴡɪᴛʜᴏᴜᴛ ɢɪᴠɪɴɢ ʜɪᴍ ᴛʜᴇ ᴘᴏssɪʙɪʟɪᴛʏ ᴛᴏ Jᴏɪɴ ᴀɢᴀɪɴ ᴜsɪɴɢ ᴛʜᴇ ʟɪɴᴋ ᴏғ ᴛʜᴇ ɢʀᴏᴜᴘ.
+👮🏻 /mute ᴘᴜᴛs ᴀ ᴜsᴇʀ ɪɴ ʀᴇᴀᴅ-ᴏɴʟʏ ᴍᴏᴅᴇ. Hᴇ ᴄᴀɴ ʀᴇᴀᴅ ʙᴜᴛ ʜᴇ ᴄᴀɴ'ᴛ sᴇɴᴅ ᴀɴʏ ᴍᴇssᴀɢᴇs.
+👮🏻 /kick ʙᴀɴs ᴀ ᴜsᴇʀ ғʀᴏᴍ ᴛʜᴇ ɢʀᴏᴜᴘ, ɢɪᴠɪɴɢ ʜɪᴍ ᴛʜᴇ ᴘᴏssɪʙɪʟɪᴛʏ ᴛᴏ Jᴏɪɴ ᴀɢᴀɪɴ ᴡɪᴛʜ ᴛʜᴇ ʟɪɴᴋ ᴏғ ᴛʜᴇ ɢʀᴏᴜᴘ.
+👮🏻 /unban ʟᴇᴛs ʏᴏᴜ ʀᴇᴍᴏᴠᴇ ᴀ ᴜsᴇʀ ғʀᴏᴍ ɢʀᴏᴜᴘ's ʙʟᴀᴄᴋʟɪsᴛ, ɢɪᴠɪɴɢ ᴛʜᴇᴍ ᴛʜᴇ ᴘᴏssɪʙɪʟɪᴛʏ ᴛᴏ Jᴏɪɴ ᴀɢᴀɪɴ ᴡɪᴛʜ ᴛʜᴇ ʟɪɴᴋ ᴏғ ᴛʜᴇ ɢʀᴏᴜᴘ.
+👮🏻 /info ɢɪᴠᴇs ɪɴғᴏʀᴍᴀᴛɪᴏɴ ᴀʙᴏᴜᴛ ᴀ ᴜsᴇʀ.
+
+◽️ /staff ɢɪᴠᴇs ᴛʜᴇ ᴄᴏᴍᴘʟᴇᴛᴇ Lɪsᴛ ᴏғ ɢʀᴏᴜᴘ Sᴛᴀғғ!.""",parse_mode="Markdown",
+            
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(text="• ʙᴀᴄᴋ •", callback_data="extra_command_handler")
+                    ]
+                ]
+            ),
+            )
+    elif query.data=="expert_command":
+        await query.message.edit_text("""Exᴘᴇʀᴛ ᴄᴏᴍᴍᴀɴᴅs
+
+👥 Aᴠᴀɪʟᴀʙʟᴇ ᴛᴏ ᴀʟʟ ᴜsᴇʀs
+👮🏻 Aᴠᴀɪʟᴀʙʟᴇ ᴛᴏ Aᴅᴍɪɴs & Mᴏᴅᴇʀᴀᴛᴏʀs.
+🕵🏻 Aᴠᴀɪʟᴀʙʟᴇ ᴛᴏ Aᴅᴍɪɴs
+
+🕵🏻  /unbanall ᴍᴇᴍʙᴇʀs ғʀᴏᴍ ʏᴏᴜʀ ɢʀᴏᴜᴘs
+👮🏻  /unmuteall ᴜɴᴍᴜᴛᴇᴀʟʟ ᴀʟʟ ғʀᴏᴍ Yᴏᴜʀ Gʀᴏᴜᴘ
+
+Pɪɴɴᴇᴅ Mᴇssᴀɢᴇs
+🕵🏻  /pin [ᴍᴇssᴀɢᴇ] sᴇɴᴅs ᴛʜᴇ ᴍᴇssᴀɢᴇ ᴛʜʀᴏᴜɢʜ ᴛʜᴇ Bᴏᴛ ᴀɴᴅ ᴘɪɴs ɪᴛ.
+🕵🏻  /pin ᴘɪɴs ᴛʜᴇ ᴍᴇssᴀɢᴇ ɪɴ ʀᴇᴘʟʏ
+🕵🏻  /unpin ʀᴇᴍᴏᴠᴇs ᴛʜᴇ ᴘɪɴɴᴇᴅ ᴍᴇssᴀɢᴇ.
+🕵🏻  /adminlist ʟɪsᴛ ᴏғ ᴀʟʟ ᴛʜᴇ sᴘᴇᴄɪᴀʟ ʀᴏʟᴇs ᴀssɪɢɴᴇᴅ ᴛᴏ ᴜsᴇʀs.
+
+◽️ /bug: (ᴍᴇssᴀɢᴇ) ᴛᴏ Sᴇɴᴅ ᴍᴇssᴀɢᴇ ᴀɴᴅ ᴇʀʀᴏʀs ᴡʜɪᴄʜ ʏᴏᴜ ᴀʀᴇ ғᴀᴄɪɴɢ 
+ᴇx: /bug Hᴇʏ Tʜᴇʀᴇ Is ᴀ Sᴏᴍᴇᴛʜɪɴɢ Eʀʀᴏʀ @username ᴏғ ᴄʜᴀᴛ! .""",parse_mode="Markdown",
+            
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(text="• ʙᴀᴄᴋ •", callback_data="extra_command_handler")
+                    ]
+                ]
+            ),
+            )
+    elif query.data=="advanced_command":
+        await query.message.edit_text("""Aᴅᴠᴀɴᴄᴇᴅ Cᴏᴍᴍᴀɴᴅs
+
+👮🏻Aᴠᴀɪʟᴀʙʟᴇ ᴛᴏ Aᴅᴍɪɴs & Mᴏᴅᴇʀᴀᴛᴏʀs.
+🕵🏻Aᴠᴀɪʟᴀʙʟᴇ ᴛᴏ Aᴅᴍɪɴs.
+🛃 Aᴠᴀɪʟᴀʙʟᴇ ᴛᴏ Aᴅᴍɪɴs & Cʟᴇᴀɴᴇʀs
+
+Wᴀʀɴ Mᴀɴᴀɢᴇᴍᴇɴᴛ
+👮🏻  /warn ᴀᴅᴅs ᴀ ᴡᴀʀɴ ᴛᴏ ᴛʜᴇ ᴜsᴇʀ
+👮🏻  /unwarn ʀᴇᴍᴏᴠᴇs ᴀ ᴡᴀʀɴ ᴛᴏ ᴛʜᴇ ᴜsᴇʀ
+👮🏻  /warns ʟᴇᴛs ʏᴏᴜ sᴇᴇ ᴀɴᴅ ᴍᴀɴᴀɢᴇ ᴜsᴇʀ ᴡᴀʀɴs
+
+🛃  /del ᴅᴇʟᴇᴛᴇs ᴛʜᴇ sᴇʟᴇᴄᴛᴇᴅ ᴍᴇssᴀɢᴇ
+🛃  /purge ᴅᴇʟᴇᴛᴇs ғʀᴏᴍ ᴛʜᴇ sᴇʟᴇᴄᴛᴇᴅ ᴍᴇssᴀɢᴇ.""",parse_mode="Markdown",
+            
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(text="• ʙᴀᴄᴋ •", callback_data="extra_command_handler")
+                    ]
+                ]
+            ),
+            )
+
 
 async def anime_command_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
+    
+    
     if query.data == "anime_command_handler":
         await query.answer()
         await query.message.edit_text(
@@ -470,6 +913,7 @@ async def anime_command_callback(update: Update, context: ContextTypes.DEFAULT_T
             ),
             parse_mode="Markdown",  # Added this line to explicitly specify Markdown parsing
         )
+    
 
 
 async def genshin_command_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -704,9 +1148,10 @@ async def Miko_about_callback(update: Update, context: ContextTypes.DEFAULT_TYPE
         )
     elif query.data == "Miko_back":
         first_name = update.effective_user.first_name
+        button=private_panel()
         await query.message.edit_text(
             PM_START_TEXT.format(escape_markdown(first_name), BOT_NAME),
-            reply_markup=InlineKeyboardMarkup(START_BTN),
+            reply_markup=InlineKeyboardMarkup(button),
             parse_mode=ParseMode.MARKDOWN,
             disable_web_page_preview=True,
         )
@@ -962,6 +1407,8 @@ def main():
     function(CommandHandler("start", start))
 
     function(CommandHandler("help", extra_command_handlered))
+    function(CommandHandler("music", Music_button))
+    function(CallbackQueryHandler(Music_about_callback, pattern=r"Music_",))
     function(CallbackQueryHandler(help_button, pattern=r"help_.*"))
 
     function(CommandHandler("settings", get_settings))
@@ -972,6 +1419,7 @@ def main():
     function(MessageHandler(filters.StatusUpdate.MIGRATE, migrate_chats))
     function(CallbackQueryHandler(ai_handler_callback, pattern=r"ai_handler"))
     function(CallbackQueryHandler(more_ai_handler_callback, pattern=r"more_ai_handler"))
+    function(CallbackQueryHandler(main_callback, pattern=r".*_command$"))
     function(CallbackQueryHandler(ai_command_callback, pattern="ai_command_handler"))
     function(
         CallbackQueryHandler(anime_command_callback, pattern="anime_command_handler")

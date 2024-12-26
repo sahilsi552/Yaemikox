@@ -641,5 +641,5 @@ __help__ = """
 ➠ *mmf and getsticker only support photo and normal stickers for now*.
 """
 
-__mod_name__ = "STICKERS"
+__mod_name__ = "ꜱᴛɪᴄᴋᴇʀꜱ"
 # <================================================ END =======================================================>

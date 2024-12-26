@@ -154,7 +154,7 @@ __help__ = """
 » /clearrules: Clear the rules for this chat.
 """
 
-__mod_name__ = "RULES"
+__mod_name__ = "ʀᴜʟᴇꜱ"
 
 # <================================================ HANDLER =======================================================>
 function(

@@ -122,12 +122,7 @@ async def chatbot(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
         Message = message.text
         await bot.send_chat_action(chat_id, action="typing")
-        kukiurl = requests.get(
-            f"http://api.brainshop.ai/get?bid=176809&key=lbMN8CXTGzhn1NKG&uid=[user]&msg={Message}"
-        )
-
-        Kuki = json.loads(kukiurl.text)
-        kuki = Kuki["cnt"]
+        kuki=requests.get("https://sugoi-api.vercel.app/chat?msg="+message.text).json()["response"]
 
         await asyncio.sleep(0.3)
         await message.reply_text(kuki)
@@ -157,7 +152,7 @@ __help__ = """
 » /chatbot: shows chatbot panel.
 """
 
-__mod_name__ = "CHATBOT"
+__mod_name__ = "ᴄʜᴀᴛʙᴏᴛ"
 
 
 # <================================================ HANDLER =======================================================>

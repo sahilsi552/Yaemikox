@@ -1,8 +1,7 @@
 from pyrogram import filters
 from pyrogram.enums import ParseMode
+from variables import Config
 
-# Chat IDs where bug reports should be sent
-BUG_REPORT_CHAT_IDS = [-1001989832800, -1001823656633]
 
 from Mikobot import app
 
@@ -34,7 +33,7 @@ def bug_command_handler(client, message):
 
         # Send the report message
         client.send_message(
-            BUG_REPORT_CHAT_IDS[0], report_message, parse_mode=ParseMode.MARKDOWN
+            Config.SUPPORT_ID, report_message, parse_mode=ParseMode.MARKDOWN
         )
     else:
         # If not a reply, send a message to reply with /bug command to report a bug

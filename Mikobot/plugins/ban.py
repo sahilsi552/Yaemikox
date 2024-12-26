@@ -728,7 +728,7 @@ function(ROAR_HANDLER)
 function(KICKME_HANDLER)
 function(BAN_CALLBACK_HANDLER)
 
-__mod_name__ = "BAN"
+__mod_name__ = "ʙᴀɴ"
 __handlers__ = [
     BAN_HANDLER,
     TEMPBAN_HANDLER,

@@ -183,7 +183,7 @@ __help__ = """
 » /fsub - to review the current settings.
 » /fsub off - to deactivate the force subscription feature.
 
-➠ *If you disable fsub, you'll need to set it up again for it to take effect. Utilize /fsub channel\_username.*
+➠ *If you disable fsub, you'll need to set it up again for it to take effect. Utilize /fsub channel_username.*
 """
-__mod_name__ = "F-SUB"
+__mod_name__ = "ꜰ-ꜱᴜʙ"
 # <================================================ END =======================================================>

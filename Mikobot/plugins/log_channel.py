@@ -222,23 +222,7 @@ if is_module_loaded(FILENAME):
 
     # <=================================================== HELP ====================================================>
 
-    __help__ = """
-➠ *Admins Only*:
 
-» /logchannel: Get log channel info.
-
-» /setlog: Set the log channel.
-
-» /unsetlog: Unset the log channel.
-
-➠ *Setting the log channel is done by:*
-➠ *Adding the bot to the desired channel (as an admin!)*
-
-» Sending /setlog in the channel
-» Forwarding the /setlog to the group
-"""
-
-    __mod_name__ = "LOG-SET"
 
     # <================================================ HANDLER =======================================================>
     function(CommandHandler("logchannel", logging, block=False))
@@ -255,3 +239,20 @@ else:
 
 
 # <================================================ END =======================================================>
+__help__ = """
+➠ *Admins Only*:
+
+» /logchannel: Get log channel info.
+
+» /setlog: Set the log channel.
+
+» /unsetlog: Unset the log channel.
+
+➠ *Setting the log channel is done by:*
+➠ *Adding the bot to the desired channel (as an admin!)*
+
+» Sending /setlog in the channel
+» Forwarding the /setlog to the group
+"""
+
+__mod_name__ = "ʟᴏɢ-ꜱᴇᴛ"

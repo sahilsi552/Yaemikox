@@ -2464,7 +2464,7 @@ async def fed_user_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # <=================================================== HELP ====================================================>
 
 
-__mod_name__ = "FEDS"
+__mod_name__ = "ꜰᴇᴅꜱ"
 
 __help__ = """
 ➠ *Everything is fun, until a spammer starts entering your group, and you have to block it. Then you need to start banning more, and more, and it hurts*.
