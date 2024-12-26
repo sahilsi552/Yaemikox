@@ -279,7 +279,12 @@ async def extra_command_handlered(update: Update, context: ContextTypes.DEFAULT_
         parse_mode="Markdown",
     )
     else:
-        await update.message.reply_text("open in private",url=f"https://t.me/{BOT_USERNAME}?start=mainhelp")
+        await update.message.reply_text("Contact me in PM for help!",reply_markup=InlineKeyboardMarkup(
+            [
+                [InlineKeyboardButton("Click me for help",url=f"https://t.me/{BOT_USERNAME}?start=mainhelp")
+            ]
+            ]
+        ))
 
 
 async def extra_command_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
