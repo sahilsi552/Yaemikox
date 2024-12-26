@@ -188,7 +188,25 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_chat.type == "private":
         if len(args) >= 1:
             if args[0].lower() == "help":
+                
                 await send_help(update.effective_chat.id, HELP_STRINGS)
+            elif args[0].lower()=="mainhelp":
+                await update.effective_message.reply_text("𝙎𝙚𝙡𝙚𝙘𝙩 𝙩𝙝𝙚 𝙨𝙚𝙘𝙩𝙞𝙤𝙣 𝙩𝙝𝙖𝙩 𝙮𝙤𝙪 𝙬𝙖𝙣𝙩 𝙩𝙤 𝙤𝙥𝙚𝙣",
+        reply_markup=InlineKeyboardMarkup(
+                    [
+                        InlineKeyboardButton("ᴍᴀɴᴀɢᴇᴍᴇɴᴛ", callback_data="help_back"),
+                        InlineKeyboardButton("ᴍᴜꜱɪᴄ", callback_data="Music_"),
+                    ],
+                    [
+                        InlineKeyboardButton("ʙᴀꜱɪᴄ", callback_data="basic_command"),
+                        InlineKeyboardButton("ᴀᴅᴠᴀɴᴄᴇ", callback_data="advanced_command"),
+                    ],
+                    [
+                        InlineKeyboardButton("ᴇxᴘᴇʀᴛ",callback_data="expert_command"),
+                       
+                        InlineKeyboardButton("ʜᴏᴍᴇ", callback_data="Miko_back"),
+                    ],),)
+                
             elif args[0].lower().startswith("ghelp_"):
                 mod = args[0].lower().split("_", 1)[1]
                 if not HELPABLE.get(mod, False):
@@ -254,12 +272,14 @@ async def extra_command_handlered(update: Update, context: ContextTypes.DEFAULT_
     ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
-
-    await update.message.reply_text(
+    if update.effective_chat.type == "private":
+        await update.message.reply_text(
         "𝙎𝙚𝙡𝙚𝙘𝙩 𝙩𝙝𝙚 𝙨𝙚𝙘𝙩𝙞𝙤𝙣 𝙩𝙝𝙖𝙩 𝙮𝙤𝙪 𝙬𝙖𝙣𝙩 𝙩𝙤 𝙤𝙥𝙚𝙣",
         reply_markup=reply_markup,
         parse_mode="Markdown",
     )
+    else:
+        await update.message.reply_text("open in private",url=f"https://t.me/{BOT_USERNAME}?start=mainhelp")
 
 
 async def extra_command_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
