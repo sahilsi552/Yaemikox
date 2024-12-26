@@ -1,4 +1,4 @@
-# https://github.com/Infamous-Hydra/YaeMiko
+ # https://github.com/Infamous-Hydra/YaeMiko
 # https://github.com/Team-ProjectCodeX
 
 
@@ -20,17 +20,17 @@ class Config(object):
     # <================================================ REQUIRED ======================================================>
     # Telegram API configuration
     API_ID = 20892750 # Get this value from my.telegram.org/apps
-    API_HASH = ""
+    API_HASH = "b0241677a3a2958667e93fa9a632c350"
 
     # Database configuration (PostgreSQL)
-    DATABASE_URL = ""
+    DATABASE_URL = "postgres://txwnszsd:Po-qBx-NkJvEg5Lo1kYzgihpL7W7o29d@kandula.db.elephantsql.com/txwnszsd"
 
     # Event logs chat ID and message dump chat ID
     EVENT_LOGS = -1002334908846
     MESSAGE_DUMP = -1002334908846
 
     # MongoDB configuration
-    MONGO_DB_URI = ""
+    MONGO_DB_URI = "mongodb+srv://sahilji:sahilji@cluster0.lew4q.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
     # Support chat and support ID
     SUPPORT_CHAT = "sonamsupport"
@@ -40,7 +40,7 @@ class Config(object):
     DB_NAME = "merisa"
 
     # Bot token
-    TOKEN = ""  # Get bot token from @BotFather on Telegram
+    TOKEN = "8112810849:AAEjYD6FmaZfuYikjKnwP50NKBuGopr0AGE"  # Get bot token from @BotFather on Telegram
 
     # Owner's Telegram user ID (Must be an integer)
     OWNER_ID = 7785947978
