@@ -36,7 +36,7 @@
 Show your support by starring the repository. Your encouragement is vital for the project's growth.
 
 **Fork 🍴 the Repository:**
-Before making any deployments or modifications, fork the repository. This ensures that you have your own copy to work on independently. 
+Before making any deployments or modifications, fork the repository. This ensures that you have your own copy to work on independently.
 
 Your contributions drive the project forward. Thank you for your support!
 
@@ -63,6 +63,7 @@ sudo apt install tmux && tmux           # 7. Install Tmux (Optional)
 python3 -m Mikobot         # 8. Run the Bot
 # Press `Ctrl+b` and then `d` to exit Tmux Session
 ```
+
 ━━━━━━━━━━━━━━━━━━━━
 
 <h1 align="center">Deploy on Heroku</h1>
@@ -70,7 +71,7 @@ python3 -m Mikobot         # 8. Run the Bot
 <p align="center">Click the button below to deploy YAE ダ MIKO on Heroku and enjoy its enhanced features and user-friendly interface!</p>
 
 <p align="center">
-    <a href="https://heroku.com/deploy?template=https://github.com/Infamous-Hydra/YaeMiko">
+    <a href="https://dashboard.heroku.com/new?template=https://github.com/Noob-mukesh/File-Store">
         <img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy">
     </a>
 </p>
@@ -78,12 +79,13 @@ python3 -m Mikobot         # 8. Run the Bot
 <h1 align="center"><img src="./.github/yae-miko.gif" /></h1>
 
 ## CREDITS
-+ [Karma](https://github.com/Infamous-Hydra)
-+ [PaulSonOfLars](https://github.com/PaulSonOfLars)
-+ [lostb053](https://github.com/lostb053) > Anime
-+ [TheHamkerCat](https://github.com/TheHamkerCat) > Python-Arq
-+ [ProjectCodeX](https://github.com/Team-ProjectCodeX) > Modules
 
-Others in the commit history and files. If anything is missing, feel free to  [![gmail](https://img.shields.io/badge/mail-Here-red?style=for-the-badge&logo=gmail)](mailto:makandu2054@gmail.com)  or submit a pull request.
+- [Karma](https://github.com/Infamous-Hydra)
+- [PaulSonOfLars](https://github.com/PaulSonOfLars)
+- [lostb053](https://github.com/lostb053) > Anime
+- [TheHamkerCat](https://github.com/TheHamkerCat) > Python-Arq
+- [ProjectCodeX](https://github.com/Team-ProjectCodeX) > Modules
+
+Others in the commit history and files. If anything is missing, feel free to [![gmail](https://img.shields.io/badge/mail-Here-red?style=for-the-badge&logo=gmail)](mailto:makandu2054@gmail.com) or submit a pull request.
 
 > Try this bot [@YaeMiko_Roxbot](https://t.me/YaeMiko_Roxbot); it's made with this repository for demonstration purposes.

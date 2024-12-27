@@ -12,7 +12,7 @@ import telethon
 from pyrogram import filters
 from pyrogram.types import InlineKeyboardMarkup, Message
 
-from Infamous.karma import ALIVE_ANIMATION, ALIVE_BTN
+from Infamous.karma import HEY_IMG, ALIVE_BTN
 from Mikobot import BOT_NAME, app
 
 # <=======================================================================================================>
@@ -41,8 +41,8 @@ async def alive(_, message: Message):
 ➲ **BOT VERSION:** `2.1 Rx`
 ━━━━━━ 🌟✿🌟 ━━━━━━"""
 
-    await message.reply_animation(
-        random.choice(ALIVE_ANIMATION),
+    await message.reply_photo(
+        HEY_IMG,
         caption=caption,
         reply_markup=InlineKeyboardMarkup(ALIVE_BTN),
     )
