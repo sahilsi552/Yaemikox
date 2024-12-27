@@ -1063,27 +1063,27 @@ async def admin_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 __help__ = """
-» /adminlist: List of admins in the chat.
+〄 /adminlist: List of admins in the chat.
 
-➠ *Admins only:*
+❒ *Admins only:*
 
-» /pin: Silently pins the message replied to. Add 'loud' or 'notify' to give notifications to users.
+〄 /pin: Silently pins the message replied to. Add 'loud' or 'notify' to give notifications to users.
 
-» /unpin: Unpins the currently pinned message.
+〄 /unpin: Unpins the currently pinned message.
 
-» /unpinall: Unpins all the pinned messages. Works in topics too (only OWNER can do this).
+〄 /unpinall: Unpins all the pinned messages. Works in topics too (only OWNER can do this).
 
-» /invitelink: Get an invite link.
+〄 /invitelink: Get an invite link.
 
-» /promote: Promotes the user replied to.
+〄 /promote: Promotes the user replied to.
 
-» /fullpromote: FullPromotes the user replied to.
+〄 /fullpromote: FullPromotes the user replied to.
 
-» /demote: Demotes the user replied to.
+〄 /demote: Demotes the user replied to.
 
-» /title <Title here>: Sets a custom title for an admin that the bot promoted.
+〄 /title <Title here>: Sets a custom title for an admin that the bot promoted.
 
-» /admincache: Force refresh the admins list.
+〄 /admincache: Force refresh the admins list.
 """
 
 # <================================================ HANDLER =======================================================>
