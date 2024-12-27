@@ -331,7 +331,6 @@ async def kang_sticker(self: Client, ctx: Message, strings):
                                 emoji=sticker_emoji,
                             )
                         ],
-                        videos=videos,
                     )
                 )
             except PeerIdInvalid:
