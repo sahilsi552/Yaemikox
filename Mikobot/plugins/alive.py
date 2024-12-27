@@ -22,24 +22,23 @@ from Mikobot import BOT_NAME, app
 @app.on_message(filters.command("alive"))
 async def alive(_, message: Message):
     library_versions = {
-        "PTB": telegram.__version__,
-        "TELETHON": telethon.__version__,
-        "PYROGRAM": pyrogram.__version__,
+        "Pᴛʙ": telegram.__version__,
+        "Tᴇʟᴇᴛʜᴏɴ": telethon.__version__,
+        "Pʏʀᴏɢʀᴀᴍ": pyrogram.__version__,
     }
 
     library_versions_text = "\n".join(
-        [f"➲ **{key}:** `{value}`" for key, value in library_versions.items()]
+        [f"❒ **{key}:** `{value}`" for key, value in library_versions.items()]
     )
 
     caption = f"""**HEY, I AM {BOT_NAME}**
 
-━━━━━━ 🌟✿🌟 ━━━━━━
+━━━━ 🌟✿🌟 ━━━━
 
 {library_versions_text}
 
-➲ **PYTHON:** `{version_info[0]}.{version_info[1]}.{version_info[2]}`
-➲ **BOT VERSION:** `2.1 Rx`
-━━━━━━ 🌟✿🌟 ━━━━━━"""
+❒ **PYTHON:** `{version_info[0]}.{version_info[1]}.{version_info[2]}`
+━━━━ 🌟✿🌟 ━━━━"""
 
     await message.reply_photo(
         HEY_IMG,
