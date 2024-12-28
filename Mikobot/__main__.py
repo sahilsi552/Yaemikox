@@ -62,27 +62,27 @@ TELETHON_VERSION = telethon.__version__
 
 # <============================================== FUNCTIONS =========================================================>
 def get_readable_time(seconds: int) -> str:
-    count = 0
-    ping_time = ""
+    if seconds < 0:
+        raise ValueError("Time in seconds must be non-negative.")
+
+    # Time units and their divisors
+    time_units = [(60, "s"), (60, "m"), (24, "h"), (None, "days")]
     time_list = []
-    time_suffix_list = ["s", "m", "h", "days"]
 
-    while count < 4:
-        count += 1
-        remainder, result = divmod(seconds, 60) if count < 3 else divmod(seconds, 24)
-        if seconds == 0 and remainder == 0:
+    for divisor, suffix in time_units:
+        if divisor:
+            seconds, value = divmod(seconds, divisor)
+        else:
+            value = seconds  # Remaining seconds represent days
+
+        if value > 0 or time_list:  # Avoid leading zeros
+            time_list.append(f"{value}{suffix}")
+
+        if seconds == 0:
             break
-        time_list.append(int(result))
-        seconds = int(remainder)
 
-    for x in range(len(time_list)):
-        time_list[x] = str(time_list[x]) + time_suffix_list[x]
-    if len(time_list) == 4:
-        ping_time += time_list.pop() + ", "
-
-    time_list.reverse()
-    ping_time += ":".join(time_list)
-
+    # Reverse the time_list for natural ordering and join elements
+    ping_time = ", ".join(time_list[::-1])
     return ping_time
 
 
