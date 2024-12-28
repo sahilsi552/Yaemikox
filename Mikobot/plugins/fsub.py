@@ -2,6 +2,7 @@
 from telethon import Button, events, types
 from telethon.errors import ChatAdminRequiredError, UserNotParticipantError
 from telethon.tl.functions.channels import GetParticipantRequest
+from telethon.tl.types import ChannelParticipantAdmin, ChannelParticipantCreator
 
 from Database.mongodb import fsub_db as db
 from Mikobot import BOT_ID
@@ -28,18 +29,18 @@ def fsk_ck(**args):
 
 # Helper functions
 async def is_admin(chat_id, user_id):
+    """Check if a user is an admin in a chat."""
     try:
-        p = await tbot(GetParticipantRequest(chat_id, user_id))
+        participant = await tbot(GetParticipantRequest(chat_id, user_id))
     except UserNotParticipantError:
         return False
-    return isinstance(
-        p.participant, (types.ChannelParticipantAdmin, types.ChannelParticipantCreator)
-    )
+    return isinstance(participant.participant, (ChannelParticipantAdmin, ChannelParticipantCreator))
 
 
 async def participant_check(channel, user_id):
+    """Check if a user is a participant in a channel."""
     try:
-        await tbot(GetParticipantRequest(channel, int(user_id)))
+        await tbot(GetParticipantRequest(channel, user_id))
         return True
     except UserNotParticipantError:
         return False
@@ -85,14 +86,14 @@ async def force_subscribe(event):
     else:
         try:
             channel_entity = await event.client.get_entity(channel)
-        except:
+        except Exception:
             return await event.reply("Invalid channel username provided.")
 
         channel = channel_entity.username
         try:
             if not channel_entity.broadcast:
                 return await event.reply("That's not a valid channel.")
-        except:
+        except Exception:
             return await event.reply("That's not a valid channel.")
 
         if not await participant_check(channel, BOT_ID):
@@ -130,18 +131,22 @@ async def force_subscribe_new_message(e):
             Button.inline("Unmute Me", data=f"fs_{e.sender_id}"),
         ]
 
-        txt = f'<b><a href="tg://user?id={e.sender_id}">{e.sender.first_name}</a></b>, you have <b>not subscribed</b> to our <b><a href="t.me/{channel}">channel</a></b> yet. Please <b><a href="t.me/{channel}">join</a></b> and press the button below to unmute yourself.'
+        txt = (
+            f'<b><a href="tg://user?id={e.sender_id}">{e.sender.first_name}</a></b>, '
+            f'you have <b>not subscribed</b> to our <b><a href="t.me/{channel}">channel</a></b> yet. '
+            f'Please <b><a href="t.me/{channel}">join</a></b> and press the button below to unmute yourself.'
+        )
         await e.reply(txt, buttons=buttons, parse_mode="html", link_preview=False)
         await e.client.edit_permissions(e.chat_id, e.sender_id, send_messages=False)
 
 
 # Inline query handler
-@fsk_ck(pattern=r"fs(\_(.*))")
+@fsk_ck(pattern=r"fs_(.*)")
 async def unmute_force_subscribe(event):
     """Handle inline query for unmuting force subscribe."""
-    user_id = int(((event.pattern_match.group(1)).decode()).split("_", 1)[1])
+    user_id = int(event.pattern_match.group(1))
 
-    if not event.sender_id == user_id:
+    if event.sender_id != user_id:
         return await event.answer("This is not meant for you.", alert=True)
 
     channel = db.fs_settings(event.chat_id)["channel"]
@@ -166,7 +171,6 @@ async def unmute_force_subscribe(event):
 
 # <=================================================== HELP ====================================================>
 
-
 __help__ = """
 ➠ *Dazai has the capability to hush members who haven't yet subscribed to your channel until they decide to hit that subscribe button.*
 ➠ *When activated, I'll silence those who are not subscribed and provide them with an option to unmute. Once they click the button, I'll lift the mute.*
@@ -186,4 +190,3 @@ __help__ = """
 ➠ *If you disable fsub, you'll need to set it up again for it to take effect. Utilize /fsub channel_username.*
 """
 __mod_name__ = "ꜰ-ꜱᴜʙ"
-# <================================================ END =======================================================>
