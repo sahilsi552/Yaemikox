@@ -8,7 +8,7 @@ from telegram import MessageEntity, Update
 from telegram.error import BadRequest
 from telegram.ext import ContextTypes, MessageHandler, filters
 
-from Database.sql import afk_sql as sql
+from Database.mongodb import afk_db as mongo
 from Mikobot import LOGGER, function
 from Mikobot.plugins.disable import DisableAbleCommandHandler, DisableAbleMessageHandler
 from Mikobot.plugins.users import get_user_id
@@ -39,7 +39,7 @@ async def afk(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         reason = ""
 
-    sql.set_afk(update.effective_user.id, reason)
+    mongo.set_afk(update.effective_user.id, reason)
     fname = update.effective_user.first_name
     try:
         if reason:
@@ -62,12 +62,12 @@ async def no_longer_afk(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not user:  # ignore channels
         return
 
-    if sql.is_afk(user.id):
-        afk_user = sql.check_afk_status(user.id)
+    if mongo.is_afk(user.id):
+        afk_user = mongo.check_afk_status(user.id)
 
-        time = humanize.naturaldelta(datetime.now() - afk_user.time)
+        time = humanize.naturaldelta(datetime.now() - afk_user["time"])
 
-    res = sql.rm_afk(user.id)
+    res = mongo.rm_afk(user.id)
     if res:
         if message.new_chat_members:  # dont say msg
             return
@@ -88,8 +88,8 @@ async def no_longer_afk(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 + f"\n\nYou were AFK for: <code>{time}</code>",
                 parse_mode="html",
             )
-        except:
-            return
+        except Exception as e:
+            print(e)
 
 
 async def reply_afk(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -151,8 +151,8 @@ async def check_afk(
     fst_name: str,
     userc_id: int,
 ):
-    if sql.is_afk(user_id):
-        user = sql.check_afk_status(user_id)
+    if mongo.is_afk(user_id):
+        user = mongo.check_afk_status(user_id)
 
         if int(userc_id) == int(user_id):
             return

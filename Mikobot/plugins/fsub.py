@@ -181,7 +181,7 @@ __help__ = """
 ➠ Designate me as an admin in your channel
 
 ➠ *Commands*
-» /fsub channel\_username - to initiate and customize settings for the channel.
+» /fsub channel_username - to initiate and customize settings for the channel.
 
 ➠ *Kick things off with...*
 » /fsub - to review the current settings.
@@ -189,4 +189,4 @@ __help__ = """
 
 ➠ *If you disable fsub, you'll need to set it up again for it to take effect. Utilize /fsub channel_username.*
 """
-__mod_name__ = "ꜰ-ꜱᴜʙ"
+__mod_name__ = "F-ꜱᴜʙ"

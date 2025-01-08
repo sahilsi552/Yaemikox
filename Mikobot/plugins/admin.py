@@ -28,7 +28,6 @@ from Mikobot.plugins.log_channel import loggable
 
 # <================================================ FUNCTION =======================================================>
 @connection_status
-@loggable
 @check_admin(permission="can_promote_members", is_both=True)
 async def promote(update: Update, context: ContextTypes.DEFAULT_TYPE):
     bot = context.bot
@@ -128,7 +127,6 @@ async def promote(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 @connection_status
-@loggable
 @check_admin(permission="can_promote_members", is_both=True)
 async def fullpromote(update: Update, context: ContextTypes.DEFAULT_TYPE):
     bot = context.bot

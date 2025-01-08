@@ -118,7 +118,6 @@ async def unmute(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
                 can_pin_messages=True,
                 can_send_polls=True,
                 can_change_info=True,
-                can_send_media_messages=True,
                 can_send_other_messages=True,
                 can_add_web_page_previews=True,
             )
@@ -248,5 +247,5 @@ function(MUTE_HANDLER)
 function(UNMUTE_HANDLER)
 function(TEMPMUTE_HANDLER)
 
-__mod_name__ = "ᴍᴜᴛᴇ"
+__mod_name__ = "Mᴜᴛᴇ"
 __handlers__ = [MUTE_HANDLER, UNMUTE_HANDLER, TEMPMUTE_HANDLER]

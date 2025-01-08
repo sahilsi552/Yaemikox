@@ -28,9 +28,9 @@ from telegram.ext import (
 )
 from telegram.helpers import escape_markdown, mention_html, mention_markdown
 
-import Database.sql.welcome_sql as sql
+import Database.mongodb.welcome_db as mongo
 from Database.mongodb.toggle_mongo import dwelcome_off, dwelcome_on, is_dwelcome_on
-from Database.sql.global_bans_sql import is_user_gbanned
+from Database.mongodb.global_ban import is_user_gbanned
 from Infamous.temp import temp
 from Mikobot import ALLOW_CHATS
 from Mikobot import DEV_USERS
@@ -57,14 +57,14 @@ VALID_WELCOME_FORMATTERS = [
 ]
 
 ENUM_FUNC_MAP = {
-    sql.Types.TEXT.value: dispatcher.bot.send_message,
-    sql.Types.BUTTON_TEXT.value: dispatcher.bot.send_message,
-    sql.Types.STICKER.value: dispatcher.bot.send_sticker,
-    sql.Types.DOCUMENT.value: dispatcher.bot.send_document,
-    sql.Types.PHOTO.value: dispatcher.bot.send_photo,
-    sql.Types.AUDIO.value: dispatcher.bot.send_audio,
-    sql.Types.VOICE.value: dispatcher.bot.send_voice,
-    sql.Types.VIDEO.value: dispatcher.bot.send_video,
+    mongo.Types.TEXT.value: dispatcher.bot.send_message,
+    mongo.Types.BUTTON_TEXT.value: dispatcher.bot.send_message,
+    mongo.Types.STICKER.value: dispatcher.bot.send_sticker,
+    mongo.Types.DOCUMENT.value: dispatcher.bot.send_document,
+    mongo.Types.PHOTO.value: dispatcher.bot.send_photo,
+    mongo.Types.AUDIO.value: dispatcher.bot.send_audio,
+    mongo.Types.VOICE.value: dispatcher.bot.send_voice,
+    mongo.Types.VIDEO.value: dispatcher.bot.send_video,
 }
 
 VERIFIED_USER_WAITLIST = {}
@@ -72,12 +72,12 @@ VERIFIED_USER_WAITLIST = {}
 
 # <================================================ TEMPLATE WELCOME FUNCTION =======================================================>
 async def circle(pfp, size=(259, 259)):
-    pfp = pfp.resize(size, Image.ANTIALIAS).convert("RGBA")
+    pfp = pfp.resize(size, Image.LANCZOS).convert("RGBA")
     bigsize = (pfp.size[0] * 3, pfp.size[1] * 3)
     mask = Image.new("L", bigsize, 0)
     draw = ImageDraw.Draw(mask)
     draw.ellipse((0, 0) + bigsize, fill=255)
-    mask = mask.resize(pfp.size, Image.ANTIALIAS)
+    mask = mask.resize(pfp.size, Image.LANCZOS)
     mask = ImageChops.darker(mask, pfp.split()[-1])
     pfp.putalpha(mask)
     return pfp
@@ -94,29 +94,37 @@ async def draw_multiple_line_text(image, text, font, text_start_height):
             ((image_width - line_width) // 2, y_text), line, font=font, fill="black"
         )
         y_text += line_height
-
-
+        
 async def welcomepic(pic, user, chat, user_id):
     user = unidecode.unidecode(user)
     background = Image.open("Extra/bgg.jpg")
     background = background.resize(
-        (background.size[0], background.size[1]), Image.ANTIALIAS
+        (background.size[0], background.size[1]), Image.LANCZOS
     )
+    
     pfp = Image.open(pic).convert("RGBA")
     pfp = await circle(pfp, size=(259, 259))
+    
     pfp_x = 55
     pfp_y = (background.size[1] - pfp.size[1]) // 2 + 38
+    
     draw = ImageDraw.Draw(background)
     font = ImageFont.truetype("Extra/Calistoga-Regular.ttf", 42)
-    text_width, text_height = draw.textsize(f"{user} [{user_id}]", font=font)
+    
+    # Updated to use textbbox for text dimensions
+    text_bbox = draw.textbbox((0, 0), f"{user} [{user_id}]", font=font)
+    text_width = text_bbox[2] - text_bbox[0]  # x2 - x1
+    text_height = text_bbox[3] - text_bbox[1]  # y2 - y1
+    
     text_x = 20
     text_y = background.height - text_height - 20 - 25
     draw.text((text_x, text_y), f"{user} [{user_id}]", font=font, fill="white")
+    
     background.paste(pfp, (pfp_x, pfp_y), pfp)
     welcome_image_path = f"downloads/welcome_{user_id}.png"
     background.save(welcome_image_path)
+    
     return welcome_image_path
-
 
 @app.on_chat_member_updated(ft.group)
 async def member_has_joined(client, member: ChatMemberUpdated):
@@ -209,7 +217,7 @@ async def disable_welcome(_, message: Message):
 # <================================================ NORMAL WELCOME FUNCTION =======================================================>
 async def send(update: Update, message, keyboard, backup_message):
     chat = update.effective_chat
-    cleanserv = sql.clean_service(chat.id)
+    cleanserv = mongo.clean_service(chat.id)
     reply = update.effective_message.message_id
     if cleanserv:
         try:
@@ -316,9 +324,9 @@ async def new_member(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     msg = update.effective_message
 
-    should_welc, cust_welcome, cust_content, welc_type = sql.get_welc_pref(chat.id)
-    welc_mutes = sql.welcome_mutes(chat.id)
-    human_checks = sql.get_human_checks(user.id, chat.id)
+    should_welc, cust_welcome, cust_content, welc_type = mongo.get_welc_pref(chat.id)
+    welc_mutes = mongo.welcome_mutes(chat.id)
+    human_checks = mongo.get_human_checks(user.id, chat.id)
 
     new_members = update.effective_message.new_chat_members
 
@@ -343,7 +351,7 @@ async def new_member(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         if should_welc:
             reply = update.message.message_id
-            cleanserv = sql.clean_service(chat.id)
+            cleanserv = mongo.clean_service(chat.id)
             if cleanserv:
                 try:
                     await dispatcher.bot.delete_message(
@@ -438,18 +446,18 @@ async def new_member(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 continue
 
             else:
-                buttons = sql.get_welc_buttons(chat.id)
+                buttons = mongo.get_welc_buttons(chat.id)
                 keyb = build_keyboard(buttons)
 
-                if welc_type not in (sql.Types.TEXT, sql.Types.BUTTON_TEXT):
+                if welc_type not in (mongo.Types.TEXT, mongo.Types.BUTTON_TEXT):
                     media_wel = True
 
                 first_name = new_mem.first_name or "PersonWithNoName"
 
                 if cust_welcome:
-                    if cust_welcome == sql.DEFAULT_WELCOME:
+                    if cust_welcome == mongo.DEFAULT_WELCOME:
                         cust_welcome = random.choice(
-                            sql.DEFAULT_WELCOME_MESSAGES,
+                            mongo.DEFAULT_WELCOME_MESSAGES,
                         ).format(first=escape_markdown(first_name))
 
                     if new_mem.last_name:
@@ -481,12 +489,12 @@ async def new_member(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     )
 
                 else:
-                    res = random.choice(sql.DEFAULT_WELCOME_MESSAGES).format(
+                    res = random.choice(mongo.DEFAULT_WELCOME_MESSAGES).format(
                         first=escape_markdown(first_name),
                     )
                     keyb = []
 
-                backup_message = random.choice(sql.DEFAULT_WELCOME_MESSAGES).format(
+                backup_message = random.choice(mongo.DEFAULT_WELCOME_MESSAGES).format(
                     first=escape_markdown(first_name),
                 )
                 keyboard = InlineKeyboardMarkup(keyb)
@@ -613,7 +621,7 @@ async def new_member(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
             else:
                 sent = await send(update, res, keyboard, backup_message)
-            prev_welc = sql.get_clean_pref(chat.id)
+            prev_welc = mongo.get_clean_pref(chat.id)
             if prev_welc:
                 try:
                     await bot.delete_message(chat.id, prev_welc)
@@ -621,7 +629,7 @@ async def new_member(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     pass
 
                 if sent:
-                    sql.set_clean_welcome(chat.id, sent.message_id)
+                    mongo.set_clean_welcome(chat.id, sent.message_id)
 
         if welcome_log:
             return welcome_log
@@ -688,14 +696,14 @@ async def left_member(update, context: ContextTypes.DEFAULT_TYPE):
     bot = context.bot
     chat = update.effective_chat
     user = update.effective_user
-    should_goodbye, cust_goodbye, goodbye_type = sql.get_gdbye_pref(chat.id)
+    should_goodbye, cust_goodbye, goodbye_type = mongo.get_gdbye_pref(chat.id)
 
     if user.id == bot.id:
         return
 
     if should_goodbye:
         reply = update.message.message_id
-        cleanserv = sql.clean_service(chat.id)
+        cleanserv = mongo.clean_service(chat.id)
         if cleanserv:
             try:
                 await dispatcher.bot.delete_message(chat.id, update.message.message_id)
@@ -725,14 +733,14 @@ async def left_member(update, context: ContextTypes.DEFAULT_TYPE):
                 )
                 return
 
-            if goodbye_type != sql.Types.TEXT and goodbye_type != sql.Types.BUTTON_TEXT:
+            if goodbye_type != mongo.Types.TEXT and goodbye_type != mongo.Types.BUTTON_TEXT:
                 await ENUM_FUNC_MAP[goodbye_type](chat.id, cust_goodbye)
                 return
 
             first_name = left_mem.first_name or "PersonWithNoName"
             if cust_goodbye:
-                if cust_goodbye == sql.DEFAULT_GOODBYE:
-                    cust_goodbye = random.choice(sql.DEFAULT_GOODBYE_MESSAGES).format(
+                if cust_goodbye == mongo.DEFAULT_GOODBYE:
+                    cust_goodbye = random.choice(mongo.DEFAULT_GOODBYE_MESSAGES).format(
                         first=first_name,
                     )
                 if left_mem.last_name:
@@ -760,11 +768,11 @@ async def left_member(update, context: ContextTypes.DEFAULT_TYPE):
                     chatname=chat.title,
                     id=left_mem.id,
                 )
-                buttons = sql.get_gdbye_buttons(chat.id)
+                buttons = mongo.get_gdbye_buttons(chat.id)
                 keyb = build_keyboard(buttons)
 
             else:
-                res = random.choice(sql.DEFAULT_GOODBYE_MESSAGES).format(
+                res = random.choice(mongo.DEFAULT_GOODBYE_MESSAGES).format(
                     first=first_name,
                 )
                 keyb = []
@@ -775,7 +783,7 @@ async def left_member(update, context: ContextTypes.DEFAULT_TYPE):
                 update,
                 res,
                 keyboard,
-                random.choice(sql.DEFAULT_GOODBYE_MESSAGES).format(first=first_name),
+                random.choice(mongo.DEFAULT_GOODBYE_MESSAGES).format(first=first_name),
             )
 
 
@@ -785,24 +793,24 @@ async def welcome(update, context: ContextTypes.DEFAULT_TYPE):
     chat = update.effective_chat
     if not args or args[0].lower() == "noformat":
         noformat = True
-        pref, welcome_m, cust_content, welcome_type = sql.get_welc_pref(chat.id)
+        pref, welcome_m, cust_content, welcome_type = mongo.get_welc_pref(chat.id)
         await update.effective_message.reply_text(
             f"This chat has its welcome setting set to: `{pref}`.\n"
             f"The welcome message (not filling the {{}}) is:",
             parse_mode=ParseMode.MARKDOWN,
         )
 
-        if welcome_type == sql.Types.BUTTON_TEXT or welcome_type == sql.Types.TEXT:
-            buttons = sql.get_welc_buttons(chat.id)
+        if welcome_type == mongo.Types.BUTTON_TEXT or welcome_type == mongo.Types.TEXT:
+            buttons = mongo.get_welc_buttons(chat.id)
             if noformat:
                 welcome_m += revert_buttons(buttons)
                 await update.effective_message.reply_text(welcome_m)
             else:
                 keyb = build_keyboard(buttons)
                 keyboard = InlineKeyboardMarkup(keyb)
-                await send(update, welcome_m, keyboard, sql.DEFAULT_WELCOME)
+                await send(update, welcome_m, keyboard, mongo.DEFAULT_WELCOME)
         else:
-            buttons = sql.get_welc_buttons(chat.id)
+            buttons = mongo.get_welc_buttons(chat.id)
             if noformat:
                 welcome_m += revert_buttons(buttons)
                 await ENUM_FUNC_MAP[welcome_type](
@@ -822,13 +830,13 @@ async def welcome(update, context: ContextTypes.DEFAULT_TYPE):
 
     elif len(args) >= 1:
         if args[0].lower() in ("on", "yes"):
-            sql.set_welc_preference(str(chat.id), True)
+            mongo.set_welc_preference(str(chat.id), True)
             await update.effective_message.reply_text(
                 "Okay! I'll greet members when they join.",
             )
 
         elif args[0].lower() in ("off", "no"):
-            sql.set_welc_preference(str(chat.id), False)
+            mongo.set_welc_preference(str(chat.id), False)
             await update.effective_message.reply_text(
                 "I'll go loaf around and not welcome anyone then.",
             )
@@ -846,15 +854,15 @@ async def goodbye(update, context: ContextTypes.DEFAULT_TYPE):
 
     if not args or args[0] == "noformat":
         noformat = True
-        pref, goodbye_m, goodbye_type = sql.get_gdbye_pref(chat.id)
+        pref, goodbye_m, goodbye_type = mongo.get_gdbye_pref(chat.id)
         await update.effective_message.reply_text(
             f"This chat has its goodbye setting set to: `{pref}`.\n"
             f"The goodbye message (not filling the {{}}) is:",
             parse_mode=ParseMode.MARKDOWN,
         )
 
-        if goodbye_type == sql.Types.BUTTON_TEXT:
-            buttons = sql.get_gdbye_buttons(chat.id)
+        if goodbye_type == mongo.Types.BUTTON_TEXT:
+            buttons = mongo.get_gdbye_buttons(chat.id)
             if noformat:
                 goodbye_m += revert_buttons(buttons)
                 await update.effective_message.reply_text(goodbye_m)
@@ -862,7 +870,7 @@ async def goodbye(update, context: ContextTypes.DEFAULT_TYPE):
             else:
                 keyb = build_keyboard(buttons)
                 keyboard = InlineKeyboardMarkup(keyb)
-                await send(update, goodbye_m, keyboard, sql.DEFAULT_GOODBYE)
+                await send(update, goodbye_m, keyboard, mongo.DEFAULT_GOODBYE)
 
         else:
             if noformat:
@@ -875,11 +883,11 @@ async def goodbye(update, context: ContextTypes.DEFAULT_TYPE):
 
     elif len(args) >= 1:
         if args[0].lower() in ("on", "yes"):
-            sql.set_gdbye_preference(str(chat.id), True)
+            mongo.set_gdbye_preference(str(chat.id), True)
             await update.effective_message.reply_text("Okay its set to on!")
 
         elif args[0].lower() in ("off", "no"):
-            sql.set_gdbye_preference(str(chat.id), False)
+            mongo.set_gdbye_preference(str(chat.id), False)
             await update.effective_message.reply_text("Okay its set to no!")
 
         else:
@@ -901,7 +909,7 @@ async def set_welcome(update, context: ContextTypes.DEFAULT_TYPE):
         await msg.reply_text("You didn't specify what to reply with!")
         return ""
 
-    sql.set_custom_welcome(chat.id, content, text, data_type, buttons)
+    mongo.set_custom_welcome(chat.id, content, text, data_type, buttons)
     await msg.reply_text("Successfully set custom welcome message!")
 
     return (
@@ -918,7 +926,7 @@ async def reset_welcome(update, context: ContextTypes.DEFAULT_TYPE):
     chat = update.effective_chat
     user = update.effective_user
 
-    sql.set_custom_welcome(chat.id, None, sql.DEFAULT_WELCOME, sql.Types.TEXT)
+    mongo.set_custom_welcome(chat.id, None, mongo.DEFAULT_WELCOME, mongo.Types.TEXT)
     await update.effective_message.reply_text(
         "Successfully reset welcome message to default!"
     )
@@ -943,7 +951,7 @@ async def set_goodbye(update, context: ContextTypes.DEFAULT_TYPE):
         await msg.reply_text("You didn't specify what to reply with!")
         return ""
 
-    sql.set_custom_gdbye(chat.id, content or text, data_type, buttons)
+    mongo.set_custom_gdbye(chat.id, content or text, data_type, buttons)
     await msg.reply_text("Successfully set custom goodbye message!")
     return (
         f"<b>{html.escape(chat.title)}:</b>\n"
@@ -959,7 +967,7 @@ async def reset_goodbye(update: Update, context: ContextTypes.DEFAULT_TYPE) -> s
     chat = update.effective_chat
     user = update.effective_user
 
-    sql.set_custom_gdbye(chat.id, sql.DEFAULT_GOODBYE, sql.Types.TEXT)
+    mongo.set_custom_gdbye(chat.id, mongo.DEFAULT_GOODBYE, mongo.Types.TEXT)
     await update.effective_message.reply_text(
         "Successfully reset goodbye message to default!",
     )
@@ -982,7 +990,7 @@ async def welcomemute(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str
 
     if len(args) >= 1:
         if args[0].lower() in ("off", "no"):
-            sql.set_welcome_mutes(chat.id, False)
+            mongo.set_welcome_mutes(chat.id, False)
             await msg.reply_text("I will no longer mute people on joining!")
             return (
                 f"<b>{html.escape(chat.title)}:</b>\n"
@@ -991,7 +999,7 @@ async def welcomemute(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str
                 f"Has toggled welcome mute to <b>off</b>."
             )
         elif args[0].lower() in ["soft"]:
-            sql.set_welcome_mutes(chat.id, "soft")
+            mongo.set_welcome_mutes(chat.id, "soft")
             await msg.reply_text(
                 "I will restrict users permission to send media for 24 hours.",
             )
@@ -1002,7 +1010,7 @@ async def welcomemute(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str
                 f"Has toggled welcome mute to <b>soft</b>."
             )
         elif args[0].lower() in ["strong"]:
-            sql.set_welcome_mutes(chat.id, "strong")
+            mongo.set_welcome_mutes(chat.id, "strong")
             await msg.reply_text(
                 "I will now mute people when they join until they prove they're not a bot. They will have 120 seconds before they get kicked.",
             )
@@ -1019,7 +1027,7 @@ async def welcomemute(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str
             )
             return ""
     else:
-        curr_setting = sql.welcome_mutes(chat.id)
+        curr_setting = mongo.welcome_mutes(chat.id)
         reply = (
             "Give me a setting!\nChoose one out of: <code>off</code>/<code>no</code> or <code>soft</code> or <code>strong</code> only! \n"
             f"Current setting: <code>{curr_setting}</code>"
@@ -1036,7 +1044,7 @@ async def clean_welcome(update: Update, context: ContextTypes.DEFAULT_TYPE) -> s
     user = update.effective_user
 
     if not args:
-        clean_pref = sql.get_clean_pref(chat.id)
+        clean_pref = mongo.get_clean_pref(chat.id)
         if clean_pref:
             await update.effective_message.reply_text(
                 "I should be deleting welcome messages up to two days old.",
@@ -1048,7 +1056,7 @@ async def clean_welcome(update: Update, context: ContextTypes.DEFAULT_TYPE) -> s
         return ""
 
     if args[0].lower() in ("on", "yes"):
-        sql.set_clean_welcome(str(chat.id), True)
+        mongo.set_clean_welcome(str(chat.id), True)
         await update.effective_message.reply_text(
             "I'll try to delete old welcome messages!"
         )
@@ -1059,7 +1067,7 @@ async def clean_welcome(update: Update, context: ContextTypes.DEFAULT_TYPE) -> s
             "Has toggled clean welcomes to <code>on</code>."
         )
     elif args[0].lower() in ("off", "no"):
-        sql.set_clean_welcome(str(chat.id), False)
+        mongo.set_clean_welcome(str(chat.id), False)
         await update.effective_message.reply_text(
             "I won't delete old welcome messages."
         )
@@ -1084,12 +1092,12 @@ async def cleanservice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> st
         if len(args) >= 1:
             var = args[0]
             if var in ("no", "off"):
-                sql.set_clean_service(chat.id, False)
+                mongo.set_clean_service(chat.id, False)
                 await update.effective_message.reply_text(
                     "Welcome clean service is : off"
                 )
             elif var in ("yes", "on"):
-                sql.set_clean_service(chat.id, True)
+                mongo.set_clean_service(chat.id, True)
                 await update.effective_message.reply_text(
                     "Welcome clean service is : on"
                 )
@@ -1104,7 +1112,7 @@ async def cleanservice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> st
                 parse_mode=ParseMode.HTML,
             )
     else:
-        curr = sql.clean_service(chat.id)
+        curr = mongo.clean_service(chat.id)
         if curr:
             await update.effective_message.reply_text(
                 "Welcome clean service is : <code>on</code>",
@@ -1127,7 +1135,7 @@ async def user_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     join_user = int(match.group(1))
 
     if join_user == user.id:
-        sql.set_human_checks(user.id, chat.id)
+        mongo.set_human_checks(user.id, chat.id)
         member_dict = VERIFIED_USER_WAITLIST.pop(user.id)
         member_dict["status"] = True
         VERIFIED_USER_WAITLIST.update({user.id: member_dict})
@@ -1169,7 +1177,7 @@ async def user_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     member_dict["backup_message"],
                 )
 
-            prev_welc = sql.get_clean_pref(chat.id)
+            prev_welc = mongo.get_clean_pref(chat.id)
             if prev_welc:
                 try:
                     await bot.delete_message(chat.id, prev_welc)
@@ -1177,7 +1185,7 @@ async def user_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     pass
 
                 if sent:
-                    sql.set_clean_welcome(chat.id, sent.message_id)
+                    mongo.set_clean_welcome(chat.id, sent.message_id)
 
     else:
         await query.answer(text="You're not allowed to do this!")
@@ -1231,12 +1239,12 @@ async def welcome_mute_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 def __migrate__(old_chat_id, new_chat_id):
-    sql.migrate_chat(old_chat_id, new_chat_id)
+    mongo.migrate_chat(old_chat_id, new_chat_id)
 
 
 def __chat_settings__(chat_id, user_id):
-    welcome_pref = sql.get_welc_pref(chat_id)[0]
-    goodbye_pref = sql.get_gdbye_pref(chat_id)[0]
+    welcome_pref = mongo.get_welc_pref(chat_id)[0]
+    goodbye_pref = mongo.get_gdbye_pref(chat_id)[0]
     return (
         f"This chat has its welcome preference set to `{welcome_pref}`.\n"
         f"Its goodbye preference is `{goodbye_pref}`."
@@ -1328,7 +1336,7 @@ function(CLEAN_SERVICE_HANDLER)
 function(BUTTON_VERIFY_HANDLER)
 function(WELCOME_MUTE_HELP)
 
-__mod_name__ = "ᴡᴇʟᴄᴏᴍᴇ"
+__mod_name__ = "Wᴇʟᴄᴏᴍᴇ"
 __command_list__ = []
 __handlers__ = [
     NEW_MEM_HANDLER,

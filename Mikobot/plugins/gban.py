@@ -10,8 +10,8 @@ from telegram.error import BadRequest, Forbidden, TelegramError
 from telegram.ext import CommandHandler, ContextTypes, MessageHandler, filters
 from telegram.helpers import mention_html
 
-import Database.sql.global_bans_sql as sql
-from Database.sql.users_sql import get_user_com_chats
+import Database.mongodb.global_ban as mongo
+from Database.mongodb.userDb import get_user_com_chats
 from Mikobot import (
     DEV_USERS,
     DRAGONS,
@@ -113,14 +113,14 @@ async def gban(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await message.reply_text("That's not a user!")
         return
 
-    if sql.is_user_gbanned(user_id):
+    if mongo.is_user_gbanned(user_id):
         if not reason:
             await message.reply_text(
                 "This user is already gbanned; I'd change the reason, but you haven't given me one...",
             )
             return
 
-        old_reason = sql.update_gban_reason(
+        old_reason = mongo.update_gban_reason(
             user_id,
             user_chat.username or user_chat.first_name,
             reason,
@@ -183,7 +183,7 @@ async def gban(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         send_to_list(bot, DRAGONS, log_message, html=True)
 
-    sql.gban_user(user_id, user_chat.username or user_chat.first_name, reason)
+    mongo.gban_user(user_id, user_chat.username or user_chat.first_name, reason)
 
     chats = get_user_com_chats(user_id)
     gbanned_chats = 0
@@ -192,7 +192,7 @@ async def gban(update: Update, context: ContextTypes.DEFAULT_TYPE):
         chat_id = int(chat)
 
         # Check if this group has disabled gbans
-        if not sql.does_chat_gban(chat_id):
+        if not mongo.does_chat_gban(chat_id):
             continue
 
         try:
@@ -216,7 +216,7 @@ async def gban(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         DRAGONS,
                         f"Could not gban due to: {excp.message}",
                     )
-                sql.ungban_user(user_id)
+                mongo.ungban_user(user_id)
                 return
         except TelegramError:
             pass
@@ -277,7 +277,7 @@ async def ungban(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await message.reply_text("That's not a user!")
         return
 
-    if not sql.is_user_gbanned(user_id):
+    if not mongo.is_user_gbanned(user_id):
         await message.reply_text("This user is not gbanned!")
         return
 
@@ -324,7 +324,7 @@ async def ungban(update: Update, context: ContextTypes.DEFAULT_TYPE):
         chat_id = int(chat)
 
         # Check if this group has disabled gbans
-        if not sql.does_chat_gban(chat_id):
+        if not mongo.does_chat_gban(chat_id):
             continue
 
         try:
@@ -353,7 +353,7 @@ async def ungban(update: Update, context: ContextTypes.DEFAULT_TYPE):
         except TelegramError:
             pass
 
-    sql.ungban_user(user_id)
+    mongo.ungban_user(user_id)
 
     if EVENT_LOGS:
         await log.edit_text(
@@ -375,7 +375,7 @@ async def ungban(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 @support_plus
 async def gbanlist(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    banned_users = sql.get_gban_list()
+    banned_users = mongo.get_gban_list()
 
     if not banned_users:
         await update.effective_message.reply_text(
@@ -399,7 +399,7 @@ async def gbanlist(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def check_and_ban(update, user_id, should_message=True):
-    if sql.is_user_gbanned(user_id):
+    if mongo.is_user_gbanned(user_id):
         await update.effective_chat.ban_member(user_id)
         if should_message:
             text = (
@@ -408,7 +408,7 @@ async def check_and_ban(update, user_id, should_message=True):
                 f"<b>Appeal chat</b>: @{SUPPORT_CHAT}\n"
                 f"<b>User ID</b>: <code>{user_id}</code>"
             )
-            user = sql.get_gbanned_user(user_id)
+            user = mongo.get_gbanned_user(user_id)
             if user.reason:
                 text += f"\n<b>Ban Reason:</b> <code>{html.escape(user.reason)}</code>"
             await update.effective_message.reply_text(text, parse_mode=ParseMode.HTML)
@@ -427,7 +427,7 @@ async def enforce_gban(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
     except Forbidden:
         return
-    if sql.does_chat_gban(update.effective_chat.id) and restrict_permission:
+    if mongo.does_chat_gban(update.effective_chat.id) and restrict_permission:
         user = update.effective_user
         chat = update.effective_chat
         msg = update.effective_message
@@ -452,13 +452,13 @@ async def gbanstat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     args = context.args
     if len(args) > 0:
         if args[0].lower() in ["on", "yes"]:
-            sql.enable_gbans(update.effective_chat.id)
+            mongo.enable_gbans(update.effective_chat.id)
             await update.effective_message.reply_text(
                 "Antispam is now enabled ✅ "
                 "I am now protecting your group from potential remote threats!",
             )
         elif args[0].lower() in ["off", "no"]:
-            sql.disable_gbans(update.effective_chat.id)
+            mongo.disable_gbans(update.effective_chat.id)
             await update.effective_message.reply_text(
                 "I am not now protecting your group from potential remote threats!",
             )
@@ -468,16 +468,16 @@ async def gbanstat(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "Your current setting is: {}\n"
             "When True, any gbans that happen will also happen in your group. "
             "When False, they won't, leaving you at the possible mercy of "
-            "spammers.".format(sql.does_chat_gban(update.effective_chat.id)),
+            "spammers.".format(mongo.does_chat_gban(update.effective_chat.id)),
         )
 
 
 def __stats__():
-    return f"• {sql.num_gbanned_users()} gbanned users."
+    return f"• {mongo.num_gbanned_users()} gbanned users."
 
 
 def __user_info__(user_id):
-    is_gbanned = sql.is_user_gbanned(user_id)
+    is_gbanned = mongo.is_user_gbanned(user_id)
     text = "Malicious: <b>{}</b>"
     if user_id in [777000, 1087968824]:
         return ""
@@ -487,7 +487,7 @@ def __user_info__(user_id):
         return ""
     if is_gbanned:
         text = text.format("Yes")
-        user = sql.get_gbanned_user(user_id)
+        user = mongo.get_gbanned_user(user_id)
         if user.reason:
             text += f"\n<b>Reason:</b> <code>{html.escape(user.reason)}</code>"
         text += f"\n<b>Appeal Chat:</b> @{SUPPORT_CHAT}"
@@ -497,11 +497,11 @@ def __user_info__(user_id):
 
 
 def __migrate__(old_chat_id, new_chat_id):
-    sql.migrate_chat(old_chat_id, new_chat_id)
+    mongo.migrate_chat(old_chat_id, new_chat_id)
 
 
 def __chat_settings__(chat_id, user_id):
-    return f"This chat is enforcing *gbans*: `{sql.does_chat_gban(chat_id)}`."
+    return f"This chat is enforcing *gbans*: `{mongo.does_chat_gban(chat_id)}`."
 
 
 # <=================================================== HELP ====================================================>
@@ -535,7 +535,7 @@ function(UNGBAN_HANDLER)
 function(GBAN_LIST)
 function(GBAN_STATUS)
 
-__mod_name__ = "ᴀɴᴛɪ-ꜱᴘᴀᴍ"
+__mod_name__ = "Aɴᴛɪ-ꜱᴘᴀᴍ"
 __handlers__ = [GBAN_HANDLER, UNGBAN_HANDLER, GBAN_LIST, GBAN_STATUS]
 
 if STRICT_GBAN:  # enforce GBANS if this is set

@@ -20,7 +20,7 @@ FILENAME = __name__.rsplit(".", 1)[-1]
 
 # If module is due to be loaded, then setup all the magical handlers
 if is_module_loaded(FILENAME):
-    from Database.sql import disable_sql as sql
+    from Database.mongodb import disable_db as mongo
     from Mikobot.plugins.helper_funcs.chat_status import (
         check_admin,
         connection_status,
@@ -91,7 +91,7 @@ if is_module_loaded(FILENAME):
                         filter_result = self.filters.check_update(update)
                         if filter_result:
                             # disabled, admincmd, user admin
-                            if sql.is_command_disabled(
+                            if mongo.is_command_disabled(
                                 chat.id, command_parts[0].lower()
                             ):
                                 # check if command was disabled
@@ -128,7 +128,7 @@ if is_module_loaded(FILENAME):
                 args = []
 
             if super().check_update(update):
-                if sql.is_command_disabled(chat.id, self.friendly):
+                if mongo.is_command_disabled(chat.id, self.friendly):
                     return False
                 else:
                     return args, filter_result
@@ -147,7 +147,7 @@ if is_module_loaded(FILENAME):
                 disable_cmd = disable_cmd[1:]
 
             if disable_cmd in set(DISABLE_CMDS + DISABLE_OTHER):
-                sql.disable_command(chat.id, str(disable_cmd).lower())
+                mongo.disable_command(chat.id, str(disable_cmd).lower())
                 await update.effective_message.reply_text(
                     f"Disabled the use of `{disable_cmd}`",
                     parse_mode=ParseMode.MARKDOWN,
@@ -194,7 +194,7 @@ if is_module_loaded(FILENAME):
                     disable_cmd = disable_cmd[1:]
 
                 if disable_cmd in set(DISABLE_CMDS + DISABLE_OTHER):
-                    sql.disable_command(chat.id, str(disable_cmd).lower())
+                    mongo.disable_command(chat.id, str(disable_cmd).lower())
                     disabled_cmds.append(disable_cmd)
                 else:
                     failed_disabled_cmds.append(disable_cmd)
@@ -226,7 +226,7 @@ if is_module_loaded(FILENAME):
             if enable_cmd.startswith(CMD_STARTERS):
                 enable_cmd = enable_cmd[1:]
 
-            if sql.enable_command(chat.id, enable_cmd):
+            if mongo.enable_command(chat.id, enable_cmd):
                 await update.effective_message.reply_text(
                     f"Enabled the use of`{enable_cmd}`",
                     parse_mode=ParseMode.MARKDOWN,
@@ -269,7 +269,7 @@ if is_module_loaded(FILENAME):
                 if enable_cmd.startswith(CMD_STARTERS):
                     enable_cmd = enable_cmd[1:]
 
-                if sql.enable_command(chat.id, enable_cmd):
+                if mongo.enable_command(chat.id, enable_cmd):
                     enabled_cmds.append(enable_cmd)
                 else:
                     failed_enabled_cmds.append(enable_cmd)
@@ -307,7 +307,7 @@ if is_module_loaded(FILENAME):
 
     # do not async
     def build_curr_disabled(chat_id: Union[str, int]) -> str:
-        disabled = sql.get_all_disabled(chat_id)
+        disabled = mongo.get_all_disabled(chat_id)
         if not disabled:
             return "No commands are disabled!"
 
@@ -325,10 +325,10 @@ if is_module_loaded(FILENAME):
         )
 
     def __stats__():
-        return f"• {sql.num_disabled()} disabled items, across {sql.num_chats()} chats."
+        return f"• {mongo.num_disabled()} disabled items, across {mongo.num_chats()} chats."
 
     def __migrate__(old_chat_id, new_chat_id):
-        sql.migrate_chat(old_chat_id, new_chat_id)
+        mongo.migrate_chat(old_chat_id, new_chat_id)
 
     def __chat_settings__(chat_id, user_id):
         return build_curr_disabled(chat_id)

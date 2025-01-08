@@ -34,7 +34,7 @@ class Users(MongoDB):
     def count_users():
         with INSERTION_LOCK:
             collection = MongoDB(Users.db_name)
-            return collection.count()
+            return len(collection)
 
     def get_my_info(self):
         with INSERTION_LOCK:

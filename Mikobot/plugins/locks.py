@@ -13,8 +13,8 @@ from telegram.error import BadRequest, TelegramError
 from telegram.ext import CommandHandler, ContextTypes, MessageHandler, filters
 from telegram.helpers import mention_html
 
-import Database.sql.locks_sql as sql
-from Database.sql.approve_sql import is_approved
+import Database.mongodb.locks_Db as mongo
+from Database.mongodb.approve_db import is_approved
 from Mikobot import DRAGONS, LOGGER, dispatcher, function
 from Mikobot.plugins.connection import connected
 from Mikobot.plugins.disable import DisableAbleCommandHandler
@@ -206,7 +206,7 @@ async def lock(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
                 chat_id = update.effective_chat.id
                 chat_name = update.effective_message.chat.title
                 text = "Locked {} for non-admins!".format(ltype)
-            sql.update_lock(chat.id, ltype, locked=True)
+            mongo.update_lock(chat.id, ltype, locked=True)
             await send_message(update.effective_message, text, parse_mode="markdown")
 
             return (
@@ -328,7 +328,7 @@ async def unlock(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
                 chat_id = update.effective_chat.id
                 chat_name = update.effective_message.chat.title
                 text = "Unlocked {} for everyone!".format(ltype)
-            sql.update_lock(chat.id, ltype, locked=False)
+            mongo.update_lock(chat.id, ltype, locked=False)
             await send_message(update.effective_message, text, parse_mode="markdown")
             return (
                 "<b>{}:</b>"
@@ -420,7 +420,7 @@ async def del_lockables(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     for lockable, filter in LOCK_TYPES.items():
         if lockable == "rtl":
-            if sql.is_locked(chat.id, lockable):
+            if mongo.is_locked(chat.id, lockable):
                 if message.caption:
                     check = ad.detect_alphabet("{}".format(message.caption))
                     if "ARABIC" in check:
@@ -445,7 +445,7 @@ async def del_lockables(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         break
             continue
         if lockable == "button":
-            if sql.is_locked(chat.id, lockable):
+            if mongo.is_locked(chat.id, lockable):
                 if message.reply_markup and message.reply_markup.inline_keyboard:
                     try:
                         await message.delete()
@@ -457,7 +457,7 @@ async def del_lockables(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     break
             continue
         if lockable == "inline":
-            if sql.is_locked(chat.id, lockable):
+            if mongo.is_locked(chat.id, lockable):
                 if message and message.via_bot:
                     try:
                         await message.delete()
@@ -469,7 +469,7 @@ async def del_lockables(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     break
             continue
         if lockable == "forwardchannel":
-            if sql.is_locked(chat.id, lockable):
+            if mongo.is_locked(chat.id, lockable):
                 if message.forward_from_chat:
                     if message.forward_from_chat.type == "channel":
                         try:
@@ -483,7 +483,7 @@ async def del_lockables(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 continue
             continue
         if lockable == "forwardbot":
-            if sql.is_locked(chat.id, lockable):
+            if mongo.is_locked(chat.id, lockable):
                 if message.forward_from:
                     if message.forward_from.is_bot:
                         try:
@@ -497,7 +497,7 @@ async def del_lockables(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 continue
             continue
         if lockable == "anonchannel":
-            if sql.is_locked(chat.id, lockable):
+            if mongo.is_locked(chat.id, lockable):
                 if message.from_user:
                     if message.from_user.id == 136817688:
                         try:
@@ -510,7 +510,7 @@ async def del_lockables(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         break
                 continue
             continue
-        if filter.check_update(update) and sql.is_locked(chat.id, lockable):
+        if filter.check_update(update) and mongo.is_locked(chat.id, lockable):
             if lockable == "bots":
                 new_members = update.effective_message.new_chat_members
                 for new_mem in new_members:
@@ -542,7 +542,7 @@ async def del_lockables(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def build_lock_message(chat_id):
-    locks = sql.get_locks(chat_id)
+    locks = mongo.get_locks(chat_id)
     res = ""
     locklist = []
     permslist = []
@@ -654,15 +654,15 @@ async def __import_data__(chat_id, data, message):
     locks = data.get("locks", {})
     for itemlock in locks:
         if itemlock in LOCK_TYPES:
-            sql.update_lock(chat_id, itemlock, locked=True)
+            mongo.update_lock(chat_id, itemlock, locked=True)
         elif itemlock in LOCK_CHAT_RESTRICTION:
-            sql.update_restriction(chat_id, itemlock, locked=True)
+            mongo.update_restriction(chat_id, itemlock, locked=True)
         else:
             pass
 
 
 def __migrate__(old_chat_id, new_chat_id):
-    sql.migrate_chat(old_chat_id, new_chat_id)
+    mongo.migrate_chat(old_chat_id, new_chat_id)
 
 
 async def __chat_settings__(chat_id, user_id):

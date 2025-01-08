@@ -5,11 +5,12 @@
 from aiohttp import ClientSession
 from httpx import AsyncClient, Timeout
 from Python_ARQ import ARQ
+import requests
 
 # <=============================================== SETUP ========================================================>
 # Aiohttp Async Client
-session = ClientSession()
-
+# session = ClientSession()
+session=requests.Session()
 # HTTPx Async Client
 state = AsyncClient(
     http2=True,

@@ -23,27 +23,27 @@ class Config(object):
     API_HASH = "b0241677a3a2958667e93fa9a632c350"
 
     # Database configuration (PostgreSQL)
-    DATABASE_URL = "postgres://txwnszsd:Po-qBx-NkJvEg5Lo1kYzgihpL7W7o29d@kandula.db.elephantsql.com/txwnszsd"
+    # DATABASE_URL = "postgres://txwnszsd:Po-qBx-NkJvEg5Lo1kYzgihpL7W7o29d@kandula.db.elephantsql.com/txwnszsd"
 
     # Event logs chat ID and message dump chat ID
-    EVENT_LOGS = -1002334908846
-    MESSAGE_DUMP = -1002334908846
+    EVENT_LOGS = -1002296983376
+    MESSAGE_DUMP = -1002296983376
 
     # MongoDB configuration
     MONGO_DB_URI = "mongodb+srv://sahilji:sahilji@cluster0.lew4q.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
     # Support chat and support ID
     SUPPORT_CHAT = "sonamsupport"
-    SUPPORT_ID = -1002334908846
+    SUPPORT_ID = -1002296983376
 
     # Database name
     DB_NAME = "merisa"
 
     # Bot token
-    TOKEN = "8112810849:AAEjYD6FmaZfuYikjKnwP50NKBuGopr0AGE"  # Get bot token from @BotFather on Telegram
+    TOKEN = "7021197483:AAH9cJ0cnUNqhL4xGLxrbBuvkMqVgab6cjg"  # Get bot token from @BotFather on Telegram
 
     # Owner's Telegram user ID (Must be an integer)
-    OWNER_ID = 7785947978
+    OWNER_ID = 6728038801
     # <=======================================================================================================>
 
     # <================================================ OPTIONAL ======================================================>

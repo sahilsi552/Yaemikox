@@ -72,7 +72,7 @@ async def close_callback(client: Client, callback_query):
 # PyroPing Command
 @app.on_message(filters.command("pyroping"))
 async def ping(client: Client, message: Message):
-    LOGGER.info(f"{message.from_user.id} used ping cmd in {message.chat.id}")
+    # LOGGER.info(f"{message.from_user.id} used ping cmd in {message.chat.id}")
     start = time()
     replymsg = await message.reply_text(text="Pinging...", quote=True)
     delta_ping = time() - start
@@ -103,4 +103,4 @@ __help__ = """
 〄 /id: Reply to get user id.
 """
 
-__mod_name__ = "ᴇxᴛʀᴀ"
+__mod_name__ = "Exᴛʀᴀ"

@@ -453,7 +453,7 @@ async def handler(client, message):
 
 async def draw_text(image_path, text):
     img = Image.open(image_path)
-    os.remove(image_path)
+    # os.remove(image_path)
     i_width, i_height = img.size
 
     if os.name == "nt":
@@ -473,7 +473,10 @@ async def draw_text(image_path, text):
 
     if upper_text:
         for u_text in textwrap.wrap(upper_text, width=15):
-            u_width, u_height = draw.textsize(u_text, font=m_font)
+            # Use textbbox to determine bounding box
+            u_bbox = draw.textbbox((0, 0), u_text, font=m_font)
+            u_width = u_bbox[2] - u_bbox[0]  # bbox width
+            u_height = u_bbox[3] - u_bbox[1]  # bbox height
 
             draw.text(
                 xy=(((i_width - u_width) / 2) - 2, int((current_h / 640) * i_width)),
@@ -513,12 +516,14 @@ async def draw_text(image_path, text):
 
     if lower_text:
         for l_text in textwrap.wrap(lower_text, width=15):
-            u_width, u_height = draw.textsize(l_text, font=m_font)
+            l_bbox = draw.textbbox((0, 0), l_text, font=m_font)
+            l_width = l_bbox[2] - l_bbox[0]  # bbox width
+            l_height = l_bbox[3] - l_bbox[1]  # bbox height
 
             draw.text(
                 xy=(
-                    ((i_width - u_width) / 2) - 2,
-                    i_height - u_height - int((20 / 640) * i_width),
+                    ((i_width - l_width) / 2) - 2,
+                    i_height - l_height - int((20 / 640) * i_width),
                 ),
                 text=l_text,
                 font=m_font,
@@ -526,8 +531,8 @@ async def draw_text(image_path, text):
             )
             draw.text(
                 xy=(
-                    ((i_width - u_width) / 2) + 2,
-                    i_height - u_height - int((20 / 640) * i_width),
+                    ((i_width - l_width) / 2) + 2,
+                    i_height - l_height - int((20 / 640) * i_width),
                 ),
                 text=l_text,
                 font=m_font,
@@ -535,8 +540,8 @@ async def draw_text(image_path, text):
             )
             draw.text(
                 xy=(
-                    (i_width - u_width) / 2,
-                    (i_height - u_height - int((20 / 640) * i_width)) - 2,
+                    (i_width - l_width) / 2,
+                    (i_height - l_height - int((20 / 640) * i_width)) - 2,
                 ),
                 text=l_text,
                 font=m_font,
@@ -544,8 +549,8 @@ async def draw_text(image_path, text):
             )
             draw.text(
                 xy=(
-                    (i_width - u_width) / 2,
-                    (i_height - u_height - int((20 / 640) * i_width)) + 2,
+                    (i_width - l_width) / 2,
+                    (i_height - l_height - int((20 / 640) * i_width)) + 2,
                 ),
                 text=l_text,
                 font=m_font,
@@ -554,21 +559,20 @@ async def draw_text(image_path, text):
 
             draw.text(
                 xy=(
-                    (i_width - u_width) / 2,
-                    i_height - u_height - int((20 / 640) * i_width),
+                    (i_width - l_width) / 2,
+                    i_height - l_height - int((20 / 640) *i_width),
                 ),
                 text=l_text,
                 font=m_font,
                 fill=(255, 255, 255),
             )
 
-            current_h += u_height + pad
+            current_h += l_height + pad
 
     image_name = "memify.webp"
     webp_file = os.path.join(image_name)
     img.save(webp_file, "webp")
     return webp_file
-
 
 @app.on_message(filters.command(["stickerinfo", "stinfo"]), group=888)
 async def give_st_info(c: app, m: Message):
@@ -639,5 +643,5 @@ __help__ = """
 ➠ *mmf and getsticker only support photo and normal stickers for now*.
 """
 
-__mod_name__ = "ꜱᴛɪᴄᴋᴇʀꜱ"
+__mod_name__ = "Sᴛɪᴄᴋᴇʀꜱ"
 # <================================================ END =======================================================>

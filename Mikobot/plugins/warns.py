@@ -25,8 +25,8 @@ from telegram.ext import (
 )
 from telegram.helpers import mention_html
 
-from Database.sql import warns_sql as sql
-from Database.sql.approve_sql import is_approved
+from Database.mongodb import warndb_ as mongo
+from Database.mongodb.approve_db import is_approved
 from Mikobot import BAN_STICKER, dispatcher, function
 from Mikobot.plugins.disable import DisableAbleCommandHandler
 from Mikobot.plugins.helper_funcs.chat_status import check_admin, is_user_admin
@@ -60,10 +60,10 @@ async def warn(
     else:
         warner_tag = "Automated warn filter."
 
-    limit, soft_warn = sql.get_warn_setting(chat.id)
-    num_warns, reasons = sql.warn_user(user.id, chat.id, reason)
+    limit, soft_warn = mongo.get_warn_setting(chat.id)
+    num_warns, reasons = mongo.warn_user(user.id, chat.id, reason)
     if num_warns >= limit:
-        sql.reset_warns(user.id, chat.id)
+        mongo.reset_warns(user.id, chat.id)
         if soft_warn:  # punch
             chat.unban_member(user.id)
             reply = (
@@ -155,7 +155,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
         else:
             await query.answer("You need to be admin to do this!")
             return
-        res = sql.remove_warn(user_id, chat.id)
+        res = mongo.remove_warn(user_id, chat.id)
         if res:
             await update.effective_message.edit_text(
                 "Warn removed by {}.".format(mention_html(user.id, user.first_name)),
@@ -223,7 +223,7 @@ async def reset_warns(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str
     user_id = await extract_user(message, context, args)
 
     if user_id:
-        sql.reset_warns(user_id, chat.id)
+        mongo.reset_warns(user_id, chat.id)
         await message.reply_text("Warns have been reset!")
         warned = await chat.get_member(user_id).user
         return (
@@ -242,11 +242,11 @@ async def warns(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message: Optional[Message] = update.effective_message
     chat: Optional[Chat] = update.effective_chat
     user_id = await extract_user(message, context, args) or update.effective_user.id
-    result = sql.get_warns(user_id, chat.id)
+    result = mongo.get_warns(user_id, chat.id)
 
     if result and result[0] != 0:
         num_warns, reasons = result
-        limit, soft_warn = sql.get_warn_setting(chat.id)
+        limit, soft_warn = mongo.get_warn_setting(chat.id)
 
         if reasons:
             text = (
@@ -290,12 +290,12 @@ async def add_warn_filter(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         return
 
-    # Note: perhaps handlers can be removed somehow using sql.get_chat_filters
+    # Note: perhaps handlers can be removed somehow using mongo.get_chat_filters
     for handler in dispatcher.handlers.get(WARN_HANDLER_GROUP, []):
         if handler.filters == (keyword, chat.id):
             dispatcher.remove_handler(handler, WARN_HANDLER_GROUP)
 
-    sql.add_warn_filter(chat.id, keyword, content)
+    mongo.add_warn_filter(chat.id, keyword, content)
 
     await update.effective_message.reply_text(f"Warn handler added for '{keyword}'!")
     raise ApplicationHandlerStop
@@ -321,7 +321,7 @@ async def remove_warn_filter(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
     to_remove = extracted[0]
 
-    chat_filters = sql.get_chat_warn_triggers(chat.id)
+    chat_filters = mongo.get_chat_warn_triggers(chat.id)
 
     if not chat_filters:
         await msg.reply_text("No warning filters are active here!")
@@ -329,7 +329,7 @@ async def remove_warn_filter(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
     for filt in chat_filters:
         if filt == to_remove:
-            sql.remove_warn_filter(chat.id, to_remove)
+            mongo.remove_warn_filter(chat.id, to_remove)
             await msg.reply_text("Okay, I'll stop warning people for that.")
             raise ApplicationHandlerStop
 
@@ -340,7 +340,7 @@ async def remove_warn_filter(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
 async def list_warn_filters(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat: Optional[Chat] = update.effective_chat
-    all_handlers = sql.get_chat_warn_triggers(chat.id)
+    all_handlers = mongo.get_chat_warn_triggers(chat.id)
 
     if not all_handlers:
         await update.effective_message.reply_text("No warning filters are active here!")
@@ -376,7 +376,7 @@ async def reply_filter(update: Update, context: ContextTypes.DEFAULT_TYPE) -> st
         return
     if is_approved(chat.id, user.id):
         return
-    chat_warn_filters = sql.get_chat_warn_triggers(chat.id)
+    chat_warn_filters = mongo.get_chat_warn_triggers(chat.id)
     to_match = await extract_text(message)
     if not to_match:
         return ""
@@ -385,7 +385,7 @@ async def reply_filter(update: Update, context: ContextTypes.DEFAULT_TYPE) -> st
         pattern = r"( |^|[^\w])" + re.escape(keyword) + r"( |$|[^\w])"
         if re.search(pattern, to_match, flags=re.IGNORECASE):
             user: Optional[User] = update.effective_user
-            warn_filter = sql.get_warn_filter(chat.id, keyword)
+            warn_filter = mongo.get_warn_filter(chat.id, keyword)
             return await warn(user, chat, warn_filter.reply, message)
     return ""
 
@@ -403,7 +403,7 @@ async def set_warn_limit(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             if int(args[0]) < 3:
                 await msg.reply_text("The minimum warn limit is 3!")
             else:
-                sql.set_warn_limit(chat.id, int(args[0]))
+                mongo.set_warn_limit(chat.id, int(args[0]))
                 await msg.reply_text("Updated the warn limit to {}".format(args[0]))
                 return (
                     f"<b>{html.escape(chat.title)}:</b>\n"
@@ -414,7 +414,7 @@ async def set_warn_limit(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         else:
             await msg.reply_text("Give me a number as an arg!")
     else:
-        limit, soft_warn = sql.get_warn_setting(chat.id)
+        limit, soft_warn = mongo.get_warn_setting(chat.id)
 
         await msg.reply_text("The current warn limit is {}".format(limit))
     return ""
@@ -429,7 +429,7 @@ async def set_warn_strength(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if args:
         if args[0].lower() in ("on", "yes"):
-            sql.set_warn_strength(chat.id, False)
+            mongo.set_warn_strength(chat.id, False)
             await msg.reply_text("Too many warns will now result in a Ban!")
             return (
                 f"<b>{html.escape(chat.title)}:</b>\n"
@@ -438,7 +438,7 @@ async def set_warn_strength(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
 
         elif args[0].lower() in ("off", "no"):
-            sql.set_warn_strength(chat.id, True)
+            mongo.set_warn_strength(chat.id, True)
             await msg.reply_text(
                 "Too many warns will now result in a normal Kick! Users will be able to join again after.",
             )
@@ -451,7 +451,7 @@ async def set_warn_strength(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             await msg.reply_text("I only understand on/yes/no/off!")
     else:
-        limit, soft_warn = sql.get_warn_setting(chat.id)
+        limit, soft_warn = mongo.get_warn_setting(chat.id)
         if soft_warn:
             await msg.reply_text(
                 "Warns are currently set to *kick* users when they exceed the limits.",
@@ -467,24 +467,24 @@ async def set_warn_strength(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 def __stats__():
     return (
-        f"• {sql.num_warns()} overall warns, across {sql.num_warn_chats()} chats.\n"
-        f"• {sql.num_warn_filters()} warn filters, across {sql.num_warn_filter_chats()} chats."
+        f"• {mongo.num_warns()} overall warns, across {mongo.num_warn_chats()} chats.\n"
+        f"• {mongo.num_warn_filters()} warn filters, across {mongo.num_warn_filter_chats()} chats."
     )
 
 
 async def __import_data__(chat_id, data, message):
     for user_id, count in data.get("warns", {}).items():
         for x in range(int(count)):
-            sql.warn_user(user_id, chat_id)
+            mongo.warn_user(user_id, chat_id)
 
 
 def __migrate__(old_chat_id, new_chat_id):
-    sql.migrate_chat(old_chat_id, new_chat_id)
+    mongo.migrate_chat(old_chat_id, new_chat_id)
 
 
 def __chat_settings__(chat_id, user_id):
-    num_warn_filters = sql.num_warn_chat_filters(chat_id)
-    limit, soft_warn = sql.get_warn_setting(chat_id)
+    num_warn_filters = mongo.num_warn_chat_filters(chat_id)
+    limit, soft_warn = mongo.get_warn_setting(chat_id)
     return (
         f"This chat has `{num_warn_filters}` warn filters. "
         f"It takes `{limit}` warns before the user gets *{'kicked' if soft_warn else 'banned'}*."
@@ -514,7 +514,7 @@ be a sentence, encompass it with quotes, as such: `/addwarn "very angry" This is
 » /strongwarn <on/yes/off/no>: If set to on, exceeding the warn limit will result in a ban. Else, will just kick.
 """
 
-__mod_name__ = "ᴡᴀʀɴ"
+__mod_name__ = "Wᴀʀɴ"
 
 WARN_HANDLER = CommandHandler(
     ["warn", "dwarn"], warn_user, filters=filters.ChatType.GROUPS, block=False

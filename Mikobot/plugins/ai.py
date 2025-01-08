@@ -4,6 +4,7 @@
 
 # <============================================== IMPORTS =========================================================>
 import base64
+import requests
 
 from telegram import Update
 from telegram.constants import ParseMode
@@ -25,7 +26,7 @@ GPT_MODEL_ID = 5
 
 async def get_api_response(model_id, api_params, api_url):
     try:
-        response = await state.post(api_url, params=api_params)
+        response = state.post(api_url, params=api_params)
         if response.status_code == 200:
             data = response.json()
             return data.get(

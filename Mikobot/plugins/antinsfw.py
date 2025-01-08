@@ -8,6 +8,10 @@ from Mikobot import BOT_USERNAME, DRAGONS, app
 from Mikobot.state import arq
 from Mikobot.utils.can_restrict import can_restrict
 from Mikobot.utils.errors import capture_err
+from Python_ARQ import ARQ
+ARQ_API_KEY = "RLWCED-WZASYO-AWOLTB-ITBWTP-ARQ"  # GET API KEY FROM @ARQRobot
+ARQ_API_URL = "arq.hamker.dev"
+from aiohttp import ClientSession
 
 # <=======================================================================================================>
 
@@ -68,6 +72,7 @@ async def detect_nsfw(_, message):
         return
     file = await _.download_media(file_id)
     try:
+        arq = ARQ(ARQ_API_URL, ARQ_API_KEY,ClientSession())
         results = await arq.nsfw_scan(file=file)
     except Exception:
         return
@@ -124,9 +129,12 @@ async def nsfw_scan_command(_, message):
         return await m.edit("Something wrong happened.")
     file = await _.download_media(file_id)
     try:
+        arq = ARQ(ARQ_API_URL, ARQ_API_KEY,ClientSession())
         results = await arq.nsfw_scan(file=file)
-    except Exception:
-        return
+        print(results)
+    except Exception as e:
+        print(str(e))
+        return await m.edit("Something wrong happened.")
     remove(file)
     if not results.ok:
         return await m.edit(results.result)

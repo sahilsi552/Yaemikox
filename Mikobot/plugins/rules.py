@@ -5,7 +5,7 @@ from telegram.error import BadRequest
 from telegram.ext import CommandHandler, ContextTypes, filters
 from telegram.helpers import escape_markdown
 
-import Database.sql.rules_sql as sql
+import Database.mongodb.rules_Db as mongo
 from Mikobot import dispatcher, function
 from Mikobot.plugins.helper_funcs.chat_status import check_admin
 from Mikobot.plugins.helper_funcs.string_handling import (
@@ -44,7 +44,7 @@ async def send_rules(update, chat_id, from_pm=False):
         else:
             raise
 
-    rules = sql.get_rules(chat_id)
+    rules = mongo.get_rules(chat_id)
     text = f"The rules for {escape_markdown(chat.title, 2)} are:\n\n{markdown_to_html(rules)}"
 
     if from_pm and rules:
@@ -110,7 +110,7 @@ async def set_rules(update: Update, context: ContextTypes.DEFAULT_TYPE):
             offset=offset,
         )
 
-        sql.set_rules(chat_id, markdown_rules)
+        mongo.set_rules(chat_id, markdown_rules)
         await update.effective_message.reply_text(
             "Successfully set rules for this group."
         )
@@ -119,26 +119,26 @@ async def set_rules(update: Update, context: ContextTypes.DEFAULT_TYPE):
 @check_admin(is_user=True)
 async def clear_rules(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
-    sql.set_rules(chat_id, "")
+    mongo.set_rules(chat_id, "")
     await update.effective_message.reply_text("Successfully cleared rules!")
 
 
 def __stats__():
-    return f"• {sql.num_chats()} chats have rules set."
+    return f"• {mongo.num_chats()} chats have rules set."
 
 
 async def __import_data__(chat_id, data, message):
     # set chat rules
     rules = data.get("info", {}).get("rules", "")
-    sql.set_rules(chat_id, rules)
+    mongo.set_rules(chat_id, rules)
 
 
 def __migrate__(old_chat_id, new_chat_id):
-    sql.migrate_chat(old_chat_id, new_chat_id)
+    mongo.migrate_chat(old_chat_id, new_chat_id)
 
 
 def __chat_settings__(chat_id, user_id):
-    return f"This chat has had its rules set: `{bool(sql.get_rules(chat_id))}`"
+    return f"This chat has had its rules set: `{bool(mongo.get_rules(chat_id))}`"
 
 
 # <=======================================================================================================>

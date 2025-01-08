@@ -18,7 +18,7 @@ from telegram.ext import filters
 from telegram.ext import filters as filters_module
 from telegram.helpers import escape_markdown, mention_html
 
-from Database.sql import cust_filters_sql as sql
+from Database.mongodb import custom_filters as mongo
 from Mikobot import DEV_USERS, DRAGONS, LOGGER, dispatcher, function
 from Mikobot.plugins.connection import connected
 from Mikobot.plugins.disable import DisableAbleCommandHandler
@@ -39,14 +39,14 @@ from Mikobot.plugins.helper_funcs.string_handling import (
 HANDLER_GROUP = 10
 
 ENUM_FUNC_MAP = {
-    sql.Types.TEXT.value: dispatcher.bot.send_message,
-    sql.Types.BUTTON_TEXT.value: dispatcher.bot.send_message,
-    sql.Types.STICKER.value: dispatcher.bot.send_sticker,
-    sql.Types.DOCUMENT.value: dispatcher.bot.send_document,
-    sql.Types.PHOTO.value: dispatcher.bot.send_photo,
-    sql.Types.AUDIO.value: dispatcher.bot.send_audio,
-    sql.Types.VOICE.value: dispatcher.bot.send_voice,
-    sql.Types.VIDEO.value: dispatcher.bot.send_video,
+    mongo.Types.TEXT.value: dispatcher.bot.send_message,
+    mongo.Types.BUTTON_TEXT.value: dispatcher.bot.send_message,
+    mongo.Types.STICKER.value: dispatcher.bot.send_sticker,
+    mongo.Types.DOCUMENT.value: dispatcher.bot.send_document,
+    mongo.Types.PHOTO.value: dispatcher.bot.send_photo,
+    mongo.Types.AUDIO.value: dispatcher.bot.send_audio,
+    mongo.Types.VOICE.value: dispatcher.bot.send_voice,
+    mongo.Types.VIDEO.value: dispatcher.bot.send_video,
 }
 
 
@@ -102,7 +102,7 @@ async def list_handlers(update: Update, context: ContextTypes.DEFAULT_TYPE):
             chat_name = chat.title
             filter_list = "*Filters in {}*:\n"
 
-    all_handlers = sql.get_chat_triggers(chat_id)
+    all_handlers = mongo.get_chat_triggers(chat_id)
 
     if not all_handlers:
         await send_message(
@@ -177,7 +177,7 @@ async def filters(update: Update, context: ContextTypes.DEFAULT_TYPE):
         keyword = extracted[0].lower()
 
     # Add the filter
-    # Note: perhaps handlers can be removed somehow using sql.get_chat_filters
+    # Note: perhaps handlers can be removed somehow using mongo.get_chat_filters
     for handler in dispatcher.handlers.get(HANDLER_GROUP, []):
         if handler.filters == (keyword, chat_id):
             dispatcher.remove_handler(handler, HANDLER_GROUP)
@@ -277,7 +277,7 @@ async def filters(update: Update, context: ContextTypes.DEFAULT_TYPE):
         update, chat_id, keyword, text, file_type, file_id, buttons, media_spoiler
     )
     # This is an old method
-    # sql.add_filter(chat_id, keyword, content, is_sticker, is_document, is_image, is_audio, is_voice, is_video, buttons)
+    # mongo.add_filter(chat_id, keyword, content, is_sticker, is_document, is_image, is_audio, is_voice, is_video, buttons)
 
     if add is True:
         await send_message(
@@ -311,7 +311,7 @@ async def stop_filter(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await send_message(update.effective_message, "What should i stop?")
         return
 
-    chat_filters = sql.get_chat_triggers(chat_id)
+    chat_filters = mongo.get_chat_triggers(chat_id)
 
     if not chat_filters:
         await send_message(update.effective_message, "No filters active here!")
@@ -319,7 +319,7 @@ async def stop_filter(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     for keyword in chat_filters:
         if keyword == args[1]:
-            sql.remove_filter(chat_id, args[1])
+            mongo.remove_filter(chat_id, args[1])
             await send_message(
                 update.effective_message,
                 "Okay, I'll stop replying to that filter in *{}*.".format(chat_name),
@@ -343,15 +343,18 @@ async def reply_filter(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not to_match:
         return
 
-    chat_filters = sql.get_chat_triggers(chat.id)
+    chat_filters = mongo.get_chat_triggers(chat.id)
     for keyword in chat_filters:
         pattern = r"( |^|[^\w])" + re.escape(keyword) + r"( |$|[^\w])"
         if re.search(pattern, to_match, flags=re.IGNORECASE):
             if MessageHandlerChecker.check_user(update.effective_user.id):
                 return
-            filt = sql.get_filter(chat.id, keyword)
-            if filt.reply == "there is should be a new reply":
-                buttons = sql.get_buttons(chat.id, filt.keyword)
+            filt = mongo.get_filter(chat.id, keyword)
+            print(filt)
+            
+            if filt["reply"] == "there is should be a new reply":
+                keyword = filt.get("keyword")
+                buttons = mongo.get_buttons(chat.id, keyword)
                 keyb = build_keyboard_parser(context.bot, chat.id, buttons)
                 keyboard = InlineKeyboardMarkup(keyb)
 
@@ -364,15 +367,15 @@ async def reply_filter(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     "chatname",
                     "mention",
                 ]
-                if filt.reply_text:
-                    if "%%%" in filt.reply_text:
-                        split = filt.reply_text.split("%%%")
+                if filt["reply_text"]:
+                    if "%%%" in filt["reply_text"]:
+                        split = filt["reply_text"].split("%%%")
                         if all(split):
                             text = random.choice(split)
                         else:
-                            text = filt.reply_text
+                            text = filt["reply_text"]
                     else:
-                        text = filt.reply_text
+                        text = filt["reply_text"]
                     if text.startswith("~!") and text.endswith("!~"):
                         sticker_id = text.replace("~!", "").replace("!~", "")
                         try:
@@ -448,7 +451,7 @@ async def reply_filter(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 else:
                     filtext = ""
 
-                if filt.file_type in (sql.Types.BUTTON_TEXT, sql.Types.TEXT):
+                if filt["file_type"] in (mongo.Types.BUTTON_TEXT, mongo.Types.TEXT):
                     try:
                         await message.reply_text(
                             markdown_to_html(filtext),
@@ -469,13 +472,13 @@ async def reply_filter(update: Update, context: ContextTypes.DEFAULT_TYPE):
                             )
                 else:
                     try:
-                        if filt.file_type not in [
-                            sql.Types.PHOTO.value,
-                            sql.Types.VIDEO,
+                        if filt["file_type"] not in [
+                            mongo.Types.PHOTO.value,
+                            mongo.Types.VIDEO,
                         ]:
-                            await ENUM_FUNC_MAP[filt.file_type](
+                            await ENUM_FUNC_MAP[filt["file_type"]](
                                 chat.id,
-                                filt.file_id,
+                                filt["file_id"],
                                 reply_markup=keyboard,
                                 reply_to_message_id=message.message_id,
                                 message_thread_id=(
@@ -483,16 +486,15 @@ async def reply_filter(update: Update, context: ContextTypes.DEFAULT_TYPE):
                                 ),
                             )
                         else:
-                            await ENUM_FUNC_MAP[filt.file_type](
+                            await ENUM_FUNC_MAP[filt["file_type"]](
                                 chat.id,
-                                filt.file_id,
+                                filt["file_id"],
                                 reply_markup=keyboard,
-                                caption=filt.reply_text,
+                                caption=filt["reply_text"],
                                 reply_to_message_id=message.message_id,
                                 message_thread_id=(
                                     message.message_thread_id if chat.is_forum else None
                                 ),
-                                has_spoiler=filters.HAS_MEDIA_SPOILER,
                             )
                     except BadRequest:
                         await send_message(
@@ -501,31 +503,32 @@ async def reply_filter(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         )
                 break
             else:
-                if filt.is_sticker:
-                    await message.reply_sticker(filt.reply)
-                elif filt.is_document:
-                    await message.reply_document(filt.reply)
-                elif filt.is_image:
+                if filt["is_sticker"]:
+                    await message.reply_sticker(filt["reply"])
+                elif filt["is_document"]:
+                    await message.reply_document(filt["reply"])
+                elif filt["is_image"]:
                     await message.reply_photo(
-                        filt.reply, has_spoiler=filt.has_media_spoiler
+                        filt["reply"], has_spoiler=filt.has_media_spoiler
                     )
-                elif filt.is_audio:
-                    await message.reply_audio(filt.reply)
-                elif filt.is_voice:
-                    await message.reply_voice(filt.reply)
-                elif filt.is_video:
+                elif filt["is_audio"]:
+                    await message.reply_audio(filt["reply"])
+                elif filt["is_voice"]:
+                    await message.reply_voice(filt["reply"])
+                elif filt["is_video"]:
                     await message.reply_video(
-                        filt.reply, has_spoiler=filt.has_media_spoiler
+                        filt["reply"], has_spoiler=filt.has_media_spoiler
                     )
-                elif filt.has_buttons:
-                    buttons = sql.get_buttons(chat.id, filt.keyword)
+                elif filt["has_buttons"]:
+                    keyword = filt.get("keyword")
+                    buttons = mongo.get_buttons(chat.id, keyword)
                     keyb = build_keyboard_parser(context.bot, chat.id, buttons)
                     keyboard = InlineKeyboardMarkup(keyb)
 
                     try:
                         await context.bot.send_message(
                             chat.id,
-                            markdown_to_html(filt.reply),
+                            markdown_to_html(filt["reply"]),
                             parse_mode=ParseMode.HTML,
                             disable_web_page_preview=True,
                             reply_markup=keyboard,
@@ -554,11 +557,11 @@ async def reply_filter(update: Update, context: ContextTypes.DEFAULT_TYPE):
                                 LOGGER.exception("Error in filters: " + excp.message)
                             LOGGER.warning(
                                 "Message %s could not be parsed",
-                                str(filt.reply),
+                                str(filt["reply"]),
                             )
                             LOGGER.exception(
                                 "Could not parse filter %s in chat %s",
-                                str(filt.keyword),
+                                str(filt["keyword"]),
                                 str(chat.id),
                             )
 
@@ -567,7 +570,7 @@ async def reply_filter(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     try:
                         await context.bot.send_message(
                             chat.id,
-                            filt.reply,
+                            filt["reply"],
                             message_thread_id=(
                                 message.message_thread_id if chat.is_forum else None
                             ),
@@ -611,7 +614,7 @@ async def rmall_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     member = await chat.get_member(query.from_user.id)
     if query.data == "filters_rmall":
         if member.status == "creator" or query.from_user.id in DRAGONS:
-            allfilters = sql.get_chat_triggers(chat.id)
+            allfilters = mongo.get_chat_triggers(chat.id)
             if not allfilters:
                 await msg.edit_text("No filters in this chat, nothing to stop!")
                 return
@@ -623,7 +626,7 @@ async def rmall_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 filterlist.append(x)
 
             for i in filterlist:
-                sql.remove_filter(chat.id, i)
+                mongo.remove_filter(chat.id, i)
 
             await msg.edit_text(f"Cleaned {count} filters in {chat.title}")
 
@@ -649,10 +652,10 @@ def get_exception(excp, filt, chat):
     elif excp.message == "Reply message not found":
         return "noreply"
     else:
-        LOGGER.warning("Message %s could not be parsed", str(filt.reply))
+        LOGGER.warning("Message %s could not be parsed", str(filt["reply"]))
         LOGGER.exception(
             "Could not parse filter %s in chat %s",
-            str(filt.keyword),
+            str(filt["keyword"]),
             str(chat.id),
         )
         return "This data could not be sent because it is incorrectly formatted."
@@ -663,34 +666,34 @@ async def addnew_filter(
     update, chat_id, keyword, text, file_type, file_id, buttons, has_spoiler
 ):
     msg = update.effective_message
-    totalfilt = sql.get_chat_triggers(chat_id)
+    totalfilt = mongo.get_chat_triggers(chat_id)
     if len(totalfilt) >= 150:  # Idk why i made this like function....
         await msg.reply_text("This group has reached its max filters limit of 150.")
         return False
     else:
-        sql.new_add_filter(
+        mongo.new_add_filter(
             chat_id, keyword, text, file_type, file_id, buttons, has_spoiler
         )
         return True
 
 
 def __stats__():
-    return "• {} filters, across {} chats.".format(sql.num_filters(), sql.num_chats())
+    return "• {} filters, across {} chats.".format(mongo.num_filters(), mongo.num_chats())
 
 
 async def __import_data__(chat_id, data, message):
     # set chat filters
     filters = data.get("filters", {})
     for trigger in filters:
-        sql.add_to_blacklist(chat_id, trigger)
+        mongo.add_to_blacklist(chat_id, trigger)
 
 
 def __migrate__(old_chat_id, new_chat_id):
-    sql.migrate_chat(old_chat_id, new_chat_id)
+    mongo.migrate_chat(old_chat_id, new_chat_id)
 
 
 def __chat_settings__(chat_id, user_id):
-    cust_filters = sql.get_chat_triggers(chat_id)
+    cust_filters = mongo.get_chat_triggers(chat_id)
     return "There are `{}` custom filters here.".format(len(cust_filters))
 
 

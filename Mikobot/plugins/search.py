@@ -1,9 +1,4 @@
-# SOURCE https://github.com/Team-ProjectCodeX
-# CREATED BY https://t.me/O_okarma
-# API BY https://www.github.com/SOME-1HING
-# PROVIDED BY https://t.me/ProjectCodeX
 
-# <============================================== IMPORTS =========================================================>
 import json
 import random
 
@@ -164,7 +159,7 @@ async def googleimg_search(client: Client, message: Message):
 
 
 # <=================================================== HELP ====================================================>
-__mod_name__ = "ꜱᴇᴀʀᴄʜ"
+__mod_name__ = "Sᴇᴀʀᴄʜ"
 
 __help__ = """
 💭 𝗦𝗘𝗔𝗥𝗖𝗛

@@ -16,7 +16,7 @@ from telegram.ext import (
 )
 from telegram.helpers import escape_markdown, mention_markdown
 
-import Database.sql.notes_sql as sql
+import Database.mongodb.notes_db as mongo
 from Mikobot import DRAGONS, LOGGER, MESSAGE_DUMP, SUPPORT_CHAT, dispatcher, function
 from Mikobot.plugins.disable import DisableAbleCommandHandler
 from Mikobot.plugins.helper_funcs.chat_status import check_admin, connection_status
@@ -42,14 +42,14 @@ MYVIDEO_MATCHER = re.compile(r"^###video(!photo)?###:")
 MYVIDEONOTE_MATCHER = re.compile(r"^###video_note(!photo)?###:")
 
 ENUM_FUNC_MAP = {
-    sql.Types.TEXT.value: dispatcher.bot.send_message,
-    sql.Types.BUTTON_TEXT.value: dispatcher.bot.send_message,
-    sql.Types.STICKER.value: dispatcher.bot.send_sticker,
-    sql.Types.DOCUMENT.value: dispatcher.bot.send_document,
-    sql.Types.PHOTO.value: dispatcher.bot.send_photo,
-    sql.Types.AUDIO.value: dispatcher.bot.send_audio,
-    sql.Types.VOICE.value: dispatcher.bot.send_voice,
-    sql.Types.VIDEO.value: dispatcher.bot.send_video,
+    mongo.Types.TEXT.value: dispatcher.bot.send_message,
+    mongo.Types.BUTTON_TEXT.value: dispatcher.bot.send_message,
+    mongo.Types.STICKER.value: dispatcher.bot.send_sticker,
+    mongo.Types.DOCUMENT.value: dispatcher.bot.send_document,
+    mongo.Types.PHOTO.value: dispatcher.bot.send_photo,
+    mongo.Types.AUDIO.value: dispatcher.bot.send_audio,
+    mongo.Types.VOICE.value: dispatcher.bot.send_voice,
+    mongo.Types.VIDEO.value: dispatcher.bot.send_video,
 }
 
 
@@ -65,7 +65,7 @@ async def get(
     chat_id = update.effective_message.chat.id
     chat = update.effective_chat
     note_chat_id = update.effective_chat.id
-    note = sql.get_note(note_chat_id, notename)
+    note = mongo.get_note(note_chat_id, notename)
     message = update.effective_message  # type: Optional[Message]
 
     if note:
@@ -79,13 +79,13 @@ async def get(
             reply_id = message.reply_to_message.message_id
         else:
             reply_id = message.message_id
-        if note.is_reply:
+        if note["is_reply"]:
             if MESSAGE_DUMP:
                 try:
                     await bot.forward_message(
                         chat_id=chat_id,
                         from_chat_id=MESSAGE_DUMP,
-                        message_id=note.value,
+                        message_id=note["value"],
                     )
                 except BadRequest as excp:
                     if excp.message == "Message to forward not found":
@@ -93,7 +93,7 @@ async def get(
                             "This message seems to have been lost - I'll remove it "
                             "from your notes list.",
                         )
-                        sql.rm_note(note_chat_id, notename)
+                        mongo.rm_note(note_chat_id, notename)
                     else:
                         raise
             else:
@@ -101,7 +101,7 @@ async def get(
                     await bot.forward_message(
                         chat_id=chat_id,
                         from_chat_id=chat_id,
-                        message_id=markdown_to_html(note.value),
+                        message_id=markdown_to_html(note["value"]),
                     )
                 except BadRequest as excp:
                     if excp.message == "Message to forward not found":
@@ -111,7 +111,7 @@ async def get(
                             "message dump to avoid this. I'll remove this note from "
                             "your saved notes.",
                         )
-                        sql.rm_note(note_chat_id, notename)
+                        mongo.rm_note(note_chat_id, notename)
                     else:
                         raise
         else:
@@ -125,7 +125,7 @@ async def get(
                 "mention",
             ]
             valid_format = escape_invalid_curly_brackets(
-                note.value,
+                note["value"],
                 VALID_NOTE_FORMATTERS,
             )
             if valid_format:
@@ -183,7 +183,7 @@ async def get(
 
             keyb = []
             parseMode = ParseMode.HTML
-            buttons = sql.get_buttons(note_chat_id, notename)
+            buttons = mongo.get_buttons(note_chat_id, notename)
             if no_format:
                 parseMode = None
                 text += revert_buttons(buttons)
@@ -193,7 +193,7 @@ async def get(
             keyboard = InlineKeyboardMarkup(keyb)
 
             try:
-                if note.msgtype in (sql.Types.BUTTON_TEXT, sql.Types.TEXT):
+                if note["msgtype"] in (mongo.Types.BUTTON_TEXT, mongo.Types.TEXT):
                     await bot.send_message(
                         chat_id,
                         markdown_to_html(text),
@@ -206,13 +206,12 @@ async def get(
                         ),
                     )
                 else:
-                    await ENUM_FUNC_MAP[note.msgtype](
+                    await ENUM_FUNC_MAP[note["msgtype"]](
                         chat_id,
-                        note.file,
+                        note['file'],
                         caption=markdown_to_html(text),
                         reply_to_message_id=reply_id,
                         parse_mode=parseMode,
-                        disable_web_page_preview=True,
                         reply_markup=keyboard,
                         message_thread_id=(
                             message.message_thread_id if chat.is_forum else None
@@ -226,13 +225,13 @@ async def get(
                         "want to mention them, forward one of their messages to me, and I'll be able "
                         "to tag them!",
                     )
-                elif FILE_MATCHER.match(note.value):
+                elif FILE_MATCHER.match(note["value"]):
                     await message.reply_text(
                         "This note was an incorrectly imported file from another bot - I can't use "
                         "it. If you really need it, you'll have to save it again. In "
                         "the meantime, I'll remove it from your notes list.",
                     )
-                    sql.rm_note(note_chat_id, notename)
+                    mongo.rm_note(note_chat_id, notename)
                 else:
                     await message.reply_text(
                         "This note could not be sent, as it is incorrectly formatted. Ask in "
@@ -243,7 +242,7 @@ async def get(
                         notename,
                         str(note_chat_id),
                     )
-                    LOGGER.warning("Message was: %s", str(note.value))
+                    LOGGER.warning("Message was: %s", str(note["value"]))
         return
     elif show_none:
         await message.reply_text("This note doesn't exist")
@@ -272,7 +271,7 @@ async def hash_get(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def slash_get(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message, chat_id = update.effective_message.text, update.effective_chat.id
     no_slash = message[1:]
-    note_list = sql.get_all_chat_notes(chat_id)
+    note_list = mongo.get_all_chat_notes(chat_id)
 
     try:
         noteid = note_list[int(no_slash) - 1]
@@ -297,7 +296,7 @@ async def save(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await msg.reply_text("Dude, there's no note content")
         return
 
-    sql.add_note_to_db(
+    mongo.add_note_to_db(
         chat_id,
         note_name,
         text,
@@ -341,7 +340,7 @@ async def clear(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if len(args) >= 1:
         notename = args[0].lower()
 
-        if sql.rm_note(chat_id, notename):
+        if mongo.rm_note(chat_id, notename):
             await update.effective_message.reply_text("Successfully removed note.")
         else:
             await update.effective_message.reply_text(
@@ -383,11 +382,11 @@ async def clearall_btn(update: Update, context: ContextTypes.DEFAULT_TYPE):
     member = await chat.get_member(query.from_user.id)
     if query.data == "notes_rmall":
         if member.status == "creator" or query.from_user.id in DRAGONS:
-            note_list = sql.get_all_chat_notes(chat.id)
+            note_list = mongo.get_all_chat_notes(chat.id)
             try:
                 for notename in note_list:
                     note = notename.name.lower()
-                    sql.rm_note(chat.id, note)
+                    mongo.rm_note(chat.id, note)
                 await message.edit_text("Deleted all notes.")
             except BadRequest:
                 return
@@ -410,14 +409,14 @@ async def clearall_btn(update: Update, context: ContextTypes.DEFAULT_TYPE):
 @connection_status
 async def list_notes(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
-    note_list = sql.get_all_chat_notes(chat_id)
+    note_list = mongo.get_all_chat_notes(chat_id)
     notes = len(note_list) + 1
     msg = "Get note by `/notenumber` or `#notename` \n\n  *ID*    *Note* \n"
     for note_id, note in zip(range(1, notes), note_list):
         if note_id < 10:
-            note_name = f"`{note_id:2}.`  `#{(note.name.lower())}`\n"
+            note_name = f"`{note_id:2}.`  `#{(note["name"].lower())}`\n"
         else:
-            note_name = f"`{note_id}.`  `#{(note.name.lower())}`\n"
+            note_name = f"`{note_id}.`  `#{(note["name"].lower())}`\n"
         if len(msg) + len(note_name) > MessageLimit.MAX_TEXT_LENGTH:
             await update.effective_message.reply_text(
                 msg, parse_mode=ParseMode.MARKDOWN
@@ -454,15 +453,15 @@ async def __import_data__(chat_id, data, message: Message):
             failures.append(notename)
             notedata = notedata[match.end() :].strip()
             if notedata:
-                sql.add_note_to_db(chat_id, notename[1:], notedata, sql.Types.TEXT)
+                mongo.add_note_to_db(chat_id, notename[1:], notedata, mongo.Types.TEXT)
         elif matchsticker:
             content = notedata[matchsticker.end() :].strip()
             if content:
-                sql.add_note_to_db(
+                mongo.add_note_to_db(
                     chat_id,
                     notename[1:],
                     notedata,
-                    sql.Types.STICKER,
+                    mongo.Types.STICKER,
                     file=content,
                 )
         elif matchbtn:
@@ -471,11 +470,11 @@ async def __import_data__(chat_id, data, message: Message):
             buttons = parse.split("<###button###>")[1]
             buttons = ast.literal_eval(buttons)
             if buttons:
-                sql.add_note_to_db(
+                mongo.add_note_to_db(
                     chat_id,
                     notename[1:],
                     notedata,
-                    sql.Types.BUTTON_TEXT,
+                    mongo.Types.BUTTON_TEXT,
                     buttons=buttons,
                 )
         elif matchfile:
@@ -484,11 +483,11 @@ async def __import_data__(chat_id, data, message: Message):
             notedata = file[1]
             content = file[0]
             if content:
-                sql.add_note_to_db(
+                mongo.add_note_to_db(
                     chat_id,
                     notename[1:],
                     notedata,
-                    sql.Types.DOCUMENT,
+                    mongo.Types.DOCUMENT,
                     file=content,
                 )
         elif matchphoto:
@@ -497,11 +496,11 @@ async def __import_data__(chat_id, data, message: Message):
             notedata = photo[1]
             content = photo[0]
             if content:
-                sql.add_note_to_db(
+                mongo.add_note_to_db(
                     chat_id,
                     notename[1:],
                     notedata,
-                    sql.Types.PHOTO,
+                    mongo.Types.PHOTO,
                     file=content,
                 )
         elif matchaudio:
@@ -510,11 +509,11 @@ async def __import_data__(chat_id, data, message: Message):
             notedata = audio[1]
             content = audio[0]
             if content:
-                sql.add_note_to_db(
+                mongo.add_note_to_db(
                     chat_id,
                     notename[1:],
                     notedata,
-                    sql.Types.AUDIO,
+                    mongo.Types.AUDIO,
                     file=content,
                 )
         elif matchvoice:
@@ -523,11 +522,11 @@ async def __import_data__(chat_id, data, message: Message):
             notedata = voice[1]
             content = voice[0]
             if content:
-                sql.add_note_to_db(
+                mongo.add_note_to_db(
                     chat_id,
                     notename[1:],
                     notedata,
-                    sql.Types.VOICE,
+                    mongo.Types.VOICE,
                     file=content,
                 )
         elif matchvideo:
@@ -536,11 +535,11 @@ async def __import_data__(chat_id, data, message: Message):
             notedata = video[1]
             content = video[0]
             if content:
-                sql.add_note_to_db(
+                mongo.add_note_to_db(
                     chat_id,
                     notename[1:],
                     notedata,
-                    sql.Types.VIDEO,
+                    mongo.Types.VIDEO,
                     file=content,
                 )
         elif matchvn:
@@ -549,15 +548,15 @@ async def __import_data__(chat_id, data, message: Message):
             notedata = video_note[1]
             content = video_note[0]
             if content:
-                sql.add_note_to_db(
+                mongo.add_note_to_db(
                     chat_id,
                     notename[1:],
                     notedata,
-                    sql.Types.VIDEO_NOTE,
+                    mongo.Types.VIDEO_NOTE,
                     file=content,
                 )
         else:
-            sql.add_note_to_db(chat_id, notename[1:], notedata, sql.Types.TEXT)
+            mongo.add_note_to_db(chat_id, notename[1:], notedata, mongo.Types.TEXT)
 
     if failures:
         with BytesIO(str.encode("\n".join(failures))) as output:
@@ -576,15 +575,15 @@ async def __import_data__(chat_id, data, message: Message):
 
 
 def __stats__():
-    return f"• {sql.num_notes()} notes, across {sql.num_chats()} chats."
+    return f"• {mongo.num_notes()} notes, across {mongo.num_chats()} chats."
 
 
 def __migrate__(old_chat_id, new_chat_id):
-    sql.migrate_chat(old_chat_id, new_chat_id)
+    mongo.migrate_chat(old_chat_id, new_chat_id)
 
 
 def __chat_settings__(chat_id, user_id):
-    notes = sql.get_all_chat_notes(chat_id)
+    notes = mongo.get_all_chat_notes(chat_id)
     return f"There are `{len(notes)}` notes in this chat."
 
 
@@ -618,7 +617,7 @@ be useful when updating a current note
 
 """
 
-__mod_name__ = "ɴᴏᴛᴇꜱ"
+__mod_name__ = "Nᴏᴛᴇꜱ"
 
 # <================================================ HANDLER =======================================================>
 function(CommandHandler("get", cmd_get))

@@ -649,7 +649,7 @@ sᴘᴇᴇᴅ ᴄᴏᴍᴍᴀɴᴅs :
 ᴊᴜsᴛ ᴀᴅᴅ *ᴄ* ɪɴ ᴛʜᴇ sᴛᴀʀᴛɪɴɢ ᴏғ ᴛʜᴇ ᴄᴏᴍᴍᴀɴᴅs ᴛᴏ ᴜsᴇ ᴛʜᴇᴍ ғᴏʀ ᴄʜᴀɴɴᴇʟ.
 
 [Only for SUDO] :
-/broadcast [MSG or reply to MSG] : Broadcast a MSG. 
+/gcast [MSG or reply to MSG] : Broadcast a MSG. 
 [>> details /broadcastinfo]
 /blacklistchat [ChatID] : Blacklist a chat.
 /whitelistchat [ChatID] : Whitelist a chat.
@@ -667,7 +667,6 @@ sᴘᴇᴇᴅ ᴄᴏᴍᴍᴀɴᴅs :
 /sysinfo : system realtime info
 /spt : speedtest
 /getinfo [ID] : info of a chat 
-/eval : evaluate a code
 /gban /ungban /forcegban & /gbanlist are generic
 /msbanall  ok: ban all
 /activevc: list of active vc
@@ -1483,7 +1482,7 @@ if __name__ == "__main__":
         pass
     except Exception:
         err = traceback.format_exc()
-        LOGGER.info(err)
+        # LOGGER.info(err)
     finally:
         try:
             if loop.is_running():

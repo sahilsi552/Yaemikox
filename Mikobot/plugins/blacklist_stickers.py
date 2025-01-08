@@ -6,7 +6,7 @@ from telegram.error import BadRequest
 from telegram.ext import CommandHandler, ContextTypes, MessageHandler, filters
 from telegram.helpers import mention_html, mention_markdown
 
-import Database.sql.blsticker_sql as sql
+import Database.mongodb.blackl_sticker as mongo
 from Mikobot import LOGGER, dispatcher
 from Mikobot.plugins.connection import connected
 from Mikobot.plugins.disable import DisableAbleCommandHandler
@@ -38,7 +38,7 @@ async def blackliststicker(update: Update, context: ContextTypes.DEFAULT_TYPE):
         chat_name,
     )
 
-    all_stickerlist = sql.get_chat_stickers(chat_id)
+    all_stickerlist = mongo.get_chat_stickers(chat_id)
 
     if len(args) > 0 and args[0].lower() == "copy":
         for trigger in all_stickerlist:
@@ -97,7 +97,7 @@ async def add_blackliststicker(update: Update, context: ContextTypes.DEFAULT_TYP
         for trigger in to_blacklist:
             try:
                 get = await bot.getStickerSet(trigger)
-                sql.add_to_stickers(chat_id, trigger.lower())
+                mongo.add_to_stickers(chat_id, trigger.lower())
                 added += 1
             except BadRequest:
                 await send_message(
@@ -138,7 +138,7 @@ async def add_blackliststicker(update: Update, context: ContextTypes.DEFAULT_TYP
             return
         try:
             get = await bot.getStickerSet(trigger)
-            sql.add_to_stickers(chat_id, trigger.lower())
+            mongo.add_to_stickers(chat_id, trigger.lower())
             added += 1
         except BadRequest:
             await send_message(
@@ -193,7 +193,7 @@ async def unblackliststicker(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
         successful = 0
         for trigger in to_unblacklist:
-            success = sql.rm_from_stickers(chat_id, trigger.lower())
+            success = mongo.rm_from_stickers(chat_id, trigger.lower())
             if success:
                 successful += 1
 
@@ -247,7 +247,7 @@ async def unblackliststicker(update: Update, context: ContextTypes.DEFAULT_TYPE)
                 "Sticker is invalid!",
             )
             return
-        success = sql.rm_from_stickers(chat_id, trigger.lower())
+        success = mongo.rm_from_stickers(chat_id, trigger.lower())
 
         if success:
             await send_message(
@@ -297,22 +297,22 @@ async def blacklist_mode(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if args:
         if args[0].lower() in ["off", "nothing", "no"]:
             settypeblacklist = "turn off"
-            sql.set_blacklist_strength(chat_id, 0, "0")
+            mongo.set_blacklist_strength(chat_id, 0, "0")
         elif args[0].lower() in ["del", "delete"]:
             settypeblacklist = "left, the message will be deleted"
-            sql.set_blacklist_strength(chat_id, 1, "0")
+            mongo.set_blacklist_strength(chat_id, 1, "0")
         elif args[0].lower() == "warn":
             settypeblacklist = "warned"
-            sql.set_blacklist_strength(chat_id, 2, "0")
+            mongo.set_blacklist_strength(chat_id, 2, "0")
         elif args[0].lower() == "mute":
             settypeblacklist = "muted"
-            sql.set_blacklist_strength(chat_id, 3, "0")
+            mongo.set_blacklist_strength(chat_id, 3, "0")
         elif args[0].lower() == "kick":
             settypeblacklist = "kicked"
-            sql.set_blacklist_strength(chat_id, 4, "0")
+            mongo.set_blacklist_strength(chat_id, 4, "0")
         elif args[0].lower() == "ban":
             settypeblacklist = "banned"
-            sql.set_blacklist_strength(chat_id, 5, "0")
+            mongo.set_blacklist_strength(chat_id, 5, "0")
         elif args[0].lower() == "tban":
             if len(args) == 1:
                 teks = """It looks like you are trying to set a temporary value to blacklist, but has not determined the time; use `/blstickermode tban <timevalue>`.
@@ -324,7 +324,7 @@ async def blacklist_mode(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
                 return
             settypeblacklist = "temporary banned for {}".format(args[1])
-            sql.set_blacklist_strength(chat_id, 6, str(args[1]))
+            mongo.set_blacklist_strength(chat_id, 6, str(args[1]))
         elif args[0].lower() == "tmute":
             if len(args) == 1:
                 teks = """It looks like you are trying to set a temporary value to blacklist, but has not determined the time; use `/blstickermode tmute <timevalue>`.
@@ -336,7 +336,7 @@ async def blacklist_mode(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
                 return
             settypeblacklist = "temporary muted for {}".format(args[1])
-            sql.set_blacklist_strength(chat_id, 7, str(args[1]))
+            mongo.set_blacklist_strength(chat_id, 7, str(args[1]))
         else:
             await send_message(
                 update.effective_message,
@@ -367,7 +367,7 @@ async def blacklist_mode(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
         )
     else:
-        getmode, getvalue = sql.get_blacklist_setting(chat.id)
+        getmode, getvalue = mongo.get_blacklist_setting(chat.id)
         if getmode == 0:
             settypeblacklist = "not active"
         elif getmode == 1:
@@ -411,9 +411,9 @@ async def del_blackliststicker(update: Update, context: ContextTypes.DEFAULT_TYP
     if not to_match or not to_match.set_name:
         return
     bot = context.bot
-    getmode, value = sql.get_blacklist_setting(chat.id)
+    getmode, value = mongo.get_blacklist_setting(chat.id)
 
-    chat_filters = sql.get_chat_stickers(chat.id)
+    chat_filters = mongo.get_chat_stickers(chat.id)
     for trigger in chat_filters:
         if to_match.set_name.lower() == trigger.lower():
             try:
@@ -533,22 +533,22 @@ async def __import_data__(chat_id, data, message):
     # set chat blacklist
     blacklist = data.get("sticker_blacklist", {})
     for trigger in blacklist:
-        sql.add_to_stickers(chat_id, trigger)
+        mongo.add_to_stickers(chat_id, trigger)
 
 
 def __migrate__(old_chat_id, new_chat_id):
-    sql.migrate_chat(old_chat_id, new_chat_id)
+    mongo.migrate_chat(old_chat_id, new_chat_id)
 
 
 def __chat_settings__(chat_id, user_id):
-    blacklisted = sql.num_stickers_chat_filters(chat_id)
+    blacklisted = mongo.num_stickers_chat_filters(chat_id)
     return "There are `{} `blacklisted stickers.".format(blacklisted)
 
 
 def __stats__():
     return "• {} blacklist stickers, across {} chats.".format(
-        sql.num_stickers_filters(),
-        sql.num_stickers_filter_chats(),
+        mongo.num_stickers_filters(),
+        mongo.num_stickers_filter_chats(),
     )
 
 

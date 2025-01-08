@@ -20,7 +20,7 @@ from telegram.error import BadRequest, Forbidden, TelegramError
 from telegram.ext import CallbackQueryHandler, CommandHandler, ContextTypes
 from telegram.helpers import mention_html, mention_markdown
 
-import Database.sql.feds_sql as sql
+import Database.mongodb.fed_db as mongo
 from Mikobot import (
     DRAGONS,
     EVENT_LOGS,
@@ -93,7 +93,7 @@ async def new_fed(update: Update, context: ContextTypes.DEFAULT_TYPE):
         fed_name = fednam
         LOGGER.info(fed_id)
 
-        x = sql.new_fed(user.id, fed_name, fed_id)
+        x = mongo.new_fed(user.id, fed_name, fed_id)
         if not x:
             await update.effective_message.reply_text(
                 f"Can't federate! Please contact @{SUPPORT_CHAT} if the problem persist.",
@@ -133,7 +133,7 @@ async def del_fed(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     if args:
         is_fed_id = args[0]
-        getinfo = sql.get_fed_info(is_fed_id)
+        getinfo = mongo.get_fed_info(is_fed_id)
         if getinfo is False:
             await update.effective_message.reply_text("This federation does not exist.")
             return
@@ -179,13 +179,13 @@ async def rename_fed(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return await msg.reply_text("usage: /renamefed <fed_id> <newname>")
 
     fed_id, newname = args[1], args[2]
-    verify_fed = sql.get_fed_info(fed_id)
+    verify_fed = mongo.get_fed_info(fed_id)
 
     if not verify_fed:
         return await msg.reply_text("This fed not exist in my database!")
 
     if is_user_fed_owner(fed_id, user.id):
-        sql.rename_fed(fed_id, user.id, newname)
+        mongo.rename_fed(fed_id, user.id, newname)
         await msg.reply_text(f"Successfully renamed your fed name to {newname}!")
     else:
         await msg.reply_text("Only federation owner can do this!")
@@ -195,7 +195,7 @@ async def fed_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     bot, args = context.bot, context.args
     chat = update.effective_chat
     user = update.effective_user
-    fed_id = sql.get_fed_id(chat.id)
+    fed_id = mongo.get_fed_id(chat.id)
 
     user_id = update.effective_message.from_user.id
     if not await is_user_admin(update.effective_chat, user_id):
@@ -212,7 +212,7 @@ async def fed_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     user = update.effective_user
     chat = update.effective_chat
-    info = sql.get_fed_info(fed_id)
+    info = mongo.get_fed_info(fed_id)
 
     text = "This group is part of the following federation:"
     text += "\n{} (ID: <code>{}</code>)".format(info["fname"], fed_id)
@@ -234,7 +234,7 @@ async def join_fed(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     message = update.effective_message
     administrators = await chat.get_administrators()
-    fed_id = sql.get_fed_id(chat.id)
+    fed_id = mongo.get_fed_id(chat.id)
 
     if user.id in DRAGONS:
         pass
@@ -254,19 +254,19 @@ async def join_fed(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if len(args) >= 1:
-        getfed = sql.search_fed_by_id(args[0])
+        getfed = mongo.search_fed_by_id(args[0])
         if getfed is False:
             await message.reply_text("Please enter a valid federation ID")
             return
 
-        x = sql.chat_join_fed(args[0], chat.title, chat.id)
+        x = mongo.chat_join_fed(args[0], chat.title, chat.id)
         if not x:
             await message.reply_text(
                 f"Failed to join federation! Please contact @{SUPPORT_CHAT} should this problem persist!",
             )
             return
 
-        get_fedlog = await sql.get_fed_log(args[0])
+        get_fedlog = await mongo.get_fed_log(args[0])
         if get_fedlog:
             if ast.literal_eval(get_fedlog):
                 await bot.send_message(
@@ -298,14 +298,14 @@ async def leave_fed(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    fed_id = sql.get_fed_id(chat.id)
-    fed_info = sql.get_fed_info(fed_id)
+    fed_id = mongo.get_fed_id(chat.id)
+    fed_info = mongo.get_fed_info(fed_id)
 
     # administrators = await chat.get_administrators().status
     getuser = await bot.get_chat_member(chat.id, user.id).status
     if getuser in "creator" or user.id in DRAGONS:
-        if sql.chat_leave_fed(chat.id) is True:
-            get_fedlog = await sql.get_fed_log(fed_id)
+        if mongo.chat_leave_fed(chat.id) is True:
+            get_fedlog = await mongo.get_fed_log(fed_id)
             if get_fedlog:
                 if ast.literal_eval(get_fedlog):
                     await bot.send_message(
@@ -348,7 +348,7 @@ async def user_join_fed(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    fed_id = sql.get_fed_id(chat.id)
+    fed_id = mongo.get_fed_id(chat.id)
 
     if is_user_fed_owner(fed_id, user.id) or user.id in DRAGONS:
         user_id = await extract_user(msg, context, args)
@@ -369,9 +369,9 @@ async def user_join_fed(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
         else:
             LOGGER.warning("error")
-        getuser = sql.search_user_in_fed(fed_id, user_id)
-        fed_id = sql.get_fed_id(chat.id)
-        info = sql.get_fed_info(fed_id)
+        getuser = mongo.search_user_in_fed(fed_id, user_id)
+        fed_id = mongo.get_fed_id(chat.id)
+        info = mongo.get_fed_info(fed_id)
         get_owner = ast.literal_eval(info["fusers"])["owner"]
         get_owner = await bot.get_chat(get_owner)
         if isinstance(get_owner, ChatMember):
@@ -390,7 +390,7 @@ async def user_join_fed(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "I already am a federation admin in all federations!",
             )
             return
-        res = sql.user_join_fed(fed_id, user_id)
+        res = mongo.user_join_fed(fed_id, user_id)
         if res:
             await update.effective_message.reply_text("Successfully Promoted!")
         else:
@@ -411,7 +411,7 @@ async def user_demote_fed(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    fed_id = sql.get_fed_id(chat.id)
+    fed_id = mongo.get_fed_id(chat.id)
 
     if is_user_fed_owner(fed_id, user.id):
         msg = update.effective_message
@@ -442,13 +442,13 @@ async def user_demote_fed(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
             return
 
-        if sql.search_user_in_fed(fed_id, user_id) is False:
+        if mongo.search_user_in_fed(fed_id, user_id) is False:
             await update.effective_message.reply_text(
                 "I cannot demote people who are not federation admins!",
             )
             return
 
-        res = sql.user_demote_fed(fed_id, user_id)
+        res = mongo.user_demote_fed(fed_id, user_id)
         if res is True:
             await update.effective_message.reply_text("Demoted from a Fed Admin!")
         else:
@@ -464,7 +464,7 @@ async def fed_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     if args:
         fed_id = args[0]
-        info = sql.get_fed_info(fed_id)
+        info = mongo.get_fed_info(fed_id)
     else:
         if chat.type == "private":
             await send_message(
@@ -472,14 +472,14 @@ async def fed_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "You need to provide me a fedid to check fedinfo in my pm.",
             )
             return
-        fed_id = sql.get_fed_id(chat.id)
+        fed_id = mongo.get_fed_id(chat.id)
         if not fed_id:
             await send_message(
                 update.effective_message,
                 "This group is not in any federation!",
             )
             return
-        info = sql.get_fed_info(fed_id)
+        info = mongo.get_fed_info(fed_id)
 
     if is_user_fed_admin(fed_id, user.id) is False:
         await update.effective_message.reply_text(
@@ -492,21 +492,21 @@ async def fed_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
         owner_name = owner.first_name + " " + owner.last_name
     except:
         owner_name = owner.first_name
-    FEDADMIN = sql.all_fed_users(fed_id)
+    FEDADMIN = mongo.all_fed_users(fed_id)
     TotalAdminFed = len(FEDADMIN)
 
     user = update.effective_user
     chat = update.effective_chat
-    info = sql.get_fed_info(fed_id)
+    info = mongo.get_fed_info(fed_id)
 
     text = "<b>ℹ️ Federation Information:</b>"
     text += "\nFedID: <code>{}</code>".format(fed_id)
     text += "\nName: {}".format(info["fname"])
     text += "\nCreator: {}".format(mention_html(owner.id, owner_name))
     text += "\nAll Admins: <code>{}</code>".format(TotalAdminFed)
-    getfban = sql.get_all_fban_users(fed_id)
+    getfban = mongo.get_all_fban_users(fed_id)
     text += "\nTotal banned users: <code>{}</code>".format(len(getfban))
-    getfchat = sql.all_fed_chats(fed_id)
+    getfchat = mongo.all_fed_chats(fed_id)
     text += "\nNumber of groups in this federation: <code>{}</code>".format(
         len(getfchat),
     )
@@ -526,7 +526,7 @@ async def fed_admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    fed_id = sql.get_fed_id(chat.id)
+    fed_id = mongo.get_fed_id(chat.id)
 
     if not fed_id:
         await update.effective_message.reply_text(
@@ -540,7 +540,7 @@ async def fed_admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     user = update.effective_user
     chat = update.effective_chat
-    info = sql.get_fed_info(fed_id)
+    info = mongo.get_fed_info(fed_id)
 
     text = "<b>Federation Admin {}:</b>\n\n".format(info["fname"])
     text += "👑 Owner:\n"
@@ -551,7 +551,7 @@ async def fed_admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
         owner_name = owner.first_name
     text += " • {}\n".format(mention_html(owner.id, owner_name))
 
-    members = sql.all_fed_members(fed_id)
+    members = mongo.all_fed_members(fed_id)
     if len(members) == 0:
         text += "\n🔱 There are no admins in this federation"
     else:
@@ -575,7 +575,7 @@ async def fed_ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    fed_id = sql.get_fed_id(chat.id)
+    fed_id = mongo.get_fed_id(chat.id)
 
     if not fed_id:
         await update.effective_message.reply_text(
@@ -583,8 +583,8 @@ async def fed_ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    info = sql.get_fed_info(fed_id)
-    getfednotif = sql.user_feds_report(info["owner"])
+    info = mongo.get_fed_info(fed_id)
+    getfednotif = mongo.user_feds_report(info["owner"])
 
     if is_user_fed_admin(fed_id, user.id) is False:
         await update.effective_message.reply_text("Only federation admins can do this!")
@@ -594,7 +594,7 @@ async def fed_ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     user_id, reason = extract_unt_fedban(message, context, args)
 
-    fban, fbanreason, fbantime = sql.get_fban_user(fed_id, user_id)
+    fban, fbanreason, fbantime = mongo.get_fban_user(fed_id, user_id)
 
     if not user_id:
         await message.reply_text("You don't seem to be referring to a user")
@@ -664,11 +664,11 @@ async def fed_ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # if reason == "":
         #    reason = "No reason given."
 
-        temp = sql.un_fban_user(fed_id, fban_user_id)
+        temp = mongo.un_fban_user(fed_id, fban_user_id)
         if not temp:
             await message.reply_text("Failed to update the reason for fedban!")
             return
-        x = sql.fban_user(
+        x = mongo.fban_user(
             fed_id,
             fban_user_id,
             fban_user_name,
@@ -683,7 +683,7 @@ async def fed_ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
             return
 
-        fed_chats = sql.all_fed_chats(fed_id)
+        fed_chats = mongo.all_fed_chats(fed_id)
         # Will send to current chat
         await bot.send_message(
             chat.id,
@@ -720,7 +720,7 @@ async def fed_ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 parse_mode="HTML",
             )
         # If fedlog is set, then send message, except fedlog is current chat
-        get_fedlog = await sql.get_fed_log(fed_id)
+        get_fedlog = await mongo.get_fed_log(fed_id)
         if get_fedlog:
             if int(get_fedlog) != int(chat.id):
                 await bot.send_message(
@@ -756,7 +756,7 @@ async def fed_ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     try:
                         await dispatcher.bot.getChat(fedschat)
                     except Forbidden:
-                        sql.chat_leave_fed(fedschat)
+                        mongo.chat_leave_fed(fedschat)
                         LOGGER.info(
                             "Chat {} has leave fed {} because I was kicked".format(
                                 fedschat,
@@ -785,10 +785,10 @@ async def fed_ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
 		"""
 
         # Fban for fed subscriber
-        subscriber = list(sql.get_subscriber(fed_id))
+        subscriber = list(mongo.get_subscriber(fed_id))
         if len(subscriber) != 0:
             for fedsid in subscriber:
-                all_fedschat = sql.all_fed_chats(fedsid)
+                all_fedschat = mongo.all_fed_chats(fedsid)
                 for fedschat in all_fedschat:
                     try:
                         await bot.ban_chat_member(fedschat, fban_user_id)
@@ -797,8 +797,8 @@ async def fed_ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
                             try:
                                 await dispatcher.bot.getChat(fedschat)
                             except Forbidden:
-                                targetfed_id = sql.get_fed_id(fedschat)
-                                sql.unsubs_fed(fed_id, targetfed_id)
+                                targetfed_id = mongo.get_fed_id(fedschat)
+                                mongo.unsubs_fed(fed_id, targetfed_id)
                                 LOGGER.info(
                                     "Chat {} has unsub fed {} because I was kicked".format(
                                         fedschat,
@@ -829,7 +829,7 @@ async def fed_ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # if reason == "":
     #    reason = "No reason given."
 
-    x = sql.fban_user(
+    x = mongo.fban_user(
         fed_id,
         fban_user_id,
         fban_user_name,
@@ -844,7 +844,7 @@ async def fed_ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    fed_chats = sql.all_fed_chats(fed_id)
+    fed_chats = mongo.all_fed_chats(fed_id)
     # Will send to current chat
     await bot.send_message(
         chat.id,
@@ -881,7 +881,7 @@ async def fed_ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
             parse_mode="HTML",
         )
     # If fedlog is set, then send message, except fedlog is current chat
-    get_fedlog = await sql.get_fed_log(fed_id)
+    get_fedlog = await mongo.get_fed_log(fed_id)
     if get_fedlog:
         if int(get_fedlog) != int(chat.id):
             await bot.send_message(
@@ -939,10 +939,10 @@ async def fed_ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
 		"""
 
         # Fban for fed subscriber
-        subscriber = list(sql.get_subscriber(fed_id))
+        subscriber = list(mongo.get_subscriber(fed_id))
         if len(subscriber) != 0:
             for fedsid in subscriber:
-                all_fedschat = sql.all_fed_chats(fedsid)
+                all_fedschat = mongo.all_fed_chats(fedsid)
                 for fedschat in all_fedschat:
                     try:
                         await bot.ban_chat_member(fedschat, fban_user_id)
@@ -951,8 +951,8 @@ async def fed_ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
                             try:
                                 await dispatcher.bot.getChat(fedschat)
                             except Forbidden:
-                                targetfed_id = sql.get_fed_id(fedschat)
-                                sql.unsubs_fed(fed_id, targetfed_id)
+                                targetfed_id = mongo.get_fed_id(fedschat)
+                                mongo.unsubs_fed(fed_id, targetfed_id)
                                 LOGGER.info(
                                     "Chat {} has unsub fed {} because I was kicked".format(
                                         fedschat,
@@ -986,7 +986,7 @@ async def unfban(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    fed_id = sql.get_fed_id(chat.id)
+    fed_id = mongo.get_fed_id(chat.id)
 
     if not fed_id:
         await update.effective_message.reply_text(
@@ -994,8 +994,8 @@ async def unfban(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    info = sql.get_fed_info(fed_id)
-    getfednotif = sql.user_feds_report(info["owner"])
+    info = mongo.get_fed_info(fed_id)
+    getfednotif = mongo.user_feds_report(info["owner"])
 
     if is_user_fed_admin(fed_id, user.id) is False:
         await update.effective_message.reply_text("Only federation admins can do this!")
@@ -1035,14 +1035,14 @@ async def unfban(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         user_target = fban_user_name
 
-    fban, fbanreason, fbantime = sql.get_fban_user(fed_id, fban_user_id)
+    fban, fbanreason, fbantime = mongo.get_fban_user(fed_id, fban_user_id)
     if fban is False:
         await message.reply_text("This user is not fbanned!")
         return
 
     banner = update.effective_user
 
-    chat_list = sql.all_fed_chats(fed_id)
+    chat_list = mongo.all_fed_chats(fed_id)
     # Will send to current chat
     await bot.send_message(
         chat.id,
@@ -1075,7 +1075,7 @@ async def unfban(update: Update, context: ContextTypes.DEFAULT_TYPE):
             parse_mode="HTML",
         )
     # If fedlog is set, then send message, except fedlog is current chat
-    get_fedlog = await sql.get_fed_log(fed_id)
+    get_fedlog = await mongo.get_fed_log(fed_id)
     if get_fedlog:
         if int(get_fedlog) != int(chat.id):
             await bot.send_message(
@@ -1120,7 +1120,7 @@ async def unfban(update: Update, context: ContextTypes.DEFAULT_TYPE):
             pass
 
     try:
-        x = sql.un_fban_user(fed_id, user_id)
+        x = mongo.un_fban_user(fed_id, user_id)
         if not x:
             await send_message(
                 update.effective_message,
@@ -1131,10 +1131,10 @@ async def unfban(update: Update, context: ContextTypes.DEFAULT_TYPE):
         pass
 
     # UnFban for fed subscriber
-    subscriber = list(sql.get_subscriber(fed_id))
+    subscriber = list(mongo.get_subscriber(fed_id))
     if len(subscriber) != 0:
         for fedsid in subscriber:
-            all_fedschat = sql.all_fed_chats(fedsid)
+            all_fedschat = mongo.all_fed_chats(fedsid)
             for fedschat in all_fedschat:
                 try:
                     await bot.unban_chat_member(fedchats, user_id)
@@ -1143,8 +1143,8 @@ async def unfban(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         try:
                             await dispatcher.bot.getChat(fedschat)
                         except Forbidden:
-                            targetfed_id = sql.get_fed_id(fedschat)
-                            sql.unsubs_fed(fed_id, targetfed_id)
+                            targetfed_id = mongo.get_fed_id(fedschat)
+                            mongo.unsubs_fed(fed_id, targetfed_id)
                             LOGGER.info(
                                 "Chat {} has unsub fed {} because I was kicked".format(
                                     fedschat,
@@ -1176,9 +1176,9 @@ async def unfban(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     # Also do not spamming all fed admins
     """
-	FEDADMIN = sql.all_fed_users(fed_id)
+	FEDADMIN = mongo.all_fed_users(fed_id)
 	for x in FEDADMIN:
-		getreport = sql.user_feds_report(x)
+		getreport = mongo.user_feds_report(x)
 		if getreport is False:
 			FEDADMIN.remove(x)
 	send_to_list(bot, FEDADMIN,
@@ -1205,7 +1205,7 @@ async def set_frules(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    fed_id = sql.get_fed_id(chat.id)
+    fed_id = mongo.get_fed_id(chat.id)
 
     if not fed_id:
         await update.effective_message.reply_text(
@@ -1229,16 +1229,16 @@ async def set_frules(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 entities=msg.parse_entities(),
                 offset=offset,
             )
-        x = sql.set_frules(fed_id, markdown_rules)
+        x = mongo.set_frules(fed_id, markdown_rules)
         if not x:
             await update.effective_message.reply_text(
                 f"Whoa! There was an error while setting federation rules! If you wondered why please ask it in @{SUPPORT_CHAT}!",
             )
             return
 
-        rules = sql.get_fed_info(fed_id)["frules"]
-        getfed = sql.get_fed_info(fed_id)
-        get_fedlog = await sql.get_fed_log(fed_id)
+        rules = mongo.get_fed_info(fed_id)["frules"]
+        getfed = mongo.get_fed_info(fed_id)
+        get_fedlog = await mongo.get_fed_log(fed_id)
         if get_fedlog:
             if ast.literal_eval(get_fedlog):
                 await bot.send_message(
@@ -1272,14 +1272,14 @@ async def get_frules(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    fed_id = sql.get_fed_id(chat.id)
+    fed_id = mongo.get_fed_id(chat.id)
     if not fed_id:
         await update.effective_message.reply_text(
             "This group is not in any federation!"
         )
         return
 
-    rules = sql.get_frules(fed_id)
+    rules = mongo.get_frules(fed_id)
     text = "*Rules in this fed:*\n"
     text += rules
     await update.effective_message.reply_text(text, parse_mode=ParseMode.MARKDOWN)
@@ -1300,8 +1300,8 @@ async def fed_broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if args:
         chat = update.effective_chat
-        fed_id = sql.get_fed_id(chat.id)
-        fedinfo = sql.get_fed_info(fed_id)
+        fed_id = mongo.get_fed_id(chat.id)
+        fedinfo = mongo.get_fed_info(fed_id)
         if is_user_fed_owner(fed_id, user.id) is False:
             await update.effective_message.reply_text(
                 "Only federation owners can do this!"
@@ -1319,7 +1319,7 @@ async def fed_broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
         except:
             broadcaster = user.first_name + " " + user.last_name
         text += "\n\n- {}".format(mention_markdown(user.id, broadcaster))
-        chat_list = sql.all_fed_chats(fed_id)
+        chat_list = mongo.all_fed_chats(fed_id)
         failed = 0
         for chat in chat_list:
             title = "*New broadcast from Fed {}*\n".format(fedinfo["fname"])
@@ -1335,7 +1335,7 @@ async def fed_broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     await dispatcher.bot.getChat(chat)
                 except Forbidden:
                     failed += 1
-                    sql.chat_leave_fed(chat)
+                    mongo.chat_leave_fed(chat)
                     LOGGER.info(
                         "Chat {} has left fed {} because I was kicked".format(
                             chat,
@@ -1366,8 +1366,8 @@ async def fed_ban_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    fed_id = sql.get_fed_id(chat.id)
-    info = sql.get_fed_info(fed_id)
+    fed_id = mongo.get_fed_id(chat.id)
+    info = mongo.get_fed_info(fed_id)
 
     if not fed_id:
         await update.effective_message.reply_text(
@@ -1381,7 +1381,7 @@ async def fed_ban_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     user = update.effective_user
     chat = update.effective_chat
-    getfban = sql.get_all_fban_users(fed_id)
+    getfban = mongo.get_all_fban_users(fed_id)
     if len(getfban) == 0:
         await update.effective_message.reply_text(
             "The federation ban list of {} is empty".format(info["fname"]),
@@ -1415,7 +1415,7 @@ async def fed_ban_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     put_chat(chat.id, new_jam, chat_data)
             backups = ""
             for users in getfban:
-                getuserinfo = sql.get_all_fban_users_target(fed_id, users)
+                getuserinfo = mongo.get_all_fban_users_target(fed_id, users)
                 json_parser = {
                     "user_id": users,
                     "first_name": getuserinfo["first_name"],
@@ -1461,7 +1461,7 @@ async def fed_ban_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     put_chat(chat.id, new_jam, chat_data)
             backups = "id,firstname,lastname,username,reason\n"
             for users in getfban:
-                getuserinfo = sql.get_all_fban_users_target(fed_id, users)
+                getuserinfo = mongo.get_all_fban_users_target(fed_id, users)
                 backups += (
                     "{user_id},{first_name},{last_name},{user_name},{reason}".format(
                         user_id=users,
@@ -1489,7 +1489,7 @@ async def fed_ban_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         info["fname"],
     )
     for users in getfban:
-        getuserinfo = sql.get_all_fban_users_target(fed_id, users)
+        getuserinfo = mongo.get_all_fban_users_target(fed_id, users)
         if getuserinfo is False:
             text = "There are no users banned from the federation {}".format(
                 info["fname"],
@@ -1546,7 +1546,7 @@ async def fed_notif(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat = update.effective_chat
     user = update.effective_user
     msg = update.effective_message
-    fed_id = sql.get_fed_id(chat.id)
+    fed_id = mongo.get_fed_id(chat.id)
 
     if not fed_id:
         await update.effective_message.reply_text(
@@ -1556,19 +1556,19 @@ async def fed_notif(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if args:
         if args[0] in ("yes", "on"):
-            sql.set_feds_setting(user.id, True)
+            mongo.set_feds_setting(user.id, True)
             await msg.reply_text(
                 "Reporting Federation back up! Every user who is fban / unfban you will be notified via PM.",
             )
         elif args[0] in ("no", "off"):
-            sql.set_feds_setting(user.id, False)
+            mongo.set_feds_setting(user.id, False)
             await msg.reply_text(
                 "Reporting Federation has stopped! Every user who is fban / unfban you will not be notified via PM.",
             )
         else:
             await msg.reply_text("Please enter `on`/`off`", parse_mode="markdown")
     else:
-        getreport = sql.user_feds_report(user.id)
+        getreport = mongo.user_feds_report(user.id)
         await msg.reply_text(
             "Your current Federation report preferences: `{}`".format(getreport),
             parse_mode="markdown",
@@ -1587,8 +1587,8 @@ async def fed_chats(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    fed_id = sql.get_fed_id(chat.id)
-    info = sql.get_fed_info(fed_id)
+    fed_id = mongo.get_fed_id(chat.id)
+    info = mongo.get_fed_info(fed_id)
 
     if not fed_id:
         await update.effective_message.reply_text(
@@ -1600,7 +1600,7 @@ async def fed_chats(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.effective_message.reply_text("Only federation admins can do this!")
         return
 
-    getlist = sql.all_fed_chats(fed_id)
+    getlist = mongo.all_fed_chats(fed_id)
     if len(getlist) == 0:
         await update.effective_message.reply_text(
             "No users are fbanned from the federation {}".format(info["fname"]),
@@ -1614,7 +1614,7 @@ async def fed_chats(update: Update, context: ContextTypes.DEFAULT_TYPE):
             chat_obj = await dispatcher.bot.getChat(chats)
             chat_name = chat_obj.title
         except Forbidden:
-            sql.chat_leave_fed(chats)
+            mongo.chat_leave_fed(chats)
             LOGGER.info(
                 "Chat {} has leave fed {} because I was kicked".format(
                     chats,
@@ -1653,9 +1653,9 @@ async def fed_import_bans(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    fed_id = sql.get_fed_id(chat.id)
-    info = sql.get_fed_info(fed_id)
-    getfed = sql.get_fed_info(fed_id)
+    fed_id = mongo.get_fed_id(chat.id)
+    info = mongo.get_fed_info(fed_id)
+    getfed = mongo.get_fed_info(fed_id)
 
     if not fed_id:
         await update.effective_message.reply_text(
@@ -1755,7 +1755,7 @@ async def fed_import_bans(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     multi_import_username.append(import_username)
                     multi_import_reason.append(import_reason)
                     success += 1
-                sql.multi_fban_user(
+                mongo.multi_fban_user(
                     multi_fed_id,
                     multi_import_userid,
                     multi_import_firstname,
@@ -1768,7 +1768,7 @@ async def fed_import_bans(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
             if failed >= 1:
                 text += " {} Failed to import.".format(failed)
-            get_fedlog = await sql.get_fed_log(fed_id)
+            get_fedlog = await mongo.get_fed_log(fed_id)
             if get_fedlog:
                 if ast.literal_eval(get_fedlog):
                     teks = "Fed *{}* has successfully imported data. {} banned.".format(
@@ -1837,9 +1837,9 @@ async def fed_import_bans(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     multi_import_username.append(import_username)
                     multi_import_reason.append(import_reason)
                     success += 1
-                    # t = ThreadWithReturnValue(target=sql.fban_user, args=(fed_id, str(import_userid), import_firstname, import_lastname, import_username, import_reason,))
+                    # t = ThreadWithReturnValue(target=mongo.fban_user, args=(fed_id, str(import_userid), import_firstname, import_lastname, import_username, import_reason,))
                     # t.start()
-                sql.multi_fban_user(
+                mongo.multi_fban_user(
                     multi_fed_id,
                     multi_import_userid,
                     multi_import_firstname,
@@ -1852,7 +1852,7 @@ async def fed_import_bans(update: Update, context: ContextTypes.DEFAULT_TYPE):
             text = "Files were imported successfully. {} people banned.".format(success)
             if failed >= 1:
                 text += " {} Failed to import.".format(failed)
-            get_fedlog = await sql.get_fed_log(fed_id)
+            get_fedlog = await mongo.get_fed_log(fed_id)
             if get_fedlog:
                 if ast.literal_eval(get_fedlog):
                     teks = "Fed *{}* has successfully imported data. {} banned.".format(
@@ -1886,9 +1886,9 @@ async def del_fed_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.message.edit_text("Federation deletion cancelled")
         return
 
-    getfed = sql.get_fed_info(fed_id)
+    getfed = mongo.get_fed_info(fed_id)
     if getfed:
-        delete = sql.del_fed(fed_id)
+        delete = mongo.del_fed(fed_id)
         if delete:
             await query.message.edit_text(
                 "You have removed your Federation! Now all the Groups that are connected with `{}` do not have a Federation.".format(
@@ -1915,7 +1915,7 @@ async def fed_stat_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if user_id:
         if len(args) == 2 and args[0].isdigit():
             fed_id = args[1]
-            user_name, reason, fbantime = sql.get_user_fban(fed_id, str(user_id))
+            user_name, reason, fbantime = mongo.get_user_fban(fed_id, str(user_id))
             if fbantime:
                 fbantime = time.strftime("%d/%m/%Y", time.localtime(fbantime))
             else:
@@ -1944,7 +1944,7 @@ async def fed_stat_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     update.effective_message, teks, parse_mode="markdown"
                 )
             return
-        user_name, fbanlist = sql.get_user_fbanlist(str(user_id))
+        user_name, fbanlist = mongo.get_user_fbanlist(str(user_id))
         if user_name == "":
             try:
                 user_first = await bot.get_chat(user_id)
@@ -1969,7 +1969,7 @@ async def fed_stat_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     elif not msg.reply_to_message and not args:
         user_id = msg.from_user.id
-        user_name, fbanlist = sql.get_user_fbanlist(user_id)
+        user_name, fbanlist = mongo.get_user_fbanlist(user_id)
         if user_name == "":
             user_name = msg.from_user.first_name
         if len(fbanlist) == 0:
@@ -1986,13 +1986,13 @@ async def fed_stat_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     else:
         fed_id = args[0]
-        fedinfo = sql.get_fed_info(fed_id)
+        fedinfo = mongo.get_fed_info(fed_id)
         if not fedinfo:
             await send_message(
                 update.effective_message, "Fed {} not found!".format(fed_id)
             )
             return
-        name, reason, fbantime = sql.get_user_fban(fed_id, msg.from_user.id)
+        name, reason, fbantime = mongo.get_user_fban(fed_id, msg.from_user.id)
         if fbantime:
             fbantime = time.strftime("%d/%m/%Y", time.localtime(fbantime))
         else:
@@ -2030,7 +2030,7 @@ async def set_fed_log(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if args:
-        fedinfo = sql.get_fed_info(args[0])
+        fedinfo = mongo.get_fed_info(args[0])
         if not fedinfo:
             await send_message(
                 update.effective_message, "This Federation does not exist!"
@@ -2043,7 +2043,7 @@ async def set_fed_log(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "Only federation creator can set federation logs.",
             )
             return
-        setlog = sql.set_fed_log(args[0], chat.id)
+        setlog = mongo.set_fed_log(args[0], chat.id)
         if setlog:
             await send_message(
                 update.effective_message,
@@ -2074,7 +2074,7 @@ async def unset_fed_log(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if args:
-        fedinfo = sql.get_fed_info(args[0])
+        fedinfo = mongo.get_fed_info(args[0])
         if not fedinfo:
             await send_message(
                 update.effective_message, "This Federation does not exist!"
@@ -2087,7 +2087,7 @@ async def unset_fed_log(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "Only federation creator can set federation logs.",
             )
             return
-        setlog = sql.set_fed_log(args[0], None)
+        setlog = mongo.set_fed_log(args[0], None)
         if setlog:
             await send_message(
                 update.effective_message,
@@ -2117,8 +2117,8 @@ async def subs_feds(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    fed_id = sql.get_fed_id(chat.id)
-    fedinfo = sql.get_fed_info(fed_id)
+    fed_id = mongo.get_fed_id(chat.id)
+    fedinfo = mongo.get_fed_info(fed_id)
 
     if not fed_id:
         await send_message(
@@ -2131,14 +2131,14 @@ async def subs_feds(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if args:
-        getfed = sql.search_fed_by_id(args[0])
+        getfed = mongo.search_fed_by_id(args[0])
         if getfed is False:
             await send_message(
                 update.effective_message,
                 "Please enter a valid federation id.",
             )
             return
-        subfed = sql.subs_fed(args[0], fed_id)
+        subfed = mongo.subs_fed(args[0], fed_id)
         if subfed:
             await send_message(
                 update.effective_message,
@@ -2148,7 +2148,7 @@ async def subs_feds(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 ),
                 parse_mode="markdown",
             )
-            get_fedlog = await sql.get_fed_log(args[0])
+            get_fedlog = await mongo.get_fed_log(args[0])
             if get_fedlog:
                 if int(get_fedlog) != int(chat.id):
                     await bot.send_message(
@@ -2193,8 +2193,8 @@ async def unsubs_feds(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    fed_id = sql.get_fed_id(chat.id)
-    fedinfo = sql.get_fed_info(fed_id)
+    fed_id = mongo.get_fed_id(chat.id)
+    fedinfo = mongo.get_fed_info(fed_id)
 
     if not fed_id:
         await send_message(
@@ -2207,14 +2207,14 @@ async def unsubs_feds(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if args:
-        getfed = sql.search_fed_by_id(args[0])
+        getfed = mongo.search_fed_by_id(args[0])
         if getfed is False:
             await send_message(
                 update.effective_message,
                 "Please enter a valid federation id.",
             )
             return
-        subfed = sql.unsubs_fed(args[0], fed_id)
+        subfed = mongo.unsubs_fed(args[0], fed_id)
         if subfed:
             await send_message(
                 update.effective_message,
@@ -2224,7 +2224,7 @@ async def unsubs_feds(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 ),
                 parse_mode="markdown",
             )
-            get_fedlog = await sql.get_fed_log(args[0])
+            get_fedlog = await mongo.get_fed_log(args[0])
             if get_fedlog:
                 if int(get_fedlog) != int(chat.id):
                     await bot.send_message(
@@ -2269,8 +2269,8 @@ async def get_myfedsubs(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    fed_id = sql.get_fed_id(chat.id)
-    fedinfo = sql.get_fed_info(fed_id)
+    fed_id = mongo.get_fed_id(chat.id)
+    fedinfo = mongo.get_fed_info(fed_id)
 
     if not fed_id:
         await send_message(
@@ -2283,7 +2283,7 @@ async def get_myfedsubs(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     try:
-        getmy = sql.get_mysubs(fed_id)
+        getmy = mongo.get_mysubs(fed_id)
     except:
         getmy = []
 
@@ -2313,7 +2313,7 @@ async def get_myfeds_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     msg = update.effective_message
 
-    fedowner = sql.get_user_owner_fed_full(user.id)
+    fedowner = mongo.get_user_owner_fed_full(user.id)
     if fedowner:
         text = "*You are owner of feds:\n*"
         for f in fedowner:
@@ -2324,7 +2324,7 @@ async def get_myfeds_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 def is_user_fed_admin(fed_id, user_id):
-    fed_admins = sql.all_fed_users(fed_id)
+    fed_admins = mongo.all_fed_users(fed_id)
     if fed_admins is False:
         return False
     if int(user_id) in fed_admins or int(user_id) == OWNER_ID:
@@ -2334,7 +2334,7 @@ def is_user_fed_admin(fed_id, user_id):
 
 
 def is_user_fed_owner(fed_id, user_id):
-    getsql = sql.get_fed_info(fed_id)
+    getsql = mongo.get_fed_info(fed_id)
     if getsql is False:
         return False
     getfedowner = ast.literal_eval(getsql["fusers"])
@@ -2354,8 +2354,8 @@ async def welcome_fed(update: Update, context: ContextTypes.DEFAULT_TYPE):
     bot, args = context.bot, context.args
     chat = update.effective_chat
     user = update.effective_user
-    fed_id = sql.get_fed_id(chat.id)
-    fban, fbanreason, fbantime = sql.get_fban_user(fed_id, user.id)
+    fed_id = mongo.get_fed_id(chat.id)
+    fban, fbanreason, fbantime = mongo.get_fban_user(fed_id, user.id)
     if fban:
         await update.effective_message.reply_text(
             "This user is banned in current federation! I will remove him.",
@@ -2367,8 +2367,8 @@ async def welcome_fed(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 def __stats__():
-    all_fbanned = sql.get_all_fban_users_global()
-    all_feds = sql.get_all_feds_users_global()
+    all_fbanned = mongo.get_all_fban_users_global()
+    all_feds = mongo.get_all_feds_users_global()
     return "• {} banned users across {} Federations".format(
         len(all_fbanned),
         len(all_feds),
@@ -2376,10 +2376,10 @@ def __stats__():
 
 
 def __user_info__(user_id, chat_id):
-    fed_id = sql.get_fed_id(chat_id)
+    fed_id = mongo.get_fed_id(chat_id)
     if fed_id:
-        fban, fbanreason, fbantime = sql.get_fban_user(fed_id, user_id)
-        info = sql.get_fed_info(fed_id)
+        fban, fbanreason, fbantime = mongo.get_fban_user(fed_id, user_id)
+        info = mongo.get_fed_info(fed_id)
         infoname = info["fname"]
 
         if int(info["owner"]) == user_id:
@@ -2464,7 +2464,7 @@ async def fed_user_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # <=================================================== HELP ====================================================>
 
 
-__mod_name__ = "ꜰᴇᴅꜱ"
+__mod_name__ = "Fᴇᴅꜱ"
 
 __help__ = """
 ➠ *Everything is fun, until a spammer starts entering your group, and you have to block it. Then you need to start banning more, and more, and it hurts*.

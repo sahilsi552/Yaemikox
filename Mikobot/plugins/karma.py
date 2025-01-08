@@ -1,8 +1,4 @@
-# https://github.com/Team-ProjectCodeX
-# UPDATED BY https://t.me/O_okarma
-# https://t.me/ProjectCodeX
 
-# <============================================== IMPORTS =========================================================>
 import asyncio
 
 from pyrogram import filters
@@ -18,7 +14,6 @@ karma_positive_group = 3
 karma_negative_group = 4
 
 
-# <================================================ FUNCTION =======================================================>
 @app.on_message(
     filters.text
     & filters.group
@@ -165,7 +160,7 @@ async def karma_toggle_xd(_, message):
 # <=================================================== HELP ====================================================>
 
 
-__mod_name__ = "ᴋᴀʀᴍᴀ"
+__mod_name__ = "Kᴀʀᴍᴀ"
 __help__ = """
 
 ➠ *UPVOTE* - Use upvote keywords like "+", "+1", "thanks", etc. to upvote a message.

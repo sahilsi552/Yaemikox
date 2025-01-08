@@ -12,8 +12,8 @@ from telegram.error import BadRequest, Forbidden, TelegramError
 from telegram.ext import CommandHandler, ContextTypes, MessageHandler, filters
 from telegram.helpers import escape_markdown
 
-import Database.sql.users_sql as sql
-from Database.sql.users_sql import get_all_users
+import Database.mongodb.userDb as mongo
+from Database.mongodb.userDb import get_all_users
 from Mikobot import DEV_USERS, LOGGER, OWNER_ID, app, dispatcher, function
 
 # <=======================================================================================================>
@@ -39,7 +39,7 @@ async def broadcast_cmd(client: Client, message: Message):
     user_id = message.from_user.id
     texttt = message.text.split(" ")
 
-    if user_id not in [OWNER_ID] + DEV_USERS:
+    if user_id != OWNER_ID:
         await message.reply_text(
             "You are not authorized to use this command. Only the owner and authorized users can use it."
         )
@@ -61,7 +61,7 @@ async def broadcast_cmd(client: Client, message: Message):
     chatttt = 0
     uerror = 0
     cerror = 0
-    chats = sql.get_all_chats() or []
+    chats = mongo.get_all_chats() or []
     users = get_all_users()
 
     if "-all" in texttt:
@@ -76,9 +76,9 @@ async def broadcast_cmd(client: Client, message: Message):
                 msg = get_arg(message)
             try:
                 if message.reply_to_message:
-                    aa = await msg.copy(chat.user_id)
+                    aa = await msg.copy(chat["user_id"])
                 else:
-                    aa = await client.send_message(chat.user_id, msg)
+                    aa = await client.send_message(chat["user_id"], msg)
 
                 usersss += 1
                 await asyncio.sleep(0.3)
@@ -93,9 +93,9 @@ async def broadcast_cmd(client: Client, message: Message):
                 msg = get_arg(message)
             try:
                 if message.reply_to_message:
-                    aa = await msg.copy(chat.chat_id)
+                    aa = await msg.copy(chat["chat_id"])
                 else:
-                    aa = await client.send_message(chat.chat_id, msg)
+                    aa = await client.send_message(chat["chat_id"], msg)
 
                 chatttt += 1
                 await asyncio.sleep(0.3)
@@ -116,18 +116,18 @@ async def get_user_id(username: str) -> Union[int, None]:
     if username.startswith("@"):
         username = username[1:]
 
-    users = sql.get_userid_by_name(username)
+    users = mongo.get_userid_by_name(username)
 
     if not users:
         return None
 
     elif len(users) == 1:
-        return users[0].user_id
+        return users[0]["user_id"]
 
     else:
         for user_obj in users:
             try:
-                userdat = await dispatcher.bot.get_chat(user_obj.user_id)
+                userdat = await dispatcher.bot.get_chat(user_obj["user_id"])
                 if userdat.username == username:
                     return userdat.id
 
@@ -152,7 +152,7 @@ async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
             to_user = True
         else:
             to_group = to_user = True
-        chats = sql.get_all_chats() or []
+        chats = mongo.get_all_chats() or []
         users = get_all_users()
         failed = 0
         failed_user = 0
@@ -160,7 +160,7 @@ async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
             for chat in chats:
                 try:
                     await context.bot.sendMessage(
-                        int(chat.chat_id),
+                        int(chat["chat_id"]),
                         escape_markdown(to_send[1], 2),
                         parse_mode=ParseMode.MARKDOWN_V2,
                         disable_web_page_preview=True,
@@ -172,7 +172,7 @@ async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
             for user in users:
                 try:
                     await context.bot.sendMessage(
-                        int(user.user_id),
+                        int(user["user_id"]),
                         escape_markdown(to_send[1], 2),
                         parse_mode=ParseMode.MARKDOWN_V2,
                         disable_web_page_preview=True,
@@ -189,10 +189,10 @@ async def log_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat = update.effective_chat
     msg = update.effective_message
 
-    sql.update_user(msg.from_user.id, msg.from_user.username, chat.id, chat.title)
+    mongo.update_user(msg.from_user.id, msg.from_user.username, chat.id, chat.title)
 
     if msg.reply_to_message:
-        sql.update_user(
+        mongo.update_user(
             msg.reply_to_message.from_user.id,
             msg.reply_to_message.from_user.username,
             chat.id,
@@ -200,22 +200,22 @@ async def log_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
     if msg.from_user:
-        sql.update_user(msg.from_user.id, msg.from_user.username)
+        mongo.update_user(msg.from_user.id, msg.from_user.username)
 
 
 async def chats(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    all_chats = sql.get_all_chats() or []
+    all_chats = mongo.get_all_chats() or []
     chatfile = "List of chats.\n0. Chat Name | Chat ID | Members Count\n"
     P = 1
     for chat in all_chats:
         try:
-            curr_chat = await context.bot.getChat(chat.chat_id)
+            curr_chat = await context.bot.getChat(chat["chat_id"])
             await curr_chat.get_member(context.bot.id)
             chat_members = await curr_chat.get_member_count(context.bot.id)
             chatfile += "{}. {} | {} | {}\n".format(
                 P,
-                chat.chat_name,
-                chat.chat_id,
+                chat["chat_name"],
+                chat["chat_id"],
                 chat_members,
             )
             P = P + 1
@@ -247,22 +247,17 @@ def __user_info__(user_id):
         return """Groups Count: ???"""
     if user_id == dispatcher.bot.id:
         return """Groups Count: ???"""
-    num_chats = sql.get_user_num_chats(user_id)
+    num_chats = mongo.get_user_num_chats(user_id)
     return f"""Groups Count: {num_chats}"""
 
 
 def __stats__():
-    return f"• {sql.num_users()} users, across {sql.num_chats()} chats"
+    return f"• {mongo.num_users()} users, across {mongo.num_chats()} chats"
 
 
 def __migrate__(old_chat_id, new_chat_id):
-    sql.migrate_chat(old_chat_id, new_chat_id)
+    mongo.migrate_chat(old_chat_id, new_chat_id)
 
-
-# <================================================ HANDLER =======================================================>
-# BROADCAST_HANDLER = CommandHandler(
-# ["broadcastall", "broadcastusers", "broadcastgroups"], broadcast, block=False
-# )
 USER_HANDLER = MessageHandler(
     filters.ALL & filters.ChatType.GROUPS, log_user, block=False
 )
@@ -276,6 +271,6 @@ function(USER_HANDLER, USERS_GROUP)
 function(CHATLIST_HANDLER)
 function(CHAT_CHECKER_HANDLER, CHAT_GROUP)
 
-__mod_name__ = "ᴜꜱᴇʀꜱ"
+__mod_name__ = "Uꜱᴇʀꜱ"
 __handlers__ = [(USER_HANDLER, USERS_GROUP), CHATLIST_HANDLER]
 # <================================================ END =======================================================>

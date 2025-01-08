@@ -15,7 +15,7 @@ from telegram.error import BadRequest
 from telegram.ext import CommandHandler, ContextTypes
 from telegram.helpers import mention_html
 
-from Database.sql.approve_sql import is_approved
+from Database.mongodb.approve_db import is_approved
 from Infamous.karma import START_IMG,SUPPORT_CHAT
 from Mikobot import DEV_USERS, DRAGONS, INFOPIC, OWNER_ID, function,BOT_NAME
 from Mikobot.__main__ import STATS, USER_INFO
@@ -192,8 +192,11 @@ async def info(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await reply_with_text(escape(head))
 
 
-@support_plus
+
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    ID = update.effective_message.from_user.id
+    if ID != OWNER_ID:
+        return
     stats = f"📊 <b>{BOT_NAME} Bot's Statistics:</b>\n\n" + "\n".join(
         [mod.__stats__() for mod in STATS]
     )
@@ -235,7 +238,7 @@ INFO_HANDLER = CommandHandler(("info", "book"), info, block=False)
 function(STATS_HANDLER)
 function(INFO_HANDLER)
 
-__mod_name__ = "ɪɴꜰᴏ"
+__mod_name__ = "Iɴꜰᴏ"
 __command_list__ = ["info"]
 __handlers__ = [INFO_HANDLER, STATS_HANDLER]
 # <================================================ END =======================================================>

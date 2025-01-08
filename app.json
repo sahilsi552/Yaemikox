@@ -54,11 +54,6 @@
          "required": true,
          "value": "mongodb+srv://"
       },
-      "DATABASE_URL": {
-         "description": "Required for SQL database connections.",
-         "required": true,
-         "value": "postgres://"
-      },
       "OWNER_ID": {
          "description": "Your user ID as an integer.",
          "required": true,
