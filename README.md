@@ -71,7 +71,7 @@ python3 -m Mikobot         # 8. Run the Bot
 <p align="center">Click the button below to deploy YAE ダ MIKO on Heroku and enjoy its enhanced features and user-friendly interface!</p>
 
 <p align="center">
-    <a href="https://dashboard.heroku.com/new?template=https://github.com/Noob-mukesh/File-Store">
+    <a href="https://dashboard.heroku.com/new?template=https://github.com/sahilsi552/Yaemikox">
         <img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy">
     </a>
 </p>
