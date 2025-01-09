@@ -1482,14 +1482,14 @@ if __name__ == "__main__":
         pass
     except Exception:
         err = traceback.format_exc()
-        # LOGGER.info(err)
-    finally:
-        try:
-            if loop.is_running():
-                loop.stop()
-        finally:
-            loop.close()
-        LOGGER.info(
-            "------------------------ Stopped Services ------------------------"
-        )
+        LOGGER.info(err)
+    # finally:
+    #     try:
+    #         if loop.is_running():
+    #             loop.stop()
+    #     finally:
+    #         loop.close()
+    #     LOGGER.info(
+    #         "------------------------ Stopped Services ------------------------"
+    #     )
 # <==================================================== END ===================================================>
