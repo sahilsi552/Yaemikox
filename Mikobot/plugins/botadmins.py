@@ -97,11 +97,8 @@ __help__ = """
 
 ➠ *Write with text message*
 
-» /broadcastall
+» /gcast ` -user -all -groups `
 
-» /broadcastusers
-
-» /broadcastgroups
 """
 
 __mod_name__ = "ʙᴏᴛ-ᴀᴅᴍɪɴ"
