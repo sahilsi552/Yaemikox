@@ -30,7 +30,7 @@ gpytranslate==1.5.1
 
 # ==== H ====
 html2text==2024.2.26
-httpx[http2]
+httpx
 humanize==4.11.0
 
 # ==== J ====
@@ -61,8 +61,8 @@ pymongo==4.9.2
 pyrate-limiter==3.7.0
 pytz==2024.1
 python-arq==6.0.7
-pyrogram==2.0.106
-python-telegram-bot==21.9
+pyrofork
+python-telegram-bot==21.10
 
 # ==== R ====
 regex==2024.7.24
