@@ -111,7 +111,7 @@ async def approved(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         for i in approved_users:
             member = await chat.get_member(int(i["user_id"]))
-            msg += f"- `{i["user_id"]}`: {member.user['first_name']}\n"
+            msg += f"- `{i['user_id']}`: {member.user['first_name']}\n"
 
         await message.reply_text(msg, parse_mode=ParseMode.MARKDOWN)
 
