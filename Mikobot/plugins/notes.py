@@ -416,7 +416,7 @@ async def list_notes(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if note_id < 10:
             note_name = f"`{note_id:2}.`  `#{note['name'].lower()}`\n"
         else:
-            note_name = f"`{note_id}.`  `#{(note["name"].lower())}`\n"
+            note_name = f"`{note_id}.`  `#{(note['name'].lower())}`\n"
         if len(msg) + len(note_name) > MessageLimit.MAX_TEXT_LENGTH:
             await update.effective_message.reply_text(
                 msg, parse_mode=ParseMode.MARKDOWN
