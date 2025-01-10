@@ -52,6 +52,7 @@ from Mikobot.plugins import ALL_MODULES
 from Mikobot.plugins.helper_funcs.chat_status import is_user_admin
 from Mikobot.plugins.helper_funcs.misc import paginate_modules
 from Infamous.karma import START_IMG,GROUP_START_BTN
+from Mikobot.plugins.rules import send_rules
 # <=======================================================================================================>
 
 PYTHON_VERSION = python_version()
@@ -233,6 +234,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     send_settings(match.group(1), update.effective_user.id, False)
                 else:
                     send_settings(match.group(1), update.effective_user.id, True)
+                    
+            elif args[0].lower().startwith("rules_"):
+                chat_id = args[0].split("_", 1)[1]
+                await send_rules(update, chat_id)
+                
 
             elif args[0][1:].isdigit() and "rules" in IMPORTED:
                 await IMPORTED["rules"].send_rules(update, args[0], from_pm=True)

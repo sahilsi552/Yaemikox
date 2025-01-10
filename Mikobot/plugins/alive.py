@@ -11,7 +11,7 @@ import telethon
 from pyrogram.types import InlineKeyboardMarkup, Message
 
 from Infamous.karma import HEY_IMG, ALIVE_BTN
-from Mikobot import BOT_NAME, app, StartTime
+from Mikobot import BOT_NAME, app, StartTime ,BOT_USERNAME, DRAGONS
 import time
 
 from pyrogram.enums import ParseMode
@@ -40,11 +40,192 @@ from pyrogram.types import InputMediaPhoto, Message
 
 from Mikobot.state import state
 
+from datetime import datetime
+from Database.mongodb.karma_mongo import get_couple, save_couple
+
+
 # <=======================================================================================================>
 
 BINGSEARCH_URL = "https://sugoi-api.vercel.app/search"
 NEWS_URL = "https://sugoi-api.vercel.app/news?keyword={}"
 # <=======================================================================================================>
+
+from os import remove
+
+from Database.mongodb.toggle_mongo import is_nsfw_on, nsfw_off, nsfw_on
+from Mikobot.state import arq
+from Mikobot.utils.can_restrict import can_restrict
+from Mikobot.utils.errors import capture_err
+from Python_ARQ import ARQ
+ARQ_API_KEY = "RLWCED-WZASYO-AWOLTB-ITBWTP-ARQ"  # GET API KEY FROM @ARQRobot
+ARQ_API_URL = "arq.hamker.dev"
+from aiohttp import ClientSession
+
+# <=======================================================================================================>
+
+
+# <================================================ FUNCTION =======================================================>
+async def get_file_id_from_message(message):
+    file_id = None
+    if message.document:
+        if int(message.document.file_size) > 3145728:
+            return
+        mime_type = message.document.mime_type
+        if mime_type not in ("image/png", "image/jpeg"):
+            return
+        file_id = message.document.file_id
+
+    if message.sticker:
+        if message.sticker.is_animated:
+            if not message.sticker.thumbs:
+                return
+            file_id = message.sticker.thumbs[0].file_id
+        else:
+            file_id = message.sticker.file_id
+
+    if message.photo:
+        file_id = message.photo.file_id
+
+    if message.animation:
+        if not message.animation.thumbs:
+            return
+        file_id = message.animation.thumbs[0].file_id
+
+    if message.video:
+        if not message.video.thumbs:
+            return
+        file_id = message.video.thumbs[0].file_id
+    return file_id
+
+
+@app.on_message(
+    (
+        filters.document
+        | filters.photo
+        | filters.sticker
+        | filters.animation
+        | filters.video
+    )
+    & ~filters.private,
+    group=8,
+)
+@capture_err
+async def detect_nsfw(_, message):
+    if not await is_nsfw_on(message.chat.id):
+        return
+    if not message.from_user:
+        return
+    file_id = await get_file_id_from_message(message)
+    if not file_id:
+        return
+    file = await _.download_media(file_id)
+    try:
+        arq = ARQ(ARQ_API_URL, ARQ_API_KEY,ClientSession())
+        results = await arq.nsfw_scan(file=file)
+    except Exception:
+        return
+    if not results.ok:
+        return
+    results = results.result
+    remove(file)
+    nsfw = results.is_nsfw
+    if message.from_user.id in DRAGONS:
+        return
+    if not nsfw:
+        return
+    try:
+        await message.delete()
+    except Exception:
+        return
+    await message.reply_text(
+        f"""
+**🔞 NSFW Image Detected & Deleted Successfully!**
+
+**✪ User:** {message.from_user.mention} [`{message.from_user.id}`]
+**✪ Safe:** `{results.neutral} %`
+**✪ Porn:** `{results.porn} %`
+**✪ Adult:** `{results.sexy} %`
+**✪ Hentai:** `{results.hentai} %`
+**✪ Drawings:** `{results.drawings} %`
+"""
+    )
+
+
+@app.on_message(filters.command(["nsfwscan", f"nsfwscan@{BOT_USERNAME}"]))
+@capture_err
+async def nsfw_scan_command(_, message):
+    if not message.reply_to_message:
+        await message.reply_text(
+            "Reply to an image/document/sticker/animation to scan it."
+        )
+        return
+    reply = message.reply_to_message
+    if (
+        not reply.document
+        and not reply.photo
+        and not reply.sticker
+        and not reply.animation
+        and not reply.video
+    ):
+        await message.reply_text(
+            "Reply to an image/document/sticker/animation to scan it."
+        )
+        return
+    m = await message.reply_text("Scanning")
+    file_id = await get_file_id_from_message(reply)
+    if not file_id:
+        return await m.edit("Something wrong happened.")
+    file = await _.download_media(file_id)
+    try:
+        arq = ARQ(ARQ_API_URL, ARQ_API_KEY,ClientSession())
+        results = await arq.nsfw_scan(file=file)
+        print(results)
+    except Exception as e:
+        print(str(e))
+        return await m.edit("Something wrong happened.")
+    remove(file)
+    if not results.ok:
+        return await m.edit(results.result)
+    results = results.result
+    await m.edit(
+        f"""
+**➢ Neutral:** `{results.neutral} %`
+**➢ Porn:** `{results.porn} %`
+**➢ Hentai:** `{results.hentai} %`
+**➢ Sexy:** `{results.sexy} %`
+**➢ Drawings:** `{results.drawings} %`
+**➢ NSFW:** `{results.is_nsfw}`
+"""
+    )
+
+
+@app.on_message(
+    filters.command(["antinsfw", f"antinsfw@{BOT_USERNAME}"]) & ~filters.private
+)
+@can_restrict
+async def nsfw_enable_disable(_, message):
+    if len(message.command) != 2:
+        await message.reply_text("Usage: /antinsfw [on/off]")
+        return
+    status = message.text.split(None, 1)[1].strip()
+    status = status.lower()
+    chat_id = message.chat.id
+    if status in ("on", "yes"):
+        if await is_nsfw_on(chat_id):
+            await message.reply_text("Antinsfw is already enabled.")
+            return
+        await nsfw_on(chat_id)
+        await message.reply_text(
+            "Enabled AntiNSFW System. I will Delete Messages Containing Inappropriate Content."
+        )
+    elif status in ("off", "no"):
+        if not await is_nsfw_on(chat_id):
+            await message.reply_text("Antinsfw is already disabled.")
+            return
+        await nsfw_off(chat_id)
+        await message.reply_text("Disabled AntiNSFW System.")
+    else:
+        await message.reply_text("Unknown Suffix, Use /antinsfw [on/off]")
 
 
 # <================================================ FUNCTION =======================================================>
@@ -336,3 +517,119 @@ async def googleimg_search(client: Client, message: Message):
     await search_message.delete()
     await message.delete()
 
+
+# <=======================================================================================================>
+
+# List of additional images
+ADDITIONAL_IMAGES = [
+    "https://telegra.ph/file/7ef6006ed6e452a6fd871.jpg",
+    "https://telegra.ph/file/16ede7c046f35e699ed3c.jpg",
+    "https://telegra.ph/file/f16b555b2a66853cc594e.jpg",
+    "https://telegra.ph/file/7ef6006ed6e452a6fd871.jpg",
+]
+
+
+# <================================================ FUNCTION =======================================================>
+def dt():
+    now = datetime.now()
+    dt_string = now.strftime("%d/%m/%Y %H:%M")
+    dt_list = dt_string.split(" ")
+    return dt_list
+
+
+def dt_tom():
+    a = (
+        str(int(dt()[0].split("/")[0]) + 1)
+        + "/"
+        + dt()[0].split("/")[1]
+        + "/"
+        + dt()[0].split("/")[2]
+    )
+    return a
+
+
+tomorrow = str(dt_tom())
+today = str(dt()[0])
+
+C = """
+•➵💞࿐ 𝐇𝐚𝐩𝐩𝐲 𝐜𝐨𝐮𝐩𝐥𝐞 𝐨𝐟 𝐭𝐡𝐞 𝐝𝐚𝐲
+╭──────────────
+┊•➢ {} + ( PGM🎀😶 (https://t.me/Chalnayaaaaaarr) + 花火 (https://t.me/zd_sr07) + ゼロツー (https://t.me/wewewe_x) ) = 💞
+╰───•➢♡
+╭──────────────
+┊•➢ 𝗡𝗲𝘄 𝗰𝗼𝘂𝗽𝗹𝗲 𝗼𝗳 𝘁𝗵𝗲 𝗱𝗮𝘆 𝗺𝗮𝘆𝗯𝗲
+┊ 𝗰𝗵𝗼𝘀𝗲𝗻 𝗮𝘁 12AM {}
+╰───•➢♡
+"""
+CAP = """
+•➵💞࿐ 𝐇𝐚𝐩𝐩𝐲 𝐜𝐨𝐮𝐩𝐥𝐞 𝐨𝐟 𝐭𝐡𝐞 𝐝𝐚𝐲
+╭──────────────
+┊•➢ {} + {} = 💞
+╰───•➢♡
+╭──────────────
+┊•➢ 𝗡𝗲𝘄 𝗰𝗼𝘂𝗽𝗹𝗲 𝗼𝗳 𝘁𝗵𝗲 𝗱𝗮𝘆 𝗺𝗮𝘆𝗯𝗲
+┊ 𝗰𝗵𝗼𝘀𝗲𝗻 𝗮𝘁 12AM {}
+╰───•➢♡
+"""
+
+CAP2 = """
+•➵💞࿐ 𝐇𝐚𝐩𝐩𝐲 𝐜𝐨𝐮𝐩𝐥𝐞 𝐨𝐟 𝐭𝐡𝐞 𝐝𝐚𝐲
+╭──────────────
+┊{} (tg://openmessage?user_id={}) + {} (tg://openmessage?user_id={}) = 💞\n
+╰───•➢♡
+╭──────────────
+┊•➢ 𝗡𝗲𝘄 𝗰𝗼𝘂𝗽𝗹𝗲 𝗼𝗳 𝘁𝗵𝗲 𝗱𝗮𝘆 𝗺𝗮𝘆𝗯𝗲
+┊ 𝗰𝗵𝗼𝘀𝗲𝗻 𝗮𝘁 12AM {}
+╰───•➢♡
+"""
+
+
+@app.on_message(filters.command(["couple", "couples", "shipping"]) & ~filters.private)
+async def nibba_nibbi(_, message):
+    COUPLES_PIC = random.choice(ADDITIONAL_IMAGES)  # Move inside the command function
+    try:
+        chat_id = message.chat.id
+        is_selected = await get_couple(chat_id, today)
+        if not is_selected:
+            list_of_users = []
+            async for i in _.get_chat_members(message.chat.id, limit=50):
+                if not i.user.is_bot:
+                    list_of_users.append(i.user.id)
+            if len(list_of_users) < 2:
+                return await message.reply_text("Not enough users in the group.")
+            c1_id = random.choice(list_of_users)
+            c2_id = random.choice(list_of_users)
+            while c1_id == c2_id:
+                c1_id = random.choice(list_of_users)
+            c1_mention = (await _.get_users(c1_id)).mention
+            c2_mention = (await _.get_users(c2_id)).mention
+            await _.send_photo(
+                message.chat.id,
+                photo=COUPLES_PIC,
+                caption=CAP.format(c1_mention, c2_mention, tomorrow),
+            )
+
+            couple = {"c1_id": c1_id, "c2_id": c2_id}
+            await save_couple(chat_id, today, couple)
+
+        elif is_selected:
+            c1_id = int(is_selected["c1_id"])
+            c2_id = int(is_selected["c2_id"])
+
+            c1_name = (await _.get_users(c1_id)).first_name
+            c2_name = (await _.get_users(c2_id)).first_name
+            print(c1_id, c2_id, c1_name, c2_name)
+            couple_selection_message = f"""•➵💞࿐ 𝐇𝐚𝐩𝐩𝐲 𝐜𝐨𝐮𝐩𝐥𝐞 𝐨𝐟 𝐭𝐡𝐞 𝐝𝐚𝐲
+╭──────────────
+┊•➢ [{c1_name}](tg://openmessage?user_id={c1_id}) + [{c2_name}](tg://openmessage?user_id={c2_id}) = 💞
+╰───•➢♡
+╭──────────────
+┊•➢ 𝗡𝗲𝘄 𝗰𝗼𝘂𝗽𝗹𝗲 𝗼𝗳 𝘁𝗵𝗲 𝗱𝗮𝘆 𝗺𝗮𝘆𝗯𝗲
+┊ 𝗰𝗵𝗼𝘀𝗲𝗻 𝗮𝘁 12AM {tomorrow}
+╰───•➢♡"""
+            await _.send_photo(
+                message.chat.id, photo=COUPLES_PIC, caption=couple_selection_message
+            )
+    except Exception as e:
+        print(e)
+        await message.reply_text(str(e))

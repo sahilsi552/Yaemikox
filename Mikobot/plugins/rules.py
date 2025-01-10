@@ -68,7 +68,7 @@ async def send_rules(update, chat_id, from_pm=False):
                     [
                         InlineKeyboardButton(
                             text="RULES",
-                            url=f"t.me/{bot.username}?start={chat_id}",
+                            url=f"t.me/{bot.username}?start=rules_{chat_id}",
                         ),
                     ],
                 ],
@@ -82,7 +82,7 @@ async def send_rules(update, chat_id, from_pm=False):
                     [
                         InlineKeyboardButton(
                             text="RULES",
-                            url=f"t.me/{bot.username}?start={chat_id}",
+                            url=f"t.me/{bot.username}?start=rules_{chat_id}",
                         ),
                     ],
                 ],
