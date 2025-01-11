@@ -1,6 +1,6 @@
 
 import io, os, random
-from config import SUPPORT_GRP
+from variables import SUPPORT_
 from ..utils.button_help import ADD_ME
 import requests
 from PIL import Image, ImageDraw, ImageFont
