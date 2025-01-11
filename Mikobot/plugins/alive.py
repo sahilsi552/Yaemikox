@@ -241,27 +241,6 @@ __mod_name__ = "ALIVE"
 
 
 # <=======================================================================================================>
-
-
-@app.on_message(filters.command("ping"))
-async def ping_(client, message):
-    try:
-        start_time = time.perf_counter()
-        response_message = await message.reply_text("Pinging...")
-        elapsed_time = time.perf_counter() - start_time
-        telegram_ping = f"{elapsed_time * 10:.3f} ms"  # Convert to milliseconds
-
-        uptime = get_readable_time(int(time.time() - StartTime))
-
-        await response_message.edit_text(
-            f"<b>PONG</b>\n\n"
-            f"<b>Time taken:</b> <code>{telegram_ping}</code>\n"
-            f"<b>Uptime:</b> <code>{uptime}</code>",
-            parse_mode=ParseMode.HTML,
-        )
-    except Exception as e:
-        await message.reply_text(f"Error: {e}")
-
 # Check user that change first_name, last_name and usernaname
 @app.on_message(
     filters.group & ~filters.bot & ~filters.via_bot,
