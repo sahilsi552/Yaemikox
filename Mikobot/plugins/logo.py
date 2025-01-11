@@ -1,6 +1,5 @@
 
 import io, os, random
-from ..utils.button_help import ADD_ME
 import requests
 from PIL import Image, ImageDraw, ImageFont
 from Mikobot import app as QuantamBot
@@ -65,11 +64,4 @@ async def LOGO_(b, m):
 ☘️ ʟᴏɢᴏ ᴄʀᴇᴀᴛᴇᴅ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ ☘️
 ◈──────────────◈
 🔥 ᴄʀᴇᴀᴛᴇᴅ ʙʏ : @{QuantamBot.username}
-━━━━━━━{QuantamBot.name}━━━━━━━""",reply_markup=InlineKeyboardMarkup(ADD_ME)
-)
-        await pesan.delete()
-        if os.path.exists(fname):
-            os.remove(fname)
-    except Exception as e:
-        await m.reply(f"ғʟᴏᴏᴅ ᴡᴀɪᴛ ᴇʀʀᴏʀ, ʀᴇᴩᴏʀᴛ ᴛʜɪs ᴀᴛ to @sahil30 \n #Error {e}")
-
+━━━━━━━{QuantamBot.name}━━━━━━━"""
