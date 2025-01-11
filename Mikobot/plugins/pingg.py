@@ -7,10 +7,9 @@ from telegram.constants import ParseMode
 from telegram.ext import CommandHandler, ContextTypes
 
 from Mikobot import StartTime, function
-from Mikobot.main import get_readable_time
 from Mikobot.plugins.helper_funcs.chat_status import check_admin
 
-# <============================================== Fancy Fonts & Small Caps ========================================>  
+# <============================================== Fancy Fonts & Small Caps ========================================>
 def fancy_number_format(value):
     """Returns digits in fancy Unicode format."""
     fancy_digits = {'0': '𝟘', '1': '𝟙', '2': '𝟚', '3': '𝟛', '4': '𝟜', 
@@ -33,6 +32,22 @@ def format_datetime():
     ist_now = (datetime.now(timezone.utc) + timedelta(hours=5, minutes=30)).strftime('%Y-%m-%d %H:%M:%S IST')
     return utc_now, ist_now
 
+def get_readable_time(seconds: int) -> str:
+    """Convert seconds into a human-readable string."""
+    periods = [
+        ('day', 86400),  # 60 * 60 * 24
+        ('hour', 3600),  # 60 * 60
+        ('minute', 60),
+        ('second', 1),
+    ]
+    result = []
+    for name, count in periods:
+        value = seconds // count
+        if value:
+            seconds %= count
+            result.append(f"{value} {name}{'s' if value > 1 else ''}")
+    return ', '.join(result) if result else '0 seconds'
+
 # <============================================== Ping Command =====================================================>
 @check_admin(only_dev=True)
 async def ptb_ping(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -48,8 +63,8 @@ async def ptb_ping(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await message.edit_text(
         f"🏓 <b>{small_caps('pong')}</b>\n\n"
-        f"⏱ <b>{small_caps('ping time')}:</b> <code>{fancy_number_format(elapsed_time):.3f} s</code>\n"
-        f"🕒 <b>{small_caps('ping in ms')}:</b> <code>{fancy_number_format(elapsed_time * 1000):.1f} ms</code>\n"
+        f"⏱ <b>{small_caps('ping time')}:</b> <code>{fancy_number_format(f'{elapsed_time:.3f}')} s</code>\n"
+        f"🕒 <b>{small_caps('ping in ms')}:</b> <code>{fancy_number_format(f'{elapsed_time * 1000:.1f}')} ms</code>\n"
         f"⏳ <b>{small_caps('uptime')}:</b> <code>{uptime}</code>\n\n"
         f"🗓 <b>{small_caps('date/time (utc)')}:</b> <code>{utc_now}</code>\n"
         f"🗓 <b>{small_caps('date/time (ist)')}:</b> <code>{ist_now}</code>",
