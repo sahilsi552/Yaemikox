@@ -51,9 +51,11 @@ def get_readable_time(seconds: int) -> str:
 async def ptb_ping(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = update.effective_message
 
+    # Initializing start time and calculating ping
     start_time = time.perf_counter()
     message = await msg.reply_text("🏓 Pinging...")
     elapsed_time = time.perf_counter() - start_time
+    ping_ms = elapsed_time * 1000  # Convert to ms
 
     uptime = get_readable_time(int(time.time() - StartTime))
     utc_now, ist_now = format_datetime()
@@ -65,7 +67,7 @@ async def ptb_ping(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await message.edit_text(
         f"🏓 <b>{small_caps('pong')}</b>\n\n"
         f"⏱ <b>{small_caps('ping time')}:</b> <code>{fancy_number_format(f'{elapsed_time:.3f}')} s</code>\n"
-        f"🕒 <b>{small_caps('ping in ms')}:</b> <code>{fancy_number_format(f'{elapsed_time * 1000:.1f}')} ms</code>\n"
+        f"🕒 <b>{small_caps('ping in ms')}:</b> <code>{fancy_number_format(f'{ping_ms:.1f}')} ms</code>\n"
         f"⏳ <b>{small_caps('uptime')}:</b> <code>{uptime}</code>\n\n"
         f"🗓 <b>{small_caps('date/time (utc)')}:</b> <code>{utc_now}</code>\n"
         f"🗓 <b>{small_caps('date/time (ist)')}:</b> <code>{ist_now}</code>",
@@ -73,12 +75,15 @@ async def ptb_ping(update: Update, context: ContextTypes.DEFAULT_TYPE):
         parse_mode=ParseMode.HTML,
     )
 
+# Refresh the ping when button clicked
 async def refresh_ping(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
+    # Recalculate the ping on refresh
     start_time = time.perf_counter()
     elapsed_time = time.perf_counter() - start_time
+    ping_ms = elapsed_time * 1000  # Convert to ms
 
     uptime = get_readable_time(int(time.time() - StartTime))
     utc_now, ist_now = format_datetime()
@@ -86,7 +91,7 @@ async def refresh_ping(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.edit_message_text(
         f"🏓 <b>{small_caps('pong')}</b>\n\n"
         f"⏱ <b>{small_caps('ping time')}:</b> <code>{fancy_number_format(f'{elapsed_time:.3f}')} s</code>\n"
-        f"🕒 <b>{small_caps('ping in ms')}:</b> <code>{fancy_number_format(f'{elapsed_time * 1000:.1f}')} ms</code>\n"
+        f"🕒 <b>{small_caps('ping in ms')}:</b> <code>{fancy_number_format(f'{ping_ms:.1f}')} ms</code>\n"
         f"⏳ <b>{small_caps('uptime')}:</b> <code>{uptime}</code>\n\n"
         f"🗓 <b>{small_caps('date/time (utc)')}:</b> <code>{utc_now}</code>\n"
         f"🗓 <b>{small_caps('date/time (ist)')}:</b> <code>{ist_now}</code>",
