@@ -1,5 +1,4 @@
-import io, os, random
-import requests
+import io, os, random, requests
 from PIL import Image, ImageDraw, ImageFont
 from Mikobot import app as QuantamBot
 from pyrogram import filters
@@ -7,8 +6,8 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.enums import ChatAction
 
 __MODULE__ = "Lᴏɢᴏ"
-__HELP__ = f"""
-@{QuantamBot.username} ᴄᴀɴ ᴄʀᴇᴀᴛᴇ sᴏᴍᴇ ʙᴇᴀᴜᴛɪғᴜʟ ᴀɴᴅ ᴀᴛᴛʀᴀᴄᴛɪᴠᴇ ʟᴏɢᴏ ғᴏʀ ʏᴏᴜʀ ᴘʀᴏғɪʟᴇ ᴘɪᴄs.
+__HELP__ = """
+@MyBotUsername ᴄᴀɴ ᴄʀᴇᴀᴛᴇ sᴏᴍᴇ ʙᴇᴀᴜᴛɪғᴜʟ ᴀɴᴅ ᴀᴛᴛʀᴀᴄᴛɪᴠᴇ ʟᴏɢᴏ ғᴏʀ ʏᴏᴜʀ ᴘʀᴏғɪʟᴇ ᴘɪᴄs.
 
 ๏ /logo (Text) *:* ᴄʀᴇᴀᴛᴇ ᴀ ʟᴏɢᴏ ᴏғ ʏᴏᴜʀ ɢɪᴠᴇɴ ᴛᴇxᴛ ᴡɪᴛʜ ʀᴀɴᴅᴏᴍ ᴠɪᴇᴡ.
 """
@@ -25,46 +24,42 @@ LOGO_LINKS = [
 async def LOGO_(b, m):
     if len(m.command) < 2:
         return await m.reply_text(
-            "ɢɪᴠᴇ sᴏᴍᴇ ᴛᴇxᴛ ᴛᴏ ᴄʀᴇᴀᴛᴇ ʟᴏɢᴏ ʙᴀʙᴇ !`\nExample `/logo mukesh`")
+            "ɢɪᴠᴇ sᴏᴍᴇ ᴛᴇxᴛ ᴛᴏ ᴄʀᴇᴀᴛᴇ ʟᴏɢᴏ ʙᴀʙᴇ !\nExample: `/logo sahil`"
+        )
     
     text = m.text.split(None, 1)[1]
-    pesan = await m.reply("**ᴄʀᴇᴀᴛɪɴɢ ʏᴏᴜʀ ʀᴇǫᴜᴇsᴛᴇᴅ ʟᴏɢᴏ ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ ᴀ sᴇᴄ...**")
+    pesan = await m.reply("**ᴄʀᴇᴀᴛɪɴɢ ʏᴏᴜʀ ʀᴇǫᴜᴇsᴛᴇᴅ ʟᴏɢᴏ, ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ...**")
+
     try:
+        bot_info = await b.get_me()
+        bot_username = bot_info.username or "MyBot"
+        bot_name = bot_info.first_name or "Bot"
+
         await b.send_chat_action(m.chat.id, ChatAction.UPLOAD_PHOTO)
         randc = random.choice(LOGO_LINKS)
         img = Image.open(io.BytesIO(requests.get(randc).content))
         draw = ImageDraw.Draw(img)
         image_widthz, image_heightz = img.size
-        fnt = "Merisa/utils/BebasNeue.otf"
-        font = ImageFont.truetype(fnt, 120)
+        font_path = "Merisa/utils/BebasNeue.otf"
+        font = ImageFont.truetype(font_path, 120)
         bbox = draw.textbbox((0, 0), text, font=font)
         w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
         h += int(h * 0.21)
-        draw.text(
-            ((image_widthz - w) / 2, (image_heightz - h) / 2),
-            text,
-            font=font,
-            fill=(255, 255, 255),
-        )
-        x = (image_widthz - w) / 2
-        y = (image_heightz - h) / 2 + 6
-        draw.text(
-            (x, y), text, font=font, fill="white", stroke_width=1, stroke_fill="black"
-        )
+        draw.text(((image_widthz - w) / 2, (image_heightz - h) / 2), text, font=font, fill=(255, 255, 255))
+        draw.text(((image_widthz - w) / 2, (image_heightz - h) / 2 + 6), text, font=font, fill="white", stroke_width=1, stroke_fill="black")
+
         fname = "logo_result.png"
         img.save(fname)
         await m.reply_photo(
             photo=fname,
-            caption=f"""━━━━━━━{QuantamBot.name}━━━━━━━
+            caption=f"""━━━━━━━{bot_name}━━━━━━━
 
 ☘️ ʟᴏɢᴏ ᴄʀᴇᴀᴛᴇᴅ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ ☘️
 ◈──────────────◈
-🔥 ᴄʀᴇᴀᴛᴇᴅ ʙʏ : @{QuantamBot.username}
-━━━━━━━{QuantamBot.name}━━━━━━━""",
+🔥 ᴄʀᴇᴀᴛᴇᴅ ʙʏ : @{bot_username}
+━━━━━━━{bot_name}━━━━━━━""",
             reply_markup=InlineKeyboardMarkup(
-                [
-                    [InlineKeyboardButton("➕ Aᴅᴅ ᴍᴇ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ➕", url=f"http://t.me/{QuantamBot.username}?startgroup=true")]
-                ]
+                [[InlineKeyboardButton("➕ Aᴅᴅ ᴍᴇ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ➕", url=f"http://t.me/{bot_username}?startgroup=true")]]
             ),
         )
         os.remove(fname)
