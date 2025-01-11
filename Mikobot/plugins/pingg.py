@@ -1,7 +1,7 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import CallbackQueryHandler
 
-# <============================================== Ping Command with Refresh ======================================>
-@check_admin(only_dev=True)
+# <============================================== Ping Command with Refresh Button for All ======================================>
 async def ptb_ping(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = update.effective_message
 
@@ -13,7 +13,7 @@ async def ptb_ping(update: Update, context: ContextTypes.DEFAULT_TYPE):
     utc_now, ist_now = format_datetime()
 
     refresh_button = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🔄 𝚁𝙴𝙵𝚁𝙴𝚂𝙷", callback_data="refresh_ping")]
+        [InlineKeyboardButton("🔄 Refresh", callback_data="refresh_ping")]
     ])
 
     await message.edit_text(
@@ -27,7 +27,6 @@ async def ptb_ping(update: Update, context: ContextTypes.DEFAULT_TYPE):
         parse_mode=ParseMode.HTML,
     )
 
-@check_admin(only_dev=True)
 async def refresh_ping(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
@@ -49,5 +48,6 @@ async def refresh_ping(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup=query.message.reply_markup,
     )
 
+# Add the handlers for /ping and the refresh button
 function(CommandHandler("ping", ptb_ping, block=False))
 function(CallbackQueryHandler(refresh_ping, pattern="refresh_ping"))
