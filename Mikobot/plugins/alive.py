@@ -229,32 +229,6 @@ async def nsfw_enable_disable(_, message):
 
 
 # <================================================ FUNCTION =======================================================>
-@app.on_message(filters.command("alive"))
-async def alive(_, message: Message):
-    library_versions = {
-        "Pᴛʙ": telegram.__version__,
-        "Tᴇʟᴇᴛʜᴏɴ": telethon.__version__,
-        "Pʏʀᴏɢʀᴀᴍ": pyrogram.__version__,
-    }
-
-    library_versions_text = "\n".join(
-        [f"❒ **{key}:** `{value}`" for key, value in library_versions.items()]
-    )
-
-    caption = f"""**HEY, I AM {BOT_NAME}**
-
-━━━━ 🌟✿🌟 ━━━━
-
-{library_versions_text}
-
-❒ **PYTHON:** `{version_info[0]}.{version_info[1]}.{version_info[2]}`
-━━━━ 🌟✿🌟 ━━━━"""
-
-    await message.reply_photo(
-        HEY_IMG,
-        caption=caption,
-        reply_markup=InlineKeyboardMarkup(ALIVE_BTN),
-    )
 
 
 # <=======================================================================================================>
