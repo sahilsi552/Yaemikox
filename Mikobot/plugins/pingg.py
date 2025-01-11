@@ -51,15 +51,24 @@ def get_readable_time(seconds: int) -> str:
 async def ptb_ping(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = update.effective_message
 
-    # Initializing start time and calculating ping
+    # Initializing start time
     start_time = time.perf_counter()
+
+    # Sending an initial message
     message = await msg.reply_text("🏓 Pinging...")
+
+    # Add a small delay to simulate a more realistic ping calculation
+    await message.edit_text("🏓 Pinging...\nPlease wait...")
+    time.sleep(0.05)  # Small delay (50ms)
+
+    # Measure the time it takes to send and receive the message
     elapsed_time = time.perf_counter() - start_time
     ping_ms = elapsed_time * 1000  # Convert to ms
 
     uptime = get_readable_time(int(time.time() - StartTime))
     utc_now, ist_now = format_datetime()
 
+    # Add refresh button
     refresh_button = InlineKeyboardMarkup([
         [InlineKeyboardButton("🔄 Refresh", callback_data="refresh_ping")]
     ])
@@ -82,6 +91,10 @@ async def refresh_ping(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # Recalculate the ping on refresh
     start_time = time.perf_counter()
+
+    # Add a small delay to simulate a more realistic ping calculation
+    time.sleep(0.05)  # Small delay (50ms)
+
     elapsed_time = time.perf_counter() - start_time
     ping_ms = elapsed_time * 1000  # Convert to ms
 
