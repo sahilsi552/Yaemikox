@@ -1,5 +1,51 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import CallbackQueryHandler
+import time
+from datetime import datetime, timezone, timedelta
+
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.constants import ParseMode
+from telegram.ext import CommandHandler, CallbackQueryHandler, ContextTypes
+
+from Mikobot import StartTime, function
+from Mikobot.plugins.helper_funcs.chat_status import check_admin
+
+# <============================================== Fancy Fonts & Small Caps ========================================>
+def fancy_number_format(value):
+    """Returns digits in fancy Unicode format."""
+    fancy_digits = {'0': '𝟘', '1': '𝟙', '2': '𝟚', '3': '𝟛', '4': '𝟜', 
+                    '5': '𝟝', '6': '𝟞', '7': '𝟟', '8': '𝟠', '9': '𝟡'}
+    return ''.join(fancy_digits.get(char, char) for char in str(value))
+
+def small_caps(text):
+    """Converts regular text to small caps."""
+    small_caps_map = {
+        'a': 'ᴀ', 'b': 'ʙ', 'c': 'ᴄ', 'd': 'ᴅ', 'e': 'ᴇ', 'f': 'ғ', 'g': 'ɢ',
+        'h': 'ʜ', 'i': 'ɪ', 'j': 'ᴊ', 'k': 'ᴋ', 'l': 'ʟ', 'm': 'ᴍ', 'n': 'ɴ',
+        'o': 'ᴏ', 'p': 'ᴘ', 'q': 'ǫ', 'r': 'ʀ', 's': 's', 't': 'ᴛ', 'u': 'ᴜ',
+        'v': 'ᴠ', 'w': 'ᴡ', 'x': 'x', 'y': 'ʏ', 'z': 'ᴢ'
+    }
+    return ''.join(small_caps_map.get(char, char) for char in text.lower())
+
+def format_datetime():
+    """Returns current UTC and IST date-time as strings."""
+    utc_now = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
+    ist_now = (datetime.now(timezone.utc) + timedelta(hours=5, minutes=30)).strftime('%Y-%m-%d %H:%M:%S IST')
+    return utc_now, ist_now
+
+def get_readable_time(seconds: int) -> str:
+    """Convert seconds into a human-readable string."""
+    periods = [
+        ('day', 86400),  # 60 * 60 * 24
+        ('hour', 3600),  # 60 * 60
+        ('minute', 60),
+        ('second', 1),
+    ]
+    result = []
+    for name, count in periods:
+        value = seconds // count
+        if value:
+            seconds %= count
+            result.append(f"{value} {name}{'s' if value > 1 else ''}")
+    return ', '.join(result) if result else '0 seconds'
 
 # <============================================== Ping Command with Refresh Button for All ======================================>
 async def ptb_ping(update: Update, context: ContextTypes.DEFAULT_TYPE):
