@@ -1,6 +1,6 @@
 
 import io, os, random
-from variables import SUPPORT_
+from variables import SUPPORT_CHAT
 from ..utils.button_help import ADD_ME
 import requests
 from PIL import Image, ImageDraw, ImageFont
@@ -72,5 +72,5 @@ async def LOGO_(b, m):
         if os.path.exists(fname):
             os.remove(fname)
     except Exception as e:
-        await m.reply(f"ғʟᴏᴏᴅ ᴡᴀɪᴛ ᴇʀʀᴏʀ, ʀᴇᴩᴏʀᴛ ᴛʜɪs ᴀᴛ @{SUPPORT_GRP} \n #Error {e}")
+        await m.reply(f"ғʟᴏᴏᴅ ᴡᴀɪᴛ ᴇʀʀᴏʀ, ʀᴇᴩᴏʀᴛ ᴛʜɪs ᴀᴛ @{SUPPORT_CHAT} \n #Error {e}")
 
