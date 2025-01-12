@@ -542,11 +542,11 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 __help__ = """
-*Overall information about user:*
+#*Overall information about user:*
 
-» /info : Fetch user information.
+#» /info : Fetch user information.
 
-» /uinfo : Fetch user information in banner.
+#» /uinfo : Fetch user information in banner.
 """
 
 # <================================================ HANDLER =======================================================>
