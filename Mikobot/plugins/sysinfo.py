@@ -9,7 +9,7 @@ import psutil
 
 from pyrogram import filters
 from pyrogram.types import InlineKeyboardMarkup, Message
-from Mikobot import BOT_NAME, app, boot
+from Mikobot import BOT_NAME, app
 from .system_stats import get_readable_time  # Assuming you have this helper
 
 # Small caps conversion function
