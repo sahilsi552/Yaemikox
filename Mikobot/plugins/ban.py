@@ -286,6 +286,7 @@ async def temp_ban(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
 
 
 @connection_status
+@connection_status
 @loggable
 @check_admin(permission="can_restrict_members", is_both=True)
 async def kick(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
@@ -326,7 +327,7 @@ async def kick(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
             )
             await bot.sendMessage(
                 chat.id,
-                f"Capitain I have kicked, {mention_html(member.user.id, html.escape(member.user.first_name))}.",
+                f"Captain, I have kicked {mention_html(member.user.id, html.escape(member.user.first_name))}.",
                 parse_mode=ParseMode.HTML,
                 message_thread_id=message.message_thread_id if chat.is_forum else None,
             )
@@ -345,11 +346,6 @@ async def kick(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
         await message.reply_text(f"Failed to kick user: {e.message}")
 
     return log_message
-
-        else:
-            await message.reply_text("Well damn, I can't kick that user.")
-
-          return log_message
 
 
 @check_admin(permission="can_restrict_members", is_bot=True)
