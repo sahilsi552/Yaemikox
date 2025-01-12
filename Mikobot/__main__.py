@@ -43,6 +43,49 @@ from Mikobot import (
     TOKEN,
     StartTime,
     app,
+import asyncio
+import contextlib
+import importlib
+import json
+import re
+import time
+import traceback
+from platform import python_version
+from random import choice
+
+import psutil
+import pyrogram
+import telegram
+import telethon
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.constants import ParseMode
+from telegram.error import (
+    BadRequest,
+    ChatMigrated,
+    Forbidden,
+    NetworkError,
+    TelegramError,
+    TimedOut,
+)
+from telegram.ext import (
+    ApplicationHandlerStop,
+    CallbackQueryHandler,
+    CommandHandler,
+    ContextTypes,
+    MessageHandler,
+    filters,
+)
+from telegram.helpers import escape_markdown
+
+from Mikobot import (
+    BOT_NAME,
+    BOT_USERNAME,
+    LOGGER,
+    OWNER_ID,
+    SUPPORT_CHAT,
+    TOKEN,
+    StartTime,
+    app,
     dispatcher,
     function,
     loop,
@@ -51,17 +94,19 @@ from Mikobot import (
 from Mikobot.plugins import ALL_MODULES
 from Mikobot.plugins.helper_funcs.chat_status import is_user_admin
 from Mikobot.plugins.helper_funcs.misc import paginate_modules
-from Infamous.karma import START_IMG,GROUP_START_BTN
+from Infamous.karma import START_IMG, GROUP_START_BTN
 from Mikobot.plugins.rules import send_rules
 # <=======================================================================================================>
 
+# Constants
 PYTHON_VERSION = python_version()
 PTB_VERSION = telegram.__version__
 PYROGRAM_VERSION = pyrogram.__version__
 TELETHON_VERSION = telethon.__version__
 
-
 # <============================================== FUNCTIONS =========================================================>
+
+# Function to get readable time
 def get_readable_time(seconds: int) -> str:
     if seconds < 0:
         raise ValueError("Time in seconds must be non-negative.")
@@ -86,16 +131,7 @@ def get_readable_time(seconds: int) -> str:
     ping_time = ", ".join(time_list[::-1])
     return ping_time
 
-
-IMPORTED = {}
-MIGRATEABLE = []
-HELPABLE = {}
-STATS = []
-USER_INFO = []
-DATA_IMPORT = []
-DATA_EXPORT = []
-CHAT_SETTINGS = {}
-USER_SETTINGS = {}
+# <============================================== PM_START_TEXT =========================================================>
 
 PM_START_TEXT = """ 
 Hello {}🥀.
@@ -104,9 +140,38 @@ Hello {}🥀.
 ➻ The most comprehensive Telegram bot for managing and protecting group chats from spammers and rule-breakers.
 
 ──────────────────
-๏ Click the help button to learn about my modules and commands.
+๏ Uptime: {uptime}  
+๏ Python: {python_version}  
+๏ PTB Version: {ptb_version}  
+๏ Pyrogram Version: {pyrogram_version}  
+๏ Telethon Version: {telethon_version}  
+๏ Owner: {owner_name}  
 
+──────────────────
+๏ Click the help button to learn about my modules and commands.
 """
+
+# <============================================== STARTUP CODE =========================================================>
+
+# Assuming you have a StartTime or similar variable for the bot start timestamp
+boot = time()  # Tracks the bot's start time
+owner_name = "𝗦𝗔𝗛𝗜𝗟"  # Replace with the actual owner name
+
+async def get_start_text(username: str, bot_name: str, uptime: str) -> str:
+    return PM_START_TEXT.format(
+        username,
+        bot_name,
+        uptime=uptime,
+        python_version=PYTHON_VERSION,
+        ptb_version=PTB_VERSION,
+        pyrogram_version=PYROGRAM_VERSION,
+        telethon_version=TELETHON_VERSION,
+        owner_name=owner_name
+    )
+
+# <============================================== HANDLERS AND COMMANDS =========================================================>
+    
+# Add any other command handlers or functionalities below
 def private_panel():
     buttons = [
         [
