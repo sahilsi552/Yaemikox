@@ -21,7 +21,7 @@ from Mikobot import DEV_USERS, DRAGONS, INFOPIC, OWNER_ID, function,BOT_NAME,DEM
 from Mikobot.__main__ import STATS, USER_INFO
 from Mikobot.plugins.helper_funcs.chat_status import support_plus
 from Mikobot.plugins.users import get_user_id
-
+from Mikobot import app
 from unidecode import unidecode
 from PIL import Image, ImageChops, ImageDraw, ImageFont
 from pyrogram import filters
