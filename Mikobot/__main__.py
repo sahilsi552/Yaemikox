@@ -154,8 +154,7 @@ Hello {}🥀.
 
 # <============================================== STARTUP CODE =========================================================>
 
-# Assuming you have a StartTime or similar variable for the bot start timestamp
-boot = time()  # Tracks the bot's start time
+# Assuming you have a StartTime or similar variable for the bot start timestamp  # Tracks the bot's start time
 owner_name = "𝗦𝗔𝗛𝗜𝗟"  # Replace with the actual owner name
 
 async def get_start_text(username: str, bot_name: str, uptime: str) -> str:
