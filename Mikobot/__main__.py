@@ -4,7 +4,7 @@ import contextlib
 import importlib
 import json
 import re
-import time
+from time import time
 import traceback
 from platform import python_version
 from random import choice
