@@ -235,11 +235,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 else:
                     send_settings(match.group(1), update.effective_user.id, True)
                     
-            elif args[0].lower().startswith("rules_"):
-                chat_id = args[0].split("_", 1)[1]
-                x=mongo.get_rules(chat_id)
-                await update.effective_message.reply_text(x,parse_mode=ParseMode.MARKDOWN,
-                disable_web_page_preview=False)
+            # elif args[0].lower().startswith("rules_"):
+            #     chat_id = args[0].split("_", 1)[1]
+            #     x=mongo.get_rules(chat_id)
+            #     await update.effective_message.reply_text(x,parse_mode=ParseMode.MARKDOWN,
+            #     disable_web_page_preview=False)
                 
                 # await send_rules(update, chat_id)
                 
