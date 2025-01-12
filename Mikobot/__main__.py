@@ -241,7 +241,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await update.effective_message.reply_text(x,parse_mode=ParseMode.MARKDOWN,
                 disable_web_page_preview=False)
                 
-                await send_rules(update, chat_id)
                 
 
             elif args[0][1:].isdigit() and "rules" in IMPORTED:
