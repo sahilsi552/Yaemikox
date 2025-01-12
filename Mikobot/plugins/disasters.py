@@ -2,7 +2,7 @@ import html
 import json
 import os
 from typing import Optional
-from telegram import Update, ParseMode
+from telegram import Update
 from telegram.ext import CommandHandler
 from telegram.helpers import mention_html
 
@@ -57,16 +57,18 @@ async def add_disaster_level(update: Update, level: str, context) -> str:
     await update_elevated_users(data)
 
     log_message = (
-        f"<b>{html.escape(chat.title)}:</b>\n"
         f"#{level.upper()}\n"
         f"<b>Admin:</b> {mention_html(user.id, html.escape(user.first_name))}\n"
         f"<b>User:</b> {mention_html(user_member.id, html.escape(user_member.first_name))}"
     )
 
+    if chat.type != "private":
+        log_message = f"<b>{html.escape(chat.title)}:</b>\n" + log_message
+
     await message.reply_text(
         f"Successfully set Disaster level of {user_member.first_name} to {level}!"
     )
-    await message.reply_text(log_message, parse_mode=ParseMode.HTML)
+    await message.reply_text(log_message)
 
 @dev_plus
 @gloggable
@@ -112,16 +114,18 @@ async def remove_disaster_level(update: Update, level: str, context) -> str:
     await update_elevated_users(data)
 
     log_message = (
-        f"<b>{html.escape(chat.title)}:</b>\n"
         f"#REMOVE_{level.upper()}\n"
         f"<b>Admin:</b> {mention_html(user.id, html.escape(user.first_name))}\n"
         f"<b>User:</b> {mention_html(user_member.id, html.escape(user_member.first_name))}"
     )
 
+    if chat.type != "private":
+        log_message = f"<b>{html.escape(chat.title)}:</b>\n" + log_message
+
     await message.reply_text(
         f"Successfully removed Disaster level '{level}' from {user_member.first_name}!"
     )
-    await message.reply_text(log_message, parse_mode=ParseMode.HTML)
+    await message.reply_text(log_message)
 
 @dev_plus
 @gloggable
@@ -145,7 +149,7 @@ async def rmtiger(update: Update, context) -> str:
 
 async def list_disaster_levels(update: Update, context) -> None:
     message = update.effective_message
-    
+
     with open(ELEVATED_USERS_FILE, "r") as infile:
         data = json.load(infile)
 
@@ -160,10 +164,10 @@ async def list_disaster_levels(update: Update, context) -> None:
                 user_info = await context.bot.get_chat(user_id)
                 users.append(f"{mention_html(user_info.id, html.escape(user_info.first_name))}")
             result.append(f"🛑 <b>{level} Disasters</b>: " + ", ".join(users))
-    
-    await message.reply_text("\n\n".join(result), parse_mode=ParseMode.HTML)
 
-# Registering Command Handlers
+    await message.reply_text("\n\n".join(result), parse_mode="HTML")
+
+# Command Handlers
 SUDO_HANDLER = CommandHandler("addsudo", addsudo, block=False)
 SUPPORT_HANDLER = CommandHandler(("addsupport", "adddemon"), addsupport, block=False)
 TIGER_HANDLER = CommandHandler("addtiger", addtiger, block=False)
@@ -174,6 +178,7 @@ RMTIGER_HANDLER = CommandHandler("rmtiger", rmtiger, block=False)
 RMWHITELIST_HANDLER = CommandHandler(("rmwhitelist", "rmwolf"), rmwhitelist, block=False)
 LIST_HANDLER = CommandHandler("disasterlist", list_disaster_levels, block=False)
 
+# Adding Handlers to Dispatcher
 dispatcher.add_handler(SUDO_HANDLER)
 dispatcher.add_handler(SUPPORT_HANDLER)
 dispatcher.add_handler(TIGER_HANDLER)
@@ -195,4 +200,4 @@ __handlers__ = [
     RMTIGER_HANDLER,
     RMWHITELIST_HANDLER,
     LIST_HANDLER,
-]
+    ]
