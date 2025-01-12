@@ -8,7 +8,7 @@ import time
 import traceback
 from platform import python_version
 from random import choice
-
+from Database.mongodb.rules_Db import get_rules
 import psutil
 import pyrogram
 import telegram
@@ -237,7 +237,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     
             elif args[0].lower().startwith("rules_"):
                 chat_id = args[0].split("_", 1)[1]
-                await send_rules(update, chat_id)
+                x=get_rules(chat_id)
+                await update.effective_message.reply_text(x,parse_mode=ParseMode.MARKDOWN,
+                disable_web_page_preview=False)
+                
+                # await send_rules(update, chat_id)
                 
 
             elif args[0][1:].isdigit() and "rules" in IMPORTED:
