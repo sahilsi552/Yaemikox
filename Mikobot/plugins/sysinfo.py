@@ -11,7 +11,8 @@ from pyrogram.types import InlineKeyboardMarkup, Message
 from Mikobot import BOT_NAME, app
 from Infamous.karma import HEY_IMG, ALIVE_BTN  # Replace with your correct imports
 
-# Small caps conversion function
+boot = time()  # Tracks the bot's start time
+
 def to_smallcaps(text: str) -> str:
     smallcaps = str.maketrans(
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
@@ -19,9 +20,7 @@ def to_smallcaps(text: str) -> str:
     )
     return text.translate(smallcaps)
 
-# Readable time conversion function
 def get_readable_time(seconds: int) -> str:
-    """Convert seconds to a readable time format."""
     count_min, count_sec = divmod(seconds, 60)
     count_hour, count_min = divmod(count_min, 60)
     count_day, count_hour = divmod(count_hour, 24)
@@ -41,14 +40,11 @@ async def sysinfo(_, message: Message):
     ping_time = (time() - start_time) * 1000
     ping_display = f"{ping_time:.2f} ms"
 
-    # Bot uptime
     bot_uptime = get_readable_time(int(time() - boot))
-
-    # System stats
     cpu_usage = psutil.cpu_percent(interval=0.5)
     mem_usage = psutil.virtual_memory().percent
     disk_usage = psutil.disk_usage("/").percent
-    cpu_load_avg = os.getloadavg()  # Load averages for 1, 5, and 15 minutes
+    cpu_load_avg = os.getloadavg()
     load_avg_display = f"{cpu_load_avg[0]:.2f}, {cpu_load_avg[1]:.2f}, {cpu_load_avg[2]:.2f}"
 
     info_text = f"""
