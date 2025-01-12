@@ -235,7 +235,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 else:
                     send_settings(match.group(1), update.effective_user.id, True)
                     
-            elif args[0].lower().startwith("rules_"):
+            elif args[0].lower().startswith("rules_"):
                 chat_id = args[0].split("_", 1)[1]
                 x=get_rules(chat_id)
                 await update.effective_message.reply_text(x,parse_mode=ParseMode.MARKDOWN,
