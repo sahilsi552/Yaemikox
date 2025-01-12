@@ -59,7 +59,7 @@ async def add_disaster_level(update: Update, level: str, context) -> str:
     log_message = (
         f"#{level.upper()}\n"
         f"<b>Admin:</b> {mention_html(user.id, html.escape(user.first_name))}\n"
-        f"<b>User:</b> {mention_html(user_member.id, html.escape(user_member.first_name))}"
+        f"<b>User:</b> {mention_html(user_member.id, html.escape(user_member.first_name))} added to {level} Disaster list."
     )
 
     if chat.type != "private":
@@ -68,7 +68,7 @@ async def add_disaster_level(update: Update, level: str, context) -> str:
     await message.reply_text(
         f"Successfully set Disaster level of {user_member.first_name} to {level}!"
     )
-    await message.reply_text(log_message)
+    await message.reply_text(log_message, parse_mode="HTML")
 
 @dev_plus
 @gloggable
@@ -113,17 +113,19 @@ async def remove_disaster_level(update: Update, level: str, context) -> str:
     data[DISASTER_LEVELS[level]].remove(user_id)
     await update_elevated_users(data)
 
+    # Log message
     log_message = (
-    f"#{level.upper()}\n"
-    f"<b>Admin:</b> {mention_html(user.id, html.escape(user.first_name))}\n"
-    f"Added:\n"
-    f"<b>User:</b> {mention_html(user_member.id, html.escape(user_member.first_name))} to disaster list"
-)
+        f"#{level.upper()}\n"
+        f"<b>Admin:</b> {mention_html(user.id, html.escape(user.first_name))}\n"
+        f"Removed:\n"
+        f"<b>User:</b> {mention_html(user_member.id, html.escape(user_member.first_name))} from {level} Disaster list"
+    )
 
-if chat.type != "private":
-    log_message = f"<b>{html.escape(chat.title)}:</b>\n" + log_message
+    if chat.type != "private":
+        log_message = f"<b>{html.escape(chat.title)}:</b>\n" + log_message
 
-await message.reply_text(log_message, parse_mode="HTML")
+    # Send the message
+    await message.reply_text(log_message, parse_mode="HTML")
 
 @dev_plus
 @gloggable
@@ -198,4 +200,4 @@ __handlers__ = [
     RMTIGER_HANDLER,
     RMWHITELIST_HANDLER,
     LIST_HANDLER,
-    ]
+]
