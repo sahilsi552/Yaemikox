@@ -46,7 +46,7 @@ async def id_command(client: Client, message: Message):
 
 
 # Logs Command
-@app.on_message(filters.command("logs") & check_admin(only_dev=True))
+@app.on_message(filters.command("logs"))
 async def logs_command(client: Client, message: Message):
     with open("Logs.txt", "rb") as f:
         caption = "Here is your log"
@@ -62,7 +62,7 @@ async def logs_command(client: Client, message: Message):
         app.user_data[message.chat.id] = sent_message.id
 
 
-@app.on_callback_query(filters.regex("^close$") & check_admin(only_dev=True))
+@app.on_callback_query(filters.regex("^close$"))
 async def close_callback(client: Client, callback_query):
     message_id = app.user_data.get(callback_query.message.chat.id)
     if message_id:
