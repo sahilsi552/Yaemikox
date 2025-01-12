@@ -1449,7 +1449,7 @@ async def migrate_chats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 # <=================================================== MAIN ====================================================>
-async def main():
+def main():
     function(CommandHandler("start", start))
 
     function(CommandHandler("help", extra_command_handlered))
