@@ -339,7 +339,15 @@ async def info(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await _file.download_to_drive(f"{chat_obj.id}.png")
                 await message.reply_photo(
                     photo=open(f"{chat_obj.id}.png", "rb"),
-                    caption=(head),  
+                    caption=(head),
+                    parse_mode=ParseMode.HTML,
+                )
+                await reply.delete()
+                os.remove(f"{chat_obj.id}.png")
+            else:
+                await reply_with_text(escape(head))
+        except:
+            await reply_with_text(escape(head))
 
 
 
@@ -369,7 +377,7 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
         parse_mode=ParseMode.HTML,
         reply_markup=reply_markup,
     )
-
+     
 
 # <=================================================== HELP ====================================================>
 
