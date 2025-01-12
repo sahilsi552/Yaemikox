@@ -106,12 +106,6 @@ Hello {}🥀.
 ──────────────────
 ๏ Click the help button to learn about my modules and commands.
 
-𝙎𝙮𝙨𝙩𝙚𝙢 𝙨𝙩𝙖𝙩𝙨
-➖➖➖➖➖➖
-PYTHON_VERSION = python_version()
-PTB_VERSION = telegram.__version__
-PYROGRAM_VERSION = pyrogram.__version__
-TELETHON_VERSION = telethon.__version__
 """
 def private_panel():
     buttons = [
