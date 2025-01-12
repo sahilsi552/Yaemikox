@@ -22,7 +22,7 @@ PM_START_TEXT = "✨ *ɪ ᴀᴍ ᴍɪᴋᴏ, ᴀ ɢᴇɴꜱʜɪɴ ɪᴍᴘᴀᴄ
 START_BTN = [
     [
         InlineKeyboardButton(
-            text="⇦ ᴀᴅᴅ ᴍᴇ ⇨",
+            text="𝗔𝗗𝗗 𝗠𝗘 🆘⇨",
             url=f"https://t.me/{BOT_USERNAME}?startgroup=true",
         ),
     ],
@@ -40,7 +40,7 @@ START_BTN = [
 GROUP_START_BTN = [
     [
         InlineKeyboardButton(
-            text="⇦ ᴀᴅᴅ ᴍᴇ⇨",
+            text="𝗔𝗗𝗗 𝗠𝗘 🆘",
             url=f"https://t.me/{BOT_USERNAME}?startgroup=true",
         ),
     ],
@@ -52,12 +52,8 @@ GROUP_START_BTN = [
 
 ALIVE_BTN = [
     [
-        ib(text="ᴜᴘᴅᴀᴛᴇꜱ", url=f"https://t.me/{SUPPORT_CHAT}"),
-        ib(text="ꜱᴜᴘᴘᴏʀᴛ", url=f"https://t.me/{SUPPORT_CHAT}"),
-    ],
-    [
         ib(
-            text="⇦ ADD ME ⇨",
+            text="𝗔𝗗𝗗 𝗠𝗘 🆘",
             url=f"https://t.me/{BOT_USERNAME}?startgroup=true",
         ),
     ],
