@@ -168,7 +168,7 @@ Hello {}🥀.
 # <============================================== STARTUP CODE =========================================================>
 
 start_text = PM_START_TEXT.format(
-        escape_markdown(first_name),
+        escape_markdown(
         BOT_NAME,
         uptime=uptime,
         python_version=PYTHON_VERSION,
