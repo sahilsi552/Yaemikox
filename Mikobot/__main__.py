@@ -131,6 +131,16 @@ def get_readable_time(seconds: int) -> str:
     # Reverse the time_list for natural ordering and join elements
     ping_time = ", ".join(time_list[::-1])
     return ping_time
+# <============================================== IMPORTED =========================================================>
+IMPORTED = {}
+MIGRATEABLE = []
+HELPABLE = {}
+STATS = []
+USER_INFO = []
+DATA_IMPORT = []
+DATA_EXPORT = []
+CHAT_SETTINGS = {}
+USER_SETTINGS = {}
 
 # <============================================== PM_START_TEXT =========================================================>
 
