@@ -1,6 +1,5 @@
 import os
 import platform
-import random
 from datetime import datetime
 from pytz import timezone
 from time import time
@@ -9,8 +8,8 @@ import psutil
 
 from pyrogram import filters
 from pyrogram.types import InlineKeyboardMarkup, Message
-from Mikobot import BOT_NAME, app
-from .system_stats import get_readable_time  # Assuming you have this helper
+from Mikobot import BOT_NAME, app, boot
+from Infamous.karma import HEY_IMG, ALIVE_BTN  # Replace with your correct imports
 
 # Small caps conversion function
 def to_smallcaps(text: str) -> str:
@@ -19,6 +18,20 @@ def to_smallcaps(text: str) -> str:
         "ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘϙʀꜱᴛᴜᴠᴡxʏᴢABCDEFGHIJKLMNOPQRSTUVWXYZ"
     )
     return text.translate(smallcaps)
+
+# Readable time conversion function
+def get_readable_time(seconds: int) -> str:
+    """Convert seconds to a readable time format."""
+    count_min, count_sec = divmod(seconds, 60)
+    count_hour, count_min = divmod(count_min, 60)
+    count_day, count_hour = divmod(count_hour, 24)
+    time_string = (
+        (f"{count_day}d " if count_day else "") +
+        (f"{count_hour}h " if count_hour else "") +
+        (f"{count_min}m " if count_min else "") +
+        (f"{count_sec}s" if count_sec else "")
+    )
+    return time_string.strip()
 
 @app.on_message(filters.command("sysinfo"))
 async def sysinfo(_, message: Message):
@@ -35,7 +48,7 @@ async def sysinfo(_, message: Message):
     cpu_usage = psutil.cpu_percent(interval=0.5)
     mem_usage = psutil.virtual_memory().percent
     disk_usage = psutil.disk_usage("/").percent
-    cpu_load_avg = os.getloadavg()  # Returns (1 min, 5 min, 15 min) load averages
+    cpu_load_avg = os.getloadavg()  # Load averages for 1, 5, and 15 minutes
     load_avg_display = f"{cpu_load_avg[0]:.2f}, {cpu_load_avg[1]:.2f}, {cpu_load_avg[2]:.2f}"
 
     info_text = f"""
