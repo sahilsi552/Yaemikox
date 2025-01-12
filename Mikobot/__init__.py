@@ -227,7 +227,7 @@ loop.run_until_complete(
 
 # <=============================================== CLIENT SETUP ========================================================>
 # Create the Mikobot and TelegramClient instances
-app = Client("Mikobot", api_id=API_ID, api_hash=API_HASH, bot_token=TOKEN)
+app = Client("Mikobot", api_id=API_ID, api_hash=API_HASH, bot_token=TOKEN,plugins={"root": "Mikobot.plugins"})
 tbot = TelegramClient("Yaebot", API_ID, API_HASH)
 # <=======================================================================================================>
 
