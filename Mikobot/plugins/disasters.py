@@ -114,18 +114,16 @@ async def remove_disaster_level(update: Update, level: str, context) -> str:
     await update_elevated_users(data)
 
     log_message = (
-        f"#REMOVE_{level.upper()}\n"
-        f"<b>Admin:</b> {mention_html(user.id, html.escape(user.first_name))}\n"
-        f"<b>User:</b> {mention_html(user_member.id, html.escape(user_member.first_name))}"
-    )
+    f"#{level.upper()}\n"
+    f"<b>Admin:</b> {mention_html(user.id, html.escape(user.first_name))}\n"
+    f"Added:\n"
+    f"<b>User:</b> {mention_html(user_member.id, html.escape(user_member.first_name))} to disaster list"
+)
 
-    if chat.type != "private":
-        log_message = f"<b>{html.escape(chat.title)}:</b>\n" + log_message
+if chat.type != "private":
+    log_message = f"<b>{html.escape(chat.title)}:</b>\n" + log_message
 
-    await message.reply_text(
-        f"Successfully removed Disaster level '{level}' from {user_member.first_name}!"
-    )
-    await message.reply_text(log_message)
+await message.reply_text(log_message, parse_mode="HTML")
 
 @dev_plus
 @gloggable
