@@ -144,7 +144,7 @@ USER_SETTINGS = {}
 
 # <============================================== PM_START_TEXT =========================================================>
 BOT_NAME = "sex"
-
+first_name = update.message.from_user.first_name
 
 
 PM_START_TEXT = """ 
