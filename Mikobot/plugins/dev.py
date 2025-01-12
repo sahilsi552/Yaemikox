@@ -6,7 +6,7 @@ from time import sleep
 
 from telegram import Update
 from telegram.ext import Application, CommandHandler, CallbackContext
-from telegram.error import Unauthorized, TelegramError
+from telegram.error import TelegramError
 
 import Mikobot
 from Mikobot.modules.helper_funcs.chat_status import dev_plus
