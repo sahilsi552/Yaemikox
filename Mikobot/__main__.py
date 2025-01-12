@@ -108,16 +108,10 @@ Hello {}🥀.
 
 𝙎𝙮𝙨𝙩𝙚𝙢 𝙨𝙩𝙖𝙩𝙨
 ➖➖➖➖➖➖
-UPTIME ➼ {uptime}
-CPU ➼ {cpu}%
-RAM ➼ {mem}%
-DISK ➼ {disk}%
-
-PYTHON ➼ {PYTHON_VERSION}
-
-PTB ➼ {PTB_VERSION}
-TELETHON ➼ {TELETHON_VERSION}
-PYROGRAM ➼ {PYROGRAM_VERSION}
+PYTHON_VERSION = python_version()
+PTB_VERSION = telegram.__version__
+PYROGRAM_VERSION = pyrogram.__version__
+TELETHON_VERSION = telethon.__version__
 """
 def private_panel():
     buttons = [
