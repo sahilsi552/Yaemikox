@@ -8,7 +8,7 @@ import psutil
 
 from pyrogram import filters
 from pyrogram.types import InlineKeyboardMarkup, Message
-from Mikobot import BOT_NAME, app, boot
+from Mikobot import BOT_NAME, app
 from Infamous.karma import HEY_IMG, ALIVE_BTN  # Replace with your correct imports
 
 # Small caps conversion function
