@@ -106,14 +106,18 @@ Hello {}🥀.
 ──────────────────
 ๏ Click the help button to learn about my modules and commands.
 
-bot_uptime = int(time.time() - boot)
-    cpu = psutil.cpu_percent(interval=0.5)
-    mem = psutil.virtual_memory().percent
-    disk = psutil.disk_usage("/").percent
-    UP = get_readable_time((bot_uptime))
-    CPU = f"{cpu}%"
-    RAM = f"{mem}%"
-    DISK = f"{disk}%"
+𝙎𝙮𝙨𝙩𝙚𝙢 𝙨𝙩𝙖𝙩𝙨
+➖➖➖➖➖➖
+UPTIME ➼ {uptime}
+CPU ➼ {cpu}%
+RAM ➼ {mem}%
+DISK ➼ {disk}%
+
+PYTHON ➼ {PYTHON_VERSION}
+
+PTB ➼ {PTB_VERSION}
+TELETHON ➼ {TELETHON_VERSION}
+PYROGRAM ➼ {PYROGRAM_VERSION}
 """
 def private_panel():
     buttons = [
@@ -1445,7 +1449,7 @@ async def migrate_chats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 # <=================================================== MAIN ====================================================>
-def main():
+async def main():
     function(CommandHandler("start", start))
 
     function(CommandHandler("help", extra_command_handlered))
