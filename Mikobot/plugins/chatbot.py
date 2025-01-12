@@ -107,8 +107,6 @@ async def chatbot_text(client: Client, message: Message):
                 hey = random.choice(K)
                 is_text = chatai.find_one({"text": hey})
                 Yo = is_text["check"]
-                if Yo == "sticker":
-                    await message.reply_sticker(f"{hey}")
                 if not Yo == "sticker":
                     await message.reply_text(f"{hey}")
 
@@ -128,8 +126,6 @@ async def chatbot_text(client: Client, message: Message):
                     hey = random.choice(K)
                     is_text = chatai.find_one({"text": hey})
                     Yo = is_text["check"]
-                    if Yo == "sticker":
-                        await message.reply_sticker(f"{hey}")
                     if not Yo == "sticker":
                         await message.reply_text(f"{hey}")
         if not message.reply_to_message.from_user.id == BOT_ID:
@@ -201,8 +197,6 @@ async def chatbot_sticker(client: Client, message: Message):
                 Yo = is_text["check"]
                 if Yo == "text":
                     await message.reply_text(f"{hey}")
-                if not Yo == "text":
-                    await message.reply_sticker(f"{hey}")
 
     if message.reply_to_message:
         vickdb = MongoClient(MONGO_URL)
@@ -222,8 +216,6 @@ async def chatbot_sticker(client: Client, message: Message):
                     Yo = is_text["check"]
                     if Yo == "text":
                         await message.reply_text(f"{hey}")
-                    if not Yo == "text":
-                        await message.reply_sticker(f"{hey}")
         if not message.reply_to_message.from_user.id == BOT_ID:
             if message.text:
                 is_chat = chatai.find_one(
@@ -286,8 +278,6 @@ async def chatbot_pvt(client: Client, message: Message):
         hey = random.choice(K)
         is_text = chatai.find_one({"text": hey})
         Yo = is_text["check"]
-        if Yo == "sticker":
-            await message.reply_sticker(f"{hey}")
         if not Yo == "sticker":
             await message.reply_text(f"{hey}")
     if message.reply_to_message:
@@ -300,11 +290,8 @@ async def chatbot_pvt(client: Client, message: Message):
             hey = random.choice(K)
             is_text = chatai.find_one({"text": hey})
             Yo = is_text["check"]
-            if Yo == "sticker":
-                await message.reply_sticker(f"{hey}")
             if not Yo == "sticker":
                 await message.reply_text(f"{hey}")
-
 
 
 __HELP = """
