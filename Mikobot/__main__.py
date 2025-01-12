@@ -106,6 +106,14 @@ Hello {}🥀.
 ──────────────────
 ๏ Click the help button to learn about my modules and commands.
 
+bot_uptime = int(time.time() - boot)
+    cpu = psutil.cpu_percent(interval=0.5)
+    mem = psutil.virtual_memory().percent
+    disk = psutil.disk_usage("/").percent
+    UP = get_readable_time((bot_uptime))
+    CPU = f"{cpu}%"
+    RAM = f"{mem}%"
+    DISK = f"{disk}%"
 """
 def private_panel():
     buttons = [
