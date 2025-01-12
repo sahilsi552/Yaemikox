@@ -59,7 +59,7 @@ async def logs_command(client: Client, message: Message):
             caption=caption,
             reply_markup=reply_markup,
         )
-        app.user_data[message.chat.id] = sent_message.id
+        # app.user_data[message.chat.id] = sent_message.id
 
 
 @app.on_callback_query(filters.regex("^close$"))
