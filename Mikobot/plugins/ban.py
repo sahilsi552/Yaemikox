@@ -346,10 +346,10 @@ async def kick(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
 
     return log_message
 
-    else:
-        await message.reply_text("Well damn, I can't kick that user.")
+        else:
+            await message.reply_text("Well damn, I can't kick that user.")
 
-    return log_message
+          return log_message
 
 
 @check_admin(permission="can_restrict_members", is_bot=True)
