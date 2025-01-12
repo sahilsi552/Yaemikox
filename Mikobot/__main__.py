@@ -166,7 +166,8 @@ Hello {}🥀.
 
 # Assuming you have a StartTime or similar variable for the bot start timestamp  # Tracks the bot's start time
 owner_name = "𝗦𝗔𝗛𝗜𝗟"  # Replace with the actual owner name
-
+boot = time.time()
+uptime = get_readable_time(int(time.time() - boot))
 async def get_start_text(username: str, bot_name: str, uptime: str) -> str:
     return PM_START_TEXT.format(
         username,
