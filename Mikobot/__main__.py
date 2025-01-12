@@ -164,6 +164,16 @@ Hello {}🥀.
 
 # <============================================== STARTUP CODE =========================================================>
 
+start_text = PM_START_TEXT.format(
+        escape_markdown(first_name),
+        BOT_NAME,
+        uptime=uptime,
+        python_version=PYTHON_VERSION,
+        ptb_version=PTB_VERSION,
+        pyrogram_version=PYROGRAM_VERSION,
+        telethon_version=TELETHON_VERSION,
+        owner_name=OWNER_NAME
+)
 # Assuming you have a StartTime or similar variable for the bot start timestamp  # Tracks the bot's start time
 owner_name = "𝗦𝗔𝗛𝗜𝗟"  # Replace with the actual owner name
 boot = time.time()
@@ -323,7 +333,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             first_name = update.effective_user.first_name
             start=private_panel()
             await update.effective_message.reply_text(
-                PM_START_TEXT.format(escape_markdown(first_name),BOT_NAME),
+                star_text,
                 reply_markup=InlineKeyboardMarkup(start),
                 parse_mode=ParseMode.MARKDOWN,
                 disable_web_page_preview=False,
