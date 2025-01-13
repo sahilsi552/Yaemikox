@@ -427,3 +427,4 @@ INFO_HANDLER = CommandHandler(("info", "book"), info, block=False)
 
 function(STATS_HANDLER)
 function(INFO_HANDLER)
+__handlers__ = [INFO_HANDLER, STATS_HANDLER]
