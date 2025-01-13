@@ -325,8 +325,8 @@ async def extra_command_callback(update: Update, context: ContextTypes.DEFAULT_T
             parse_mode="Markdown",  # Added this line to explicitly specify Markdown parsing
         )
 async def Music_button(update:Update,context:ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("""ᴄʜᴏꜱᴇ ᴛʜᴇ ᴄᴀᴛᴇɢᴏʀʏ ꜰᴏʀ ᴡʜɪᴄʜ ʏᴏᴜ ᴡᴀɴɴᴀ ɢᴇᴛ ʜᴇʟᴘ.
-ᴀꜱᴋ ʏᴏᴜʀ ᴅᴏᴜʙᴛꜱ ᴀᴛ [ꜱᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ]@{SUPPORT_CHAT}
+    await update.message.reply_text(f"""ᴄʜᴏꜱᴇ ᴛʜᴇ ᴄᴀᴛᴇɢᴏʀʏ ꜰᴏʀ ᴡʜɪᴄʜ ʏᴏᴜ ᴡᴀɴɴᴀ ɢᴇᴛ ʜᴇʟᴘ.
+ᴀꜱᴋ ʏᴏᴜʀ ᴅᴏᴜʙᴛꜱ ᴀᴛ [ꜱᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ](https://t.me/{SUPPORT_CHAT})
 
 ᴀʟʟ ᴄᴏᴍᴍᴀɴᴅꜱ ᴄᴀɴ ʙᴇ ᴜꜱᴇᴅ ᴡɪᴛʜ : /  """,
             reply_markup=InlineKeyboardMarkup(
@@ -383,7 +383,7 @@ async def Music_about_callback(update: Update, context: ContextTypes.DEFAULT_TYP
         await query.message.edit_text(
             f"""
  ᴄʜᴏꜱᴇ ᴛʜᴇ ᴄᴀᴛᴇɢᴏʀʏ ꜰᴏʀ ᴡʜɪᴄʜ ʏᴏᴜ ᴡᴀɴɴᴀ ɢᴇᴛ ʜᴇʟᴘ.
-ᴀꜱᴋ ʏᴏᴜʀ ᴅᴏᴜʙᴛꜱ ᴀᴛ [ꜱᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ]@{SUPPORT_CHAT}
+ᴀꜱᴋ ʏᴏᴜʀ ᴅᴏᴜʙᴛꜱ ᴀᴛ [ꜱᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ](https://t.me/{SUPPORT_CHAT})
 
 ᴀʟʟ ᴄᴏᴍᴍᴀɴᴅꜱ ᴄᴀɴ ʙᴇ ᴜꜱᴇᴅ ᴡɪᴛʜ : /  
 """,
