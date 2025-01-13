@@ -383,7 +383,7 @@ async def Music_about_callback(update: Update, context: ContextTypes.DEFAULT_TYP
         await query.message.edit_text(
             f"""
  ᴄʜᴏꜱᴇ ᴛʜᴇ ᴄᴀᴛᴇɢᴏʀʏ ꜰᴏʀ ᴡʜɪᴄʜ ʏᴏᴜ ᴡᴀɴɴᴀ ɢᴇᴛ ʜᴇʟᴘ.
-ᴀꜱᴋ ʏᴏᴜʀ ᴅᴏᴜʙᴛꜱ ᴀᴛ [ꜱᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ](https://t.me/mikosupport_0)
+ᴀꜱᴋ ʏᴏᴜʀ ᴅᴏᴜʙᴛꜱ ᴀᴛ [ꜱᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ]@{SUPPORT_CHAT}
 
 ᴀʟʟ ᴄᴏᴍᴍᴀɴᴅꜱ ᴄᴀɴ ʙᴇ ᴜꜱᴇᴅ ᴡɪᴛʜ : /  
 """,
@@ -532,7 +532,7 @@ sᴛᴀʀᴛs sᴛʀᴇᴀᴍɪɴɢ ᴛʜᴇ ᴏɴɢᴏɪɴɢ sᴛʀᴇᴀᴍ ɪ
           reply_markup=InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton(text="⬅️ ʙᴀᴄᴋ", callback_data="Music_"),
+                        InlineKeyboardButton(text="๏ ʙᴀᴄᴋ ๏", callback_data="Music_"),
                   
                     ]
                 ]
@@ -551,9 +551,6 @@ sᴛᴀʀᴛs sᴛʀᴇᴀᴍɪɴɢ ᴛʜᴇ ᴏɴɢᴏɪɴɢ sᴛʀᴇᴀᴍ ɪ
 
 /mstats : sʜᴏᴡs ᴛʜᴇ ᴏᴠᴇʀᴀʟʟ sᴛᴀᴛs ᴏғ ᴛʜᴇ ʙᴏᴛ.
 
-/topusers : ᴍᴏꜱᴛ Qᴜᴇʀɪᴇꜱ ʙʏ ᴜꜱᴇʀꜱ
- 
-/trend : ᴍᴏꜱᴛ ᴘʟᴀʏᴇᴅ ꜱᴏɴɢꜱ ɪɴ ᴄᴜʀʀᴇɴᴛ ᴡᴇᴇᴋ  
 """,
         
           reply_markup=InlineKeyboardMarkup(
@@ -566,8 +563,14 @@ sᴛᴀʀᴛs sᴛʀᴇᴀᴍɪɴɢ ᴛʜᴇ ᴏɴɢᴏɪɴɢ sᴛʀᴇᴀᴍ ɪ
             ),
         ) 
     elif query.data == "Music_play":
-        await query.message.edit_text(PLAYFORCE,
-        
+        await query.message.edit_text(f""" ᴩʟᴀʏ ᴄᴏᴍᴍᴀɴᴅs :
+
+v : sᴛᴀɴᴅs ғᴏʀ ᴠɪᴅᴇᴏ ᴩʟᴀʏ.
+force : sᴛᴀɴᴅs ғᴏʀ ғᴏʀᴄᴇ ᴩʟᴀʏ.
+
+/play ᴏʀ /vplay : sᴛᴀʀᴛs sᴛʀᴇᴀᴍɪɴɢ ᴛʜᴇ ʀᴇǫᴜᴇsᴛᴇᴅ ᴛʀᴀᴄᴋ ᴏɴ ᴠɪᴅᴇᴏᴄʜᴀᴛ.
+
+/playforce ᴏʀ /vplayforce : sᴛᴏᴩs ᴛʜᴇ ᴏɴɢᴏɪɴɢ sᴛʀᴇᴀᴍ ᴀɴᴅ sᴛᴀʀᴛs sᴛʀᴇᴀᴍɪɴɢ ᴛʜᴇ ʀᴇǫᴜᴇsᴛᴇᴅ ᴛʀᴀᴄᴋ.""",
           reply_markup=InlineKeyboardMarkup(
                 [
                     [
@@ -578,7 +581,11 @@ sᴛᴀʀᴛs sᴛʀᴇᴀᴍɪɴɢ ᴛʜᴇ ᴏɴɢᴏɪɴɢ sᴛʀᴇᴀᴍ ɪ
             ),
         ) 
     elif query.data == "Music_shuffle":
-        await query.message.edit_text(QUEUE,
+        await query.message.edit_text(f"""sᴇᴇᴋ sᴛʀᴇᴀᴍ :
+
+/seek [ᴅᴜʀᴀᴛɪᴏɴ ɪɴ sᴇᴄᴏɴᴅs] : sᴇᴇᴋ ᴛʜᴇ sᴛʀᴇᴀᴍ ᴛᴏ ᴛʜᴇ ɢɪᴠᴇɴ ᴅᴜʀᴀᴛɪᴏɴ.
+
+/seekback [ᴅᴜʀᴀᴛɪᴏɴ ɪɴ sᴇᴄᴏɴᴅs] : ʙᴀᴄᴋᴡᴀʀᴅ sᴇᴇᴋ ᴛʜᴇ sᴛʀᴇᴀᴍ ᴛᴏ ᴛʜᴇ ᴛʜᴇ ɢɪᴠᴇɴ ᴅᴜʀᴀᴛɪᴏɴ.""",
         
           reply_markup=InlineKeyboardMarkup(
                 [
@@ -602,8 +609,12 @@ sᴛᴀʀᴛs sᴛʀᴇᴀᴍɪɴɢ ᴛʜᴇ ᴏɴɢᴏɪɴɢ sᴛʀᴇᴀᴍ ɪ
             ),
         )
     elif query.data == "Music_song":
-        await query.message.edit_text(SONG,
-        
+        await query.message.edit_text("music mode text hereeeee"
+         """*»ᴄᴏᴍᴍᴀɴᴅꜱ «*
+sᴏɴɢ ᴅᴏᴡɴʟᴏᴀᴅ
+
+Download Unavailable due to telegram server limitations...
+""",
           reply_markup=InlineKeyboardMarkup(
                 [
                     [
@@ -635,8 +646,7 @@ sᴘᴇᴇᴅ ᴄᴏᴍᴍᴀɴᴅs :
             ),
         )
     elif query.data == "Music_mode":
-         await query.message.edit_text("music mode text hereeeee"
- """*» ᴄʜᴀɴɢᴇ ꜱᴇᴛᴛɪɴɢꜱ ᴄᴏᴍᴍᴀɴᴅꜱ «*
+         await query.message.edit_text(f"""*» ᴄʜᴀɴɢᴇ ꜱᴇᴛᴛɪɴɢꜱ ᴄᴏᴍᴍᴀɴᴅꜱ «*
 ᴄʜᴀɴɢᴇ ꜱᴇᴛᴛɪɴɢꜱ :
 
 /playmode : ꜰᴏʀ ᴄʜᴀɴɢᴇ ᴘʟᴀʏᴍᴏᴅᴇ ɪɴ ɢʀᴏᴜᴘꜱ ʙᴇᴛᴡᴇᴇɴ ᴍᴇᴍʙᴇʀꜱ ᴀɴᴅ ᴀᴅᴍɪɴꜱ
