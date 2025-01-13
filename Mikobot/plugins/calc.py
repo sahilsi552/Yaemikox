@@ -10,7 +10,7 @@ import logging
 import re
 
 
-LOGGER = logging.getLogger("NandhaXBOT")
+LOGGER = logging.getLogger("sahil")
 
 def calcExpression(text):
     try:
