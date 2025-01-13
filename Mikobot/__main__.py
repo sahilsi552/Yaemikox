@@ -208,8 +208,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [
                 InlineKeyboardButton("ᴇxᴘᴇʀᴛ🔩", callback_data="expert_command"),
             ],   
+            
             [
-                 InlineKeyboardButton("๏ʜᴏᴍᴇ๏", callback_data="Miko_back"),
+                InlineKeyboardButton("๏ʜᴏᴍᴇ๏", callback_data="Miko_back"),
             ],
         ]
     )
@@ -386,7 +387,7 @@ async def Music_about_callback(update: Update, context: ContextTypes.DEFAULT_TYP
     query = update.callback_query
     if query.data == "Music_":
         await query.message.edit_text(
-            """
+            f"""
  ᴄʜᴏꜱᴇ ᴛʜᴇ ᴄᴀᴛᴇɢᴏʀʏ ꜰᴏʀ ᴡʜɪᴄʜ ʏᴏᴜ ᴡᴀɴɴᴀ ɢᴇᴛ ʜᴇʟᴘ.
 ᴀꜱᴋ ʏᴏᴜʀ ᴅᴏᴜʙᴛꜱ ᴀᴛ [ꜱᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ](https://t.me/mikosupport_0)
 
@@ -864,7 +865,7 @@ async def main_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton(text="• ʙᴀᴄᴋ •", callback_data="extra_command_handler")
+                        InlineKeyboardButton(text="๏ ʙᴀᴄᴋ ๏", callback_data="extra_command_handler")
                     ]
                 ]
             ),
@@ -891,7 +892,7 @@ Pɪɴɴᴇᴅ Mᴇssᴀɢᴇs
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton(text="• ʙᴀᴄᴋ •", callback_data="extra_command_handler")
+                        InlineKeyboardButton(text="๏ ʙᴀᴄᴋ ๏", callback_data="extra_command_handler")
                     ]
                 ]
             ),
