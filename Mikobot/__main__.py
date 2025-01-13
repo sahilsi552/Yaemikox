@@ -1014,27 +1014,30 @@ async def error_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         raise error
     except Forbidden:
-        print("no nono1")
+        print("Forbidden error occurred")
         print(error)
         # remove update.message.chat_id from conversation list
     except BadRequest:
-        print("no nono2")
         print("BadRequest caught")
         print(error)
-
         # handle malformed requests - read more below!
     except TimedOut:
-        print("no nono3")
+        print("TimedOut error occurred")
         # handle slow connection problems
     except NetworkError:
-        print("no nono4")
+        print("NetworkError occurred")
         # handle other connection problems
     except ChatMigrated as err:
-        print("no nono5")
+        print("ChatMigrated error occurred")
         print(err)
         # the chat_id of a group has changed, use e.new_chat_id instead
     except TelegramError:
+        print("TelegramError occurred")
         print(error)
+        # handle all other telegram related errors
+    except Exception as e:
+        print("An unknown error occurred")
+        print(e)
         # handle all other telegram related errors
 
 
