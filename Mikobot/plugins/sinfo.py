@@ -188,9 +188,18 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ID = update.effective_message.from_user.id
     if ID != OWNER_ID:
         return
-    stats = f"📊 <b>{BOT_NAME} Bot's Statistics:</b>\n\n" + "\n".join(
-        [mod.__stats__() for mod in STATS]
-    )
+    stats_list = []
+    for mod in STATS:
+        try:
+            stat = mod.__stats__()
+            if stat is not None:
+                stats_list.append(stat)
+        except StopIteration:
+            stats_list.append(f"Error in {mod.__name__}: StopIteration occurred")
+        except Exception as e:
+            stats_list.append(f"Error in {mod.__name__}: {str(e)}")
+    
+    stats = f"📊 <b>{BOT_NAME} Bot's Statistics:</b>\n\n" + "\n".join(stats_list)
     result = re.sub(r"(\d+)", r"<code>\1</code>", stats)
 
     keyboard = [
