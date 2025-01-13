@@ -43,10 +43,10 @@ async def button_click_handler(client, callback_query):
                 await callback_query.answer("chatbot already enabled", show_alert=True)
             else:
                 users_collection.insert_one({"user_id": user_id})
-                await callback_query.answer("chatbot enable", show_alert=True)
+                await callback_query.answer("chatbot enabled", show_alert=True)
         elif data == 'rm_chat':
             users_collection.delete_one({"user_id": user_id})
-            await callback_query.answer("chatbot disable", show_alert=True)
+            await callback_query.answer("chatbot disabled", show_alert=True)
         await callback_query.message.delete()
     else:
         user_id = callback_query.from_user.id
@@ -64,11 +64,21 @@ async def button_click_handler(client, callback_query):
                 await callback_query.answer("chatbot already enabled", show_alert=True)
             else:
                 users_collection.insert_one({"chat_id": chat_id})
-                await callback_query.answer("chatbot enable ", show_alert=True)
+                await callback_query.answer("chatbot enabled", show_alert=True)
         elif data == 'rm_chat':
             users_collection.delete_one({"chat_id": chat_id})
-            await callback_query.answer("chatbot disable", show_alert=True)
+            await callback_query.answer("chatbot disabled", show_alert=True)
         await callback_query.message.delete()
+
+@Mukesh.on_message(filters.new_chat_members & filters.group)
+async def auto_enable_chatbot(client: Client, message: Message):
+    for new_member in message.new_chat_members:
+        if new_member.id == BOT_ID:
+            chat_id = message.chat.id
+            existing_group = users_collection.find_one({"chat_id": chat_id})
+            if not existing_group:
+                users_collection.insert_one({"chat_id": chat_id})
+                await message.reply_text("Chatbot enabled automatically")
 
 @Mukesh.on_message(
     (filters.text | filters.group) & ~filters.private & ~filters.bot, group=4
@@ -157,7 +167,6 @@ async def chatbot_text(client: Client, message: Message):
                             "check": "none",
                         }
                     )
-
 
 @Mukesh.on_message(
     ( filters.group | filters.text) & ~filters.private & ~filters.bot, group=4
@@ -248,7 +257,6 @@ async def chatbot_sticker(client: Client, message: Message):
                         }
                     )
 
-
 @Mukesh.on_message(
     (filters.text | filters.group) & ~filters.private & ~filters.bot, group=4
 )
@@ -292,7 +300,6 @@ async def chatbot_pvt(client: Client, message: Message):
             Yo = is_text["check"]
             if not Yo == "sticker":
                 await message.reply_text(f"{hey}")
-
 
 __HELP = """
 - /chatbot : To enable/disable chatbot in your group
