@@ -1,7 +1,7 @@
 import os
 import re
 import subprocess
-import sys
+from Mikobot.utils import sys
 import traceback
 from inspect import getfullargspec
 from io import StringIO
