@@ -197,85 +197,6 @@ async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
 @connection_status
 @loggable
 @check_admin(permission="can_restrict_members", is_both=True)
-async def delban(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
-    chat = update.effective_chat
-    user = update.effective_user
-    message = update.effective_message
-    log_message = ""
-    bot = context.bot
-    args = context.args
-    user_id, reason = await extract_user_and_text(message, context, args)
-
-    if not user_id:
-        await message.reply_text("I doubt that's a user.")
-        return log_message
-
-    try:
-        member = await chat.get_member(user_id)
-    except BadRequest as excp:
-        if excp.message != "User not found":
-            raise
-        await message.reply_text("I can't seem to find this user.")
-        return log_message
-
-    if user_id == bot.id:
-        await message.reply_text("I'm not gonna BAN myself, are you crazy?")
-        return log_message
-
-    if await is_user_ban_protected(chat, user_id, member):
-        await message.reply_text("I don't feel like it.")
-        return log_message
-
-    log = (
-        f"<b>{html.escape(chat.title)}:</b>\n"
-        "#DELBANNED\n"
-        f"<b>Admin:</b> {mention_html(user.id, html.escape(user.first_name))}\n"
-        f"<b>User:</b> {mention_html(member.user.id, html.escape(member.user.first_name))}\n"
-    )
-    if reason:
-        log += "\n<b>Reason:</b> {}".format(reason)
-
-    try:
-        await chat.ban_member(user_id)
-        if message.reply_to_message:
-            await message.reply_to_message.delete()
-        await message.delete()
-        await bot.send_sticker(
-            chat.id,
-            BAN_STICKER,
-            message_thread_id=message.message_thread_id if chat.is_forum else None,
-        )
-        await bot.sendMessage(
-            chat.id,
-            f"Banned! User {mention_html(member.user.id, html.escape(member.user.first_name))} "
-            f"has been deleted.\nReason: {reason}",
-            parse_mode=ParseMode.HTML,
-            message_thread_id=message.message_thread_id if chat.is_forum else None,
-        )
-        return log
-
-    except BadRequest as excp:
-        if excp.message == "Reply message not found":
-            await message.reply_text(
-                f"Banned! User has been deleted.\nReason: {reason}", quote=False
-            )
-            return log
-        else:
-            LOGGER.warning(update)
-            LOGGER.exception(
-                "ERROR banning user %s in chat %s (%s) due to %s",
-                user_id,
-                chat.title,
-                chat.id,
-                excp.message,
-            )
-            await message.reply_text("Well damn, I can't ban that user.")
-
-    return log_message
-
-@connection_status
-@loggable
-@check_admin(permission="can_restrict_members", is_both=True)
 async def temp_ban(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     chat = update.effective_chat
     user = update.effective_user
@@ -486,71 +407,8 @@ async def delkick(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
         else:
             await message.reply_text("Well damn, I can't dkick that user.")
     except BadRequest as e:
-        await message.reply_text(f"Failed to dkick user: {e.message}")
+        await message.reply_text(f"Failed to dkick user: {e.message}"
 
-    return log_message
-
-
-@connection_status
-@loggable
-@check_admin(permission="can_restrict_members", is_both=True)
-async def delmute(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
-    chat = update.effective_chat
-    user = update.effective_user
-    message = update.effective_message
-    log_message = ""
-    bot, args = context.bot, context.args
-    user_id, reason = await extract_user_and_text(message, context, args)
-
-    if not user_id:
-        await message.reply_text("I doubt that's a user.")
-        return log_message
-
-    try:
-        member = await chat.get_member(user_id)
-    except BadRequest as excp:
-        if excp.message != "User not found":
-            raise
-        await message.reply_text("I can't seem to find this user.")
-        return log_message
-
-    if user_id == bot.id:
-        await message.reply_text("Yeahhh I'm not gonna do that.")
-        return log_message
-
-    if await is_user_ban_protected(chat, user_id):
-        await message.reply_text("I really wish I could mute this user....")
-        return log_message
-
-    try:
-        await chat.restrict_member(user_id, permissions=ChatPermissions(can_send_messages=False))
-        if message.reply_to_message:
-            await message.reply_to_message.delete()
-        await message.delete()
-        await bot.send_sticker(
-            chat.id,
-            BAN_STICKER,
-            message_thread_id=message.message_thread_id if chat.is_forum else None,
-        )
-        await bot.sendMessage(
-            chat.id,
-            f"Captain, I have muted {mention_html(member.user.id, html.escape(member.user.first_name))}.",
-            parse_mode=ParseMode.HTML,
-            message_thread_id=message.message_thread_id if chat.is_forum else None,
-        )
-        log = (
-            f"<b>{html.escape(chat.title)}:</b>\n"
-            f"#MUTED\n"
-            f"<b>Admin:</b> {mention_html(user.id, html.escape(user.first_name))}\n"
-            f"<b>User:</b> {mention_html(member.user.id, html.escape(member.user.first_name))}"
-        )
-        if reason:
-            log += f"\n<b>Reason:</b> {reason}"
-        return log
-    except BadRequest as e:
-        await message.reply_text(f"Failed to mute user: {e.message}")
-
-    return log_message
 
 @check_admin(permission="can_restrict_members", is_bot=True)
 async def kickme(update: Update, context: ContextTypes.DEFAULT_TYPE):
