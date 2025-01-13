@@ -116,11 +116,11 @@ def private_panel():
             )
         ],
         [
-            InlineKeyboardButton(text="📚 ʜᴇʟᴘ",callback_data="extra_command_handler"),
+            InlineKeyboardButton(text="📚ʜᴇʟᴘ",callback_data="extra_command_handler"),
         ],
         [
-              InlineKeyboardButton(text="ꜱᴜᴘᴘᴏʀᴛ", url=f"https://t.me/{SUPPORT_CHAT}"),
-            InlineKeyboardButton(text="ᴜᴘᴅᴀᴛᴇꜱ", url=f"https://t.me/{SUPPORT_CHAT}"),
+              InlineKeyboardButton(text="ꜱᴜᴘᴘᴏʀᴛ📢", url=f"https://t.me/{SUPPORT_CHAT}"),
+            InlineKeyboardButton(text="ᴜᴘᴅᴀᴛᴇꜱ🆘", url=f"https://t.me/{SUPPORT_CHAT}"),
         ],
     ]
     return buttons
@@ -194,19 +194,22 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             elif args[0].lower()=="mainhelp":
                 await update.effective_message.reply_text(
     "𝙎𝙚𝙡𝙚𝙘𝙩 𝙩𝙝𝙚 𝙨𝙚𝙘𝙩𝙞𝙤𝙣 𝙩𝙝𝙖𝙩 𝙮𝙤𝙪 𝙬𝙖𝙣𝙩 𝙩𝙤 𝙤𝙥𝙚𝙣",
+
     reply_markup=InlineKeyboardMarkup(
         [
             [
-                InlineKeyboardButton("ᴍᴀɴᴀɢᴇᴍᴇɴᴛ", callback_data="help_back"),
-                InlineKeyboardButton("ᴍᴜꜱɪᴄ", callback_data="Music_"),
+                InlineKeyboardButton("ᴍᴀɴᴀɢᴇᴍᴇɴᴛ⚙️", callback_data="help_back"),
+                InlineKeyboardButton("ᴍᴜꜱɪᴄ🎧", callback_data="Music_"),
             ],
             [
-                InlineKeyboardButton("ʙᴀꜱɪᴄ", callback_data="basic_command"),
-                InlineKeyboardButton("ᴀᴅᴠᴀɴᴄᴇ", callback_data="advanced_command"),
+                InlineKeyboardButton("ʙᴀꜱɪᴄ📕", callback_data="basic_command"),
+                InlineKeyboardButton("ᴀᴅᴠᴀɴᴄᴇ🧰", callback_data="advanced_command"),
             ],
             [
-                InlineKeyboardButton("ᴇxᴘᴇʀᴛ", callback_data="expert_command"),
-                InlineKeyboardButton("ʜᴏᴍᴇ", callback_data="Miko_back"),
+                InlineKeyboardButton("ᴇxᴘᴇʀᴛ🔩", callback_data="expert_command"),
+            ],   
+            [
+                 InlineKeyboardButton("๏ʜᴏᴍᴇ๏", callback_data="Miko_back"),
             ],
         ]
     )
@@ -270,17 +273,18 @@ async def extra_command_handlered(update: Update, context: ContextTypes.DEFAULT_
 
     keyboard = [
        [
-                        InlineKeyboardButton("ᴍᴀɴᴀɢᴇᴍᴇɴᴛ", callback_data="help_back"),
-                        InlineKeyboardButton("ᴍᴜꜱɪᴄ", callback_data="Music_"),
+                        InlineKeyboardButton("ᴍᴀɴᴀɢᴇᴍᴇɴᴛ⚙️", callback_data="help_back"),
+                        InlineKeyboardButton("ᴍᴜꜱɪᴄ🎧", callback_data="Music_"),
                     ],
                     [
-                        InlineKeyboardButton("ʙᴀꜱɪᴄ", callback_data="basic_command"),
-                        InlineKeyboardButton("ᴀᴅᴠᴀɴᴄᴇ", callback_data="advanced_command"),
+                        InlineKeyboardButton("ʙᴀꜱɪᴄ📕", callback_data="basic_command"),
+                        InlineKeyboardButton("ᴀᴅᴠᴀɴᴄᴇ🧰", callback_data="advanced_command"),
                     ],
                     [
-                        InlineKeyboardButton("ᴇxᴘᴇʀᴛ",callback_data="expert_command"),
-                       
-                        InlineKeyboardButton("ʜᴏᴍᴇ", callback_data="Miko_back"),
+                        InlineKeyboardButton("ᴇxᴘᴇʀᴛ🔩",callback_data="expert_command"),
+                    ],  
+                    [  
+                        InlineKeyboardButton("๏ʜᴏᴍᴇ๏", callback_data="Miko_back"),
                     ],
     ]
 
@@ -294,7 +298,7 @@ async def extra_command_handlered(update: Update, context: ContextTypes.DEFAULT_
     else:
         await update.message.reply_text("Contact me in PM for help!",reply_markup=InlineKeyboardMarkup(
             [
-                [InlineKeyboardButton("Click me for help",url=f"https://t.me/{BOT_USERNAME}?start=mainhelp")
+                [InlineKeyboardButton("Click me for help🆘",url=f"https://t.me/{BOT_USERNAME}?start=mainhelp")
             ]
             ]
         ))
@@ -309,24 +313,27 @@ async def extra_command_callback(update: Update, context: ContextTypes.DEFAULT_T
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton("ᴍᴀɴᴀɢᴇᴍᴇɴᴛ", callback_data="help_back"),
-                        InlineKeyboardButton("ᴍᴜꜱɪᴄ", callback_data="Music_"),
+                        InlineKeyboardButton("ᴍᴀɴᴀɢᴇᴍᴇɴᴛ⚙️", callback_data="help_back"),
+                        InlineKeyboardButton("ᴍᴜꜱɪᴄ🎧", callback_data="Music_"),
                     ],
                     [
-                        InlineKeyboardButton("ʙᴀꜱɪᴄ", callback_data="basic_command"),
-                        InlineKeyboardButton("ᴀᴅᴠᴀɴᴄᴇ", callback_data="advanced_command"),
+                        InlineKeyboardButton("ʙᴀꜱɪᴄ📕", callback_data="basic_command"),
+                        InlineKeyboardButton("ᴀᴅᴠᴀɴᴄᴇ🧰", callback_data="advanced_command"),
                     ],
                     [
-                        InlineKeyboardButton("ᴇxᴘᴇʀᴛ",callback_data="expert_command"),
+                        InlineKeyboardButton("ᴇxᴘᴇʀᴛ🔩",callback_data="expert_command"),
                        
-                        InlineKeyboardButton("ʜᴏᴍᴇ", callback_data="Miko_back"),
+                        InlineKeyboardButton("๏ʜᴏᴍᴇ๏", callback_data="Miko_back"),
                     ],
                 ]
             ),
             parse_mode="Markdown",  # Added this line to explicitly specify Markdown parsing
         )
 async def Music_button(update:Update,context:ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("""ʜᴇʀᴇ ɪꜱ ʜᴇʟᴘ ᴍᴇɴᴜ ꜰᴏʀ ᴍᴜꜱɪᴄ """,
+    await update.message.reply_text("""ᴄʜᴏꜱᴇ ᴛʜᴇ ᴄᴀᴛᴇɢᴏʀʏ ꜰᴏʀ ᴡʜɪᴄʜ ʏᴏᴜ ᴡᴀɴɴᴀ ɢᴇᴛ ʜᴇʟᴘ.
+ᴀꜱᴋ ʏᴏᴜʀ ᴅᴏᴜʙᴛꜱ ᴀᴛ [ꜱᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ](https://t.me/mikosupport_0)
+
+ᴀʟʟ ᴄᴏᴍᴍᴀɴᴅꜱ ᴄᴀɴ ʙᴇ ᴜꜱᴇᴅ ᴡɪᴛʜ : /  """,
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
@@ -370,7 +377,7 @@ async def Music_button(update:Update,context:ContextTypes.DEFAULT_TYPE):
                             text="ᴏᴛʜᴇʀ", callback_data="Music_other")
                     ],
                     [
-                        InlineKeyboardButton(text="⬅️ ʙᴀᴄᴋ", callback_data="extra_command_handler")
+                        InlineKeyboardButton(text="๏ ʙᴀᴄᴋ ๏", callback_data="extra_command_handler")
                     ],
                 ]
             ),)
@@ -380,7 +387,10 @@ async def Music_about_callback(update: Update, context: ContextTypes.DEFAULT_TYP
     if query.data == "Music_":
         await query.message.edit_text(
             """
- ʜᴇʀᴇ ɪꜱ ʜᴇʟᴘ ᴍᴇɴᴜ ꜰᴏʀ ᴍᴜꜱɪᴄ 
+ ᴄʜᴏꜱᴇ ᴛʜᴇ ᴄᴀᴛᴇɢᴏʀʏ ꜰᴏʀ ᴡʜɪᴄʜ ʏᴏᴜ ᴡᴀɴɴᴀ ɢᴇᴛ ʜᴇʟᴘ.
+ᴀꜱᴋ ʏᴏᴜʀ ᴅᴏᴜʙᴛꜱ ᴀᴛ [ꜱᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ](https://t.me/mikosupport_0)
+
+ᴀʟʟ ᴄᴏᴍᴍᴀɴᴅꜱ ᴄᴀɴ ʙᴇ ᴜꜱᴇᴅ ᴡɪᴛʜ : /  
 """,
             reply_markup=InlineKeyboardMarkup(
                 [
@@ -425,7 +435,7 @@ async def Music_about_callback(update: Update, context: ContextTypes.DEFAULT_TYP
                             text="ᴏᴛʜᴇʀ", callback_data="Music_other")
                     ],
                     [
-                        InlineKeyboardButton(text="⬅️ ʙᴀᴄᴋ", callback_data="extra_command_handler")
+                        InlineKeyboardButton(text="๏ ʙᴀᴄᴋ ๏", callback_data="extra_command_handler")
                     ],
                 ]
             ),
@@ -451,7 +461,7 @@ async def Music_about_callback(update: Update, context: ContextTypes.DEFAULT_TYP
                 [
                     [
                         InlineKeyboardButton(
-                            text="⬅️ ʙᴀᴄᴋ", callback_data="Music_"
+                            text="๏ ʙᴀᴄᴋ ๏", callback_data="Music_"
                         ),
                        
                     ]
@@ -481,7 +491,7 @@ async def Music_about_callback(update: Update, context: ContextTypes.DEFAULT_TYP
                 [
                     [
                         InlineKeyboardButton(
-                            text="⬅️ ʙᴀᴄᴋ", callback_data="Music_"
+                            text="๏ ʙᴀᴄᴋ ๏", callback_data="Music_"
                         ),
                         
                     ]
@@ -505,7 +515,7 @@ async def Music_about_callback(update: Update, context: ContextTypes.DEFAULT_TYP
                 [
                     [
                         InlineKeyboardButton(
-                            text="⬅️ ʙᴀᴄᴋ", callback_data="Music_"
+                            text="๏ ʙᴀᴄᴋ ๏", callback_data="Music_"
                         ),
                        
                     ]
@@ -554,7 +564,7 @@ sᴛᴀʀᴛs sᴛʀᴇᴀᴍɪɴɢ ᴛʜᴇ ᴏɴɢᴏɪɴɢ sᴛʀᴇᴀᴍ ɪ
           reply_markup=InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton(text="⬅️ ʙᴀᴄᴋ", callback_data="Music_"),
+                        InlineKeyboardButton(text="๏ ʙᴀᴄᴋ ๏", callback_data="Music_"),
                        
                     ]
                 ]
@@ -566,7 +576,7 @@ sᴛᴀʀᴛs sᴛʀᴇᴀᴍɪɴɢ ᴛʜᴇ ᴏɴɢᴏɪɴɢ sᴛʀᴇᴀᴍ ɪ
           reply_markup=InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton(text="⬅️ ʙᴀᴄᴋ", callback_data="Music_"),
+                        InlineKeyboardButton(text="๏ ʙᴀᴄᴋ ๏", callback_data="Music_"),
                       
                     ]
                 ]
@@ -578,7 +588,7 @@ sᴛᴀʀᴛs sᴛʀᴇᴀᴍɪɴɢ ᴛʜᴇ ᴏɴɢᴏɪɴɢ sᴛʀᴇᴀᴍ ɪ
           reply_markup=InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton(text="⬅️ ʙᴀᴄᴋ", callback_data="Music_"),
+                        InlineKeyboardButton(text="๏ ʙᴀᴄᴋ ๏", callback_data="Music_"),
                        
                     ]
                 ]
@@ -590,7 +600,7 @@ sᴛᴀʀᴛs sᴛʀᴇᴀᴍɪɴɢ ᴛʜᴇ ᴏɴɢᴏɪɴɢ sᴛʀᴇᴀᴍ ɪ
           reply_markup=InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton(text="⬅️ ʙᴀᴄᴋ", callback_data="Music_"),
+                        InlineKeyboardButton(text="๏ ʙᴀᴄᴋ ๏", callback_data="Music_"),
                        
                     ]
                 ]
@@ -602,7 +612,7 @@ sᴛᴀʀᴛs sᴛʀᴇᴀᴍɪɴɢ ᴛʜᴇ ᴏɴɢᴏɪɴɢ sᴛʀᴇᴀᴍ ɪ
           reply_markup=InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton(text="⬅️ ʙᴀᴄᴋ", callback_data="Music_"),
+                        InlineKeyboardButton(text="๏ ʙᴀᴄᴋ ๏", callback_data="Music_"),
                       
                     ]
                 ]
@@ -623,7 +633,7 @@ sᴘᴇᴇᴅ ᴄᴏᴍᴍᴀɴᴅs :
           reply_markup=InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton(text="⬅️ ʙᴀᴄᴋ", callback_data="Music_"),
+                        InlineKeyboardButton(text="๏ ʙᴀᴄᴋ ๏", callback_data="Music_"),
                       
                     ]
                 ]
@@ -646,7 +656,7 @@ sᴘᴇᴇᴅ ᴄᴏᴍᴍᴀɴᴅs :
           reply_markup=InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton(text="⬅️ ʙᴀᴄᴋ", callback_data="Music_"),
+                        InlineKeyboardButton(text="๏ ʙᴀᴄᴋ ๏", callback_data="Music_"),
                       
                     ]
                 ]
@@ -686,7 +696,7 @@ more cmd get help with cmd /autoend, /autoleave, /directplay
           reply_markup=InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton(text="⬅️ ʙᴀᴄᴋ", callback_data="Music_"),
+                        InlineKeyboardButton(text="๏ ʙᴀᴄᴋ ๏", callback_data="Music_"),
                       
                     ]
                 ]
@@ -904,7 +914,7 @@ Wᴀʀɴ Mᴀɴᴀɢᴇᴍᴇɴᴛ
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton(text="• ʙᴀᴄᴋ •", callback_data="extra_command_handler")
+                        InlineKeyboardButton(text="๏ ʙᴀᴄᴋ ๏", callback_data="extra_command_handler")
                     ]
                 ]
             ),
