@@ -421,3 +421,9 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
         parse_mode=ParseMode.HTML,
         reply_markup=reply_markup,
     )
+
+STATS_HANDLER = CommandHandler(["stats", "gstats"], stats, block=False)
+INFO_HANDLER = CommandHandler(("info", "book"), info, block=False)
+
+function(STATS_HANDLER)
+function(INFO_HANDLER)
