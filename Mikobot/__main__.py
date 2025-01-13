@@ -127,7 +127,19 @@ def private_panel():
 
 HELP_STRINGS = f"""
 » *{BOT_NAME} ๏ Click on the help button to get information about my modules and commands.
-➻ You can also use the buttons below to get started*"""
+➻ You can also use the buttons below to get started*
+━━━━━━━━━━━━━━━━━━━
+» ᴄʟɪᴄᴋ ᴏɴ ᴛʜᴇ ʙᴜᴛᴛᴏɴ ʙᴇʟʟᴏᴡ ᴛᴏ ɢᴇᴛ ᴅᴇsᴄʀɪᴘᴛɪᴏɴ ᴀʙᴏᴜᴛ sᴘᴇᴄɪғɪᴄs ᴄᴏᴍᴍᴀɴᴅ
+
+ᴍᴀɪɴ ᴀᴠᴀɪʟᴀʙʟᴇ ᴄᴏᴍᴍᴀɴᴅꜱ:
+- /start : ᴛᴏ ꜱᴛᴀʀᴛ ᴛʜᴇ ʙᴏᴛ
+- /help : ꜰᴏʀ ᴀꜱꜱɪꜱᴛᴀɴᴄᴇ
+- /alive : ᴄʜᴇᴄᴋ ᴜᴘᴛɪᴍᴇ
+- /donate : ꜰᴏʀ ɪɴꜰᴏʀᴍᴀᴛɪᴏɴ ᴀʙᴏᴜᴛ ᴅᴏɴᴀᴛɪᴏɴꜱ!
+- /settings :
+- ɪɴ ᴘᴍ: ᴛᴏ ᴄʜᴇᴄᴋ ᴡʜᴀᴛ ꜱᴇᴛᴛɪɴɢꜱ ʏᴏᴜ ʜᴀᴠᴇ ᴍᴀᴅᴇ...
+- ɪɴ ᴀ ɢʀᴏᴜᴘ: ɢᴇᴛ ʏᴏᴜʀ ɢʀᴏᴜᴘ ꜱᴇᴛᴛɪɴɢꜱ..
+━━━━━━━━━━━━━━━━━━━ """
 
 DONATE_STRING = """ʜᴇʏ ʙᴀʙʏ,
   ʜᴀᴩᴩʏ ᴛᴏ ʜᴇᴀʀ ᴛʜᴀᴛ ʏᴏᴜ ᴡᴀɴɴᴀ ᴅᴏɴᴀᴛᴇ.
@@ -193,7 +205,19 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await send_help(update.effective_chat.id, HELP_STRINGS)
             elif args[0].lower()=="mainhelp":
                 await update.effective_message.reply_text(
-    "𝙎𝙚𝙡𝙚𝙘𝙩 𝙩𝙝𝙚 𝙨𝙚𝙘𝙩𝙞𝙤𝙣 𝙩𝙝𝙖𝙩 𝙮𝙤𝙪 𝙬𝙖𝙣𝙩 𝙩𝙤 𝙤𝙥𝙚𝙣",
+    """𝙎𝙚𝙡𝙚𝙘𝙩 𝙩𝙝𝙚 𝙨𝙚𝙘𝙩𝙞𝙤𝙣 𝙩𝙝𝙖𝙩 𝙮𝙤𝙪 𝙬𝙖𝙣𝙩 𝙩𝙤 𝙤𝙥𝙚𝙣👇
+    ━━━━━━━━━━━━━━━━━━━
+» ᴄʟɪᴄᴋ ᴏɴ ᴛʜᴇ ʙᴜᴛᴛᴏɴ ʙᴇʟʟᴏᴡ ᴛᴏ ɢᴇᴛ ᴅᴇsᴄʀɪᴘᴛɪᴏɴ ᴀʙᴏᴜᴛ sᴘᴇᴄɪғɪᴄs ᴄᴏᴍᴍᴀɴᴅ
+
+ᴍᴀɪɴ ᴀᴠᴀɪʟᴀʙʟᴇ ᴄᴏᴍᴍᴀɴᴅꜱ:
+- /start : ᴛᴏ ꜱᴛᴀʀᴛ ᴛʜᴇ ʙᴏᴛ
+- /help : ꜰᴏʀ ᴀꜱꜱɪꜱᴛᴀɴᴄᴇ
+- /alive : ᴄʜᴇᴄᴋ ᴜᴘᴛɪᴍᴇ
+- /donate : ꜰᴏʀ ɪɴꜰᴏʀᴍᴀᴛɪᴏɴ ᴀʙᴏᴜᴛ ᴅᴏɴᴀᴛɪᴏɴꜱ!
+- /settings :
+- ɪɴ ᴘᴍ: ᴛᴏ ᴄʜᴇᴄᴋ ᴡʜᴀᴛ ꜱᴇᴛᴛɪɴɢꜱ ʏᴏᴜ ʜᴀᴠᴇ ᴍᴀᴅᴇ...
+- ɪɴ ᴀ ɢʀᴏᴜᴘ: ɢᴇᴛ ʏᴏᴜʀ ɢʀᴏᴜᴘ ꜱᴇᴛᴛɪɴɢꜱ..
+━━━━━━━━━━━━━━━━━━━ """,
 
     reply_markup=InlineKeyboardMarkup(
         [
@@ -287,7 +311,19 @@ async def extra_command_handlered(update: Update, context: ContextTypes.DEFAULT_
     reply_markup = InlineKeyboardMarkup(keyboard)
     if update.effective_chat.type == "private":
         await update.message.reply_text(
-        "𝙎𝙚𝙡𝙚𝙘𝙩 𝙩𝙝𝙚 𝙨𝙚𝙘𝙩𝙞𝙤𝙣 𝙩𝙝𝙖𝙩 𝙮𝙤𝙪 𝙬𝙖𝙣𝙩 𝙩𝙤 𝙤𝙥𝙚𝙣",
+        """𝙎𝙚𝙡𝙚𝙘𝙩 𝙩𝙝𝙚 𝙨𝙚𝙘𝙩𝙞𝙤𝙣 𝙩𝙝𝙖𝙩 𝙮𝙤𝙪 𝙬𝙖𝙣𝙩 𝙩𝙤 𝙤𝙥𝙚𝙣👇
+        ━━━━━━━━━━━━━━━━━━━
+» ᴄʟɪᴄᴋ ᴏɴ ᴛʜᴇ ʙᴜᴛᴛᴏɴ ʙᴇʟʟᴏᴡ ᴛᴏ ɢᴇᴛ ᴅᴇsᴄʀɪᴘᴛɪᴏɴ ᴀʙᴏᴜᴛ sᴘᴇᴄɪғɪᴄs ᴄᴏᴍᴍᴀɴᴅ
+
+ᴍᴀɪɴ ᴀᴠᴀɪʟᴀʙʟᴇ ᴄᴏᴍᴍᴀɴᴅꜱ:
+- /start : ᴛᴏ ꜱᴛᴀʀᴛ ᴛʜᴇ ʙᴏᴛ
+- /help : ꜰᴏʀ ᴀꜱꜱɪꜱᴛᴀɴᴄᴇ
+- /alive : ᴄʜᴇᴄᴋ ᴜᴘᴛɪᴍᴇ
+- /donate : ꜰᴏʀ ɪɴꜰᴏʀᴍᴀᴛɪᴏɴ ᴀʙᴏᴜᴛ ᴅᴏɴᴀᴛɪᴏɴꜱ!
+- /settings :
+- ɪɴ ᴘᴍ: ᴛᴏ ᴄʜᴇᴄᴋ ᴡʜᴀᴛ ꜱᴇᴛᴛɪɴɢꜱ ʏᴏᴜ ʜᴀᴠᴇ ᴍᴀᴅᴇ...
+- ɪɴ ᴀ ɢʀᴏᴜᴘ: ɢᴇᴛ ʏᴏᴜʀ ɢʀᴏᴜᴘ ꜱᴇᴛᴛɪɴɢꜱ..
+━━━━━━━━━━━━━━━━━━━""",
         reply_markup=reply_markup,
         parse_mode="Markdown",
     )
@@ -305,7 +341,19 @@ async def extra_command_callback(update: Update, context: ContextTypes.DEFAULT_T
     if query.data == "extra_command_handler":
         await query.answer()  # Use 'await' for asynchronous calls
         await query.message.edit_text(
-            "𝙎𝙚𝙡𝙚𝙘𝙩 𝙩𝙝𝙚 𝙨𝙚𝙘𝙩𝙞𝙤𝙣 𝙩𝙝𝙖𝙩 𝙮𝙤𝙪 𝙬𝙖𝙣𝙩 𝙩𝙤 𝙤𝙥𝙚𝙣",
+            """𝙎𝙚𝙡𝙚𝙘𝙩 𝙩𝙝𝙚 𝙨𝙚𝙘𝙩𝙞𝙤𝙣 𝙩𝙝𝙖𝙩 𝙮𝙤𝙪 𝙬𝙖𝙣𝙩 𝙩𝙤 𝙤𝙥𝙚𝙣👇
+            ━━━━━━━━━━━━━━━━━━━
+» ᴄʟɪᴄᴋ ᴏɴ ᴛʜᴇ ʙᴜᴛᴛᴏɴ ʙᴇʟʟᴏᴡ ᴛᴏ ɢᴇᴛ ᴅᴇsᴄʀɪᴘᴛɪᴏɴ ᴀʙᴏᴜᴛ sᴘᴇᴄɪғɪᴄs ᴄᴏᴍᴍᴀɴᴅ
+
+ᴍᴀɪɴ ᴀᴠᴀɪʟᴀʙʟᴇ ᴄᴏᴍᴍᴀɴᴅꜱ:
+- /start : ᴛᴏ ꜱᴛᴀʀᴛ ᴛʜᴇ ʙᴏᴛ
+- /help : ꜰᴏʀ ᴀꜱꜱɪꜱᴛᴀɴᴄᴇ
+- /alive : ᴄʜᴇᴄᴋ ᴜᴘᴛɪᴍᴇ
+- /donate : ꜰᴏʀ ɪɴꜰᴏʀᴍᴀᴛɪᴏɴ ᴀʙᴏᴜᴛ ᴅᴏɴᴀᴛɪᴏɴꜱ!
+- /settings :
+- ɪɴ ᴘᴍ: ᴛᴏ ᴄʜᴇᴄᴋ ᴡʜᴀᴛ ꜱᴇᴛᴛɪɴɢꜱ ʏᴏᴜ ʜᴀᴠᴇ ᴍᴀᴅᴇ...
+- ɪɴ ᴀ ɢʀᴏᴜᴘ: ɢᴇᴛ ʏᴏᴜʀ ɢʀᴏᴜᴘ ꜱᴇᴛᴛɪɴɢꜱ..
+━━━━━━━━━━━━━━━━━━━""",
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
