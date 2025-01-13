@@ -376,7 +376,10 @@ async def Music_button(update:Update,context:ContextTypes.DEFAULT_TYPE):
                         InlineKeyboardButton(text="๏ ʙᴀᴄᴋ ๏", callback_data="extra_command_handler")
                     ],
                 ]
-            ),)
+            ),
+             parse_mode="Markdown"
+    )
+    
         
 async def Music_about_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -435,6 +438,7 @@ async def Music_about_callback(update: Update, context: ContextTypes.DEFAULT_TYP
                     ],
                 ]
             ),
+             parse_mode="Markdown"
         )
     elif query.data == "Music_admin":
         await query.message.edit_text(
