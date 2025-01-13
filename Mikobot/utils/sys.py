@@ -2,9 +2,6 @@ import time
 
 import psutil
 
-from AviaxMusic.misc import _boot_
-from AviaxMusic.utils.formatters import get_readable_time
-
 
 async def bot_sys_stats():
     bot_uptime = int(time.time() - _boot_)
