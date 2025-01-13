@@ -197,21 +197,18 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     reply_markup=InlineKeyboardMarkup(
         [
-            [
-                InlineKeyboardButton("ᴍᴀɴᴀɢᴇᴍᴇɴᴛ⚙️", callback_data="help_back"),
-                InlineKeyboardButton("ᴍᴜꜱɪᴄ🎧", callback_data="Music_"),
-            ],
-            [
-                InlineKeyboardButton("ʙᴀꜱɪᴄ📕", callback_data="basic_command"),
-                InlineKeyboardButton("ᴀᴅᴠᴀɴᴄᴇ🧰", callback_data="advanced_command"),
-            ],
-            [
-                InlineKeyboardButton("ᴇxᴘᴇʀᴛ🔩", callback_data="expert_command"),
-            ],   
-            
-            [
-                InlineKeyboardButton("๏ʜᴏᴍᴇ๏", callback_data="Miko_back"),
-            ],
+                   [
+                        InlineKeyboardButton("ᴍᴀɴᴀɢᴇᴍᴇɴᴛ⚙️", callback_data="help_back"),
+                        InlineKeyboardButton("ᴍᴜꜱɪᴄ🎧", callback_data="Music_"),
+                    ],
+                    [
+                        InlineKeyboardButton("ʙᴀꜱɪᴄ📕", callback_data="basic_command"),
+                        InlineKeyboardButton("ᴀᴅᴠᴀɴᴄᴇ🧰", callback_data="advanced_command"),
+                        InlineKeyboardButton("ᴇxᴘᴇʀᴛ🔩",callback_data="expert_command"),
+                    ],  
+                    [  
+                        InlineKeyboardButton("๏ʜᴏᴍᴇ๏", callback_data="Miko_back"),
+                    ],
         ]
     )
 )
@@ -273,15 +270,13 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def extra_command_handlered(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     keyboard = [
-       [
+                    [
                         InlineKeyboardButton("ᴍᴀɴᴀɢᴇᴍᴇɴᴛ⚙️", callback_data="help_back"),
                         InlineKeyboardButton("ᴍᴜꜱɪᴄ🎧", callback_data="Music_"),
                     ],
                     [
                         InlineKeyboardButton("ʙᴀꜱɪᴄ📕", callback_data="basic_command"),
                         InlineKeyboardButton("ᴀᴅᴠᴀɴᴄᴇ🧰", callback_data="advanced_command"),
-                    ],
-                    [
                         InlineKeyboardButton("ᴇxᴘᴇʀᴛ🔩",callback_data="expert_command"),
                     ],  
                     [  
@@ -320,10 +315,9 @@ async def extra_command_callback(update: Update, context: ContextTypes.DEFAULT_T
                     [
                         InlineKeyboardButton("ʙᴀꜱɪᴄ📕", callback_data="basic_command"),
                         InlineKeyboardButton("ᴀᴅᴠᴀɴᴄᴇ🧰", callback_data="advanced_command"),
-                    ],
-                    [
                         InlineKeyboardButton("ᴇxᴘᴇʀᴛ🔩",callback_data="expert_command"),
-                       
+                    ],  
+                    [  
                         InlineKeyboardButton("๏ʜᴏᴍᴇ๏", callback_data="Miko_back"),
                     ],
                 ]
@@ -332,7 +326,7 @@ async def extra_command_callback(update: Update, context: ContextTypes.DEFAULT_T
         )
 async def Music_button(update:Update,context:ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("""ᴄʜᴏꜱᴇ ᴛʜᴇ ᴄᴀᴛᴇɢᴏʀʏ ꜰᴏʀ ᴡʜɪᴄʜ ʏᴏᴜ ᴡᴀɴɴᴀ ɢᴇᴛ ʜᴇʟᴘ.
-ᴀꜱᴋ ʏᴏᴜʀ ᴅᴏᴜʙᴛꜱ ᴀᴛ [ꜱᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ](https://t.me/mikosupport_0)
+ᴀꜱᴋ ʏᴏᴜʀ ᴅᴏᴜʙᴛꜱ ᴀᴛ [ꜱᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ]@{SUPPORT_CHAT}
 
 ᴀʟʟ ᴄᴏᴍᴍᴀɴᴅꜱ ᴄᴀɴ ʙᴇ ᴜꜱᴇᴅ ᴡɪᴛʜ : /  """,
             reply_markup=InlineKeyboardMarkup(
