@@ -712,9 +712,6 @@ __help__ = """
 
 BAN_HANDLER = CommandHandler(["ban", "sban"], ban, block=False)
 TEMPBAN_HANDLER = CommandHandler(["tban"], temp_ban, block=False)
-DELBAN_HANDLER = CommandHandler("delban", delban, block=False)
-DELKICK_HANDLER = CommandHandler("delkick", delkick, block=False)
-DELMUTE_HANDLER = CommandHandler("delmute", delmute, block=False)
 KICK_HANDLER = CommandHandler("kick", kick, block=False)
 UNBAN_HANDLER = CommandHandler("unban", unban, block=False)
 ROAR_HANDLER = CommandHandler("roar", selfunban, block=False)
@@ -732,9 +729,7 @@ function(UNBAN_HANDLER)
 function(ROAR_HANDLER)
 function(KICKME_HANDLER)
 function(BAN_CALLBACK_HANDLER)
-function(DELBAN_HANDLER)
-function(DELKICK_HANDLER)
-function(DELMUTE_HANDLER)
+
 
 __mod_name__ = "ʙᴀɴ"
 __handlers__ = [
