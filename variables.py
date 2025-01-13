@@ -34,7 +34,7 @@ class Config(object):
 
     # Support chat and support ID
     SUPPORT_CHAT = "Mikonews_0"
-    SUPPORT_ID = -1002417400380
+    SUPPORT_ID = -1002283889371
 
     # Database name
     DB_NAME = "merisa"
