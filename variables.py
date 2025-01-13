@@ -40,7 +40,7 @@ class Config(object):
     DB_NAME = "merisa"
 
     # Bot token
-    TOKEN = "8112810849:AAEjYD6FmaZfuYikjKnwP50NKBuGopr0AGE"  # Get bot token from @BotFather on Telegram
+    TOKEN = "8172933117:AAH1XkJ9LGOH-yI_mgrZAGBkNjwEL9DPGoU"  # Get bot token from @BotFather on Telegram
 
     # Owner's Telegram user ID (Must be an integer)
     OWNER_ID = 7785947978
