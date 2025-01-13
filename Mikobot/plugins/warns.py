@@ -80,8 +80,11 @@ async def warn(
                 f"<code> </code><b>•  Count:</b> {limit}"
             )
 
-        for warn_reason in reasons:
-            reply += f"\n - {html.escape(warn_reason)}"
+        try:
+            for warn_reason in reasons:
+                reply += f"\n - {html.escape(warn_reason)}"
+        except StopIteration:
+            reply += "\n - Error: StopIteration occurred"
 
         await message.reply_sticker(BAN_STICKER)  # Saitama's sticker
         keyboard = None
@@ -252,8 +255,11 @@ async def warns(update: Update, context: ContextTypes.DEFAULT_TYPE):
             text = (
                 f"This user has {num_warns}/{limit} warns, for the following reasons:"
             )
-            for reason in reasons:
-                text += f"\n • {reason}"
+            try:
+                for reason in reasons:
+                    text += f"\n • {reason}"
+            except StopIteration:
+                text += "\n • Error: StopIteration occurred"
 
             msgs = split_message(text)
             for msg in msgs:
