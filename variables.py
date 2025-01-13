@@ -27,14 +27,14 @@ class Config(object):
 
     # Event logs chat ID and message dump chat ID
     EVENT_LOGS = -1002254623129
-    MESSAGE_DUMP = -1002254623129
+    MESSAGE_DUMP = -1002283889371
 
     # MongoDB configuration
     MONGO_DB_URI = "mongodb+srv://sahilji:sahilji@cluster0.lew4q.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
     # Support chat and support ID
-    SUPPORT_CHAT = "sonamsupport"
-    SUPPORT_ID = -1002254623129
+    SUPPORT_CHAT = "Mikonews_0"
+    SUPPORT_ID = -1002417400380
 
     # Database name
     DB_NAME = "merisa"
