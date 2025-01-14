@@ -234,19 +234,17 @@ tbot = TelegramClient("Yaebot", API_ID, API_HASH)
 
 # <=============================================== GETTING BOT INFO ========================================================>
 # Get bot information
-async def main():
-    LOGGER.info("Starting Bot...")
-    
-    # Getting bot info
-    bot_info = await application.bot.get_me()
-    BOT_ID = bot_info.id
-    BOT_NAME = bot_info.first_name
-    BOT_USERNAME = bot_info.username
-    
-    LOGGER.info(f"Bot Info - ID: {BOT_ID}, Name: {BOT_NAME}, Username: @{BOT_USERNAME}")
-    
-    await send_booting_message()
-    LOGGER.info("Bot started.")
+async def send_booting_message():
+    try:
+        await bot.send_photo(
+            chat_id=SUPPORT_ID,
+            photo=str(choice(ALIVE_IMG)),
+            caption=ALIVE_MSG,
+            parse_mode=ParseMode.MARKDOWN,
+        )
+    except Exception as e:
+        LOGGER.warning("[ERROR] - Bot isn't able to send a message to the support_chat!")
+        print(e)
  
 # <=======================================================================================================>
 
