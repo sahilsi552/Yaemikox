@@ -210,7 +210,7 @@ async def send_booting_message():
         )
     except Exception as e:
         LOGGER.warning("[ERROR] - Bot isn't able to send a message to the support_chat!")
-        print(e)
+        
 
 # <=======================================================================================================>
 
