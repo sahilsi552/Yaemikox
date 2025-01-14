@@ -9,7 +9,7 @@ from telegram import (
 )
 from telegram.constants import ChatID, ChatMemberStatus, ChatType, ParseMode
 from telegram.error import BadRequest
-from telegram.ext import CallbackQueryHandler, CommandHandler, ContextTypes, filters
+from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, MessageHandler, filters
 from telegram.helpers import mention_html
 
 from Mikobot import DRAGONS, function
@@ -1085,41 +1085,33 @@ __help__ = """
 """
 
 # <================================================ HANDLER =======================================================>
-ADMINLIST_HANDLER = DisableAbleCommandHandler("adminlist", adminlist, block=False)
 
-PIN_HANDLER = CommandHandler("pin", pin, filters=filters.ChatType.GROUPS, block=False)
-UNPIN_HANDLER = CommandHandler(
-    "unpin", unpin, filters=filters.ChatType.GROUPS, block=False
-)
-UNPINALL_HANDLER = CommandHandler(
-    "unpinall", unpinall, filters=filters.ChatType.GROUPS, block=False
-)
+# Instantiate Application
+# Handlers
+ADMINLIST_HANDLER = CommandHandler("adminlist", adminlist)
+PIN_HANDLER = CommandHandler("pin", pin, filters=filters.ChatType.GROUPS)
+UNPIN_HANDLER = CommandHandler("unpin", unpin, filters=filters.ChatType.GROUPS)
+UNPINALL_HANDLER = CommandHandler("unpinall", unpinall, filters=filters.ChatType.GROUPS)
+INVITE_HANDLER = CommandHandler("invitelink", invite)
+PROMOTE_HANDLER = CommandHandler("promote", promote)
+FULLPROMOTE_HANDLER = CommandHandler("fullpromote", fullpromote)
+DEMOTE_HANDLER = CommandHandler("demote", demote)
+SET_TITLE_HANDLER = CommandHandler("title", set_title)
+ADMIN_REFRESH_HANDLER = CommandHandler("admincache", refresh_admin, filters=filters.ChatType.GROUPS)
+ADMIN_CALLBACK_HANDLER = CallbackQueryHandler(admin_callback, pattern=r"admin_")
 
-INVITE_HANDLER = DisableAbleCommandHandler("invitelink", invite, block=False)
-
-PROMOTE_HANDLER = DisableAbleCommandHandler("promote", promote, block=False)
-FULLPROMOTE_HANDLER = DisableAbleCommandHandler("fullpromote", fullpromote, block=False)
-DEMOTE_HANDLER = DisableAbleCommandHandler("demote", demote, block=False)
-
-SET_TITLE_HANDLER = CommandHandler("title", set_title, block=False)
-ADMIN_REFRESH_HANDLER = CommandHandler(
-    "admincache", refresh_admin, filters=filters.ChatType.GROUPS, block=False
-)
-ADMIN_CALLBACK_HANDLER = CallbackQueryHandler(
-    admin_callback, block=False, pattern=r"admin_"
-)
-
-function(ADMINLIST_HANDLER)
-function(PIN_HANDLER)
-function(UNPIN_HANDLER)
-function(UNPINALL_HANDLER)
-function(INVITE_HANDLER)
-function(PROMOTE_HANDLER)
-function(FULLPROMOTE_HANDLER)
-function(DEMOTE_HANDLER)
-function(SET_TITLE_HANDLER)
-function(ADMIN_REFRESH_HANDLER)
-function(ADMIN_CALLBACK_HANDLER)
+# Adding handlers to the application
+application.add_handler(ADMINLIST_HANDLER)
+application.add_handler(PIN_HANDLER)
+application.add_handler(UNPIN_HANDLER)
+application.add_handler(UNPINALL_HANDLER)
+application.add_handler(INVITE_HANDLER)
+application.add_handler(PROMOTE_HANDLER)
+application.add_handler(FULLPROMOTE_HANDLER)
+application.add_handler(DEMOTE_HANDLER)
+application.add_handler(SET_TITLE_HANDLER)
+application.add_handler(ADMIN_REFRESH_HANDLER)
+application.add_handler(ADMIN_CALLBACK_HANDLER)
 
 __mod_name__ = "ᴀᴅᴍɪɴ"
 __command_list__ = [
