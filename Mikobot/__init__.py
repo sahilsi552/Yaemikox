@@ -200,9 +200,9 @@ ALIVE_IMG = [
 
 # <==================================================== BOOT FUNCTION ===================================================>
 async def send_booting_message():
-async def send_booting_message():
-    try:
-        await bot.send_photo(
+    async def send_booting_message():
+        try:
+            await bot.send_photo(
             chat_id=SUPPORT_ID,
             photo=str(choice(ALIVE_IMG)),
             caption=ALIVE_MSG,
