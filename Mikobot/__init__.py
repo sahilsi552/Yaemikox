@@ -167,15 +167,15 @@ else:
 
 # <================================================= SETS =====================================================>
 # Add OWNER_ID to the DRAGONS and DEV_USERS sets
-DRAGONS = {OWNER_ID}
-DEV_USERS = {OWNER_ID}
+DRAGONS.add(OWNER_ID)
+DEV_USERS.add(OWNER_ID)
 
 # <=======================================================================================================>
 
 # <============================================== INITIALIZE APPLICATION =========================================================>
 # Initialize the application builder and add a handler
-application = Application.builder().token(TOKEN).build()
-bot = application.bot
+dispatcher = Application.builder().token(TOKEN).build()
+function = dispatcher.add_handler
 # <=======================================================================================================>
 
 # <================================================ BOOT MESSAGE=======================================================>
@@ -200,28 +200,29 @@ ALIVE_IMG = [
 
 # <==================================================== BOOT FUNCTION ===================================================>
 async def send_booting_message():
-    async def send_booting_message():
-        try:
-            await bot.send_photo(
+    bot = dispatcher.bot
+
+    try:
+        await bot.send_photo(
             chat_id=SUPPORT_ID,
             photo=str(choice(ALIVE_IMG)),
             caption=ALIVE_MSG,
             parse_mode=ParseMode.MARKDOWN,
         )
-    
-        
+    except Exception as e:
+        LOGGER.warning(
+            "[ERROR] - Bot isn't able to send a message to the support_chat!"
+        )
+        print(e)
+
 
 # <=======================================================================================================>
 
 
 # <================================================= EXTBOT ======================================================>
-async def main():
-    LOGGER.info("Starting Bot...")
-    await send_booting_message()
-    LOGGER.info("Bot started.")
-
-if __name__ == "__main__":
-    application.run_polling()  # PTB v21+ handles initialization
+loop.run_until_complete(
+    asyncio.gather(dispatcher.bot.initialize(), send_booting_message())
+)
 # <=======================================================================================================>
 
 # <=============================================== CLIENT SETUP ========================================================>
@@ -232,18 +233,10 @@ tbot = TelegramClient("Yaebot", API_ID, API_HASH)
 
 # <=============================================== GETTING BOT INFO ========================================================>
 # Get bot information
-async def send_booting_message():
-    try:
-        await bot.send_photo(
-            chat_id=SUPPORT_ID,
-            photo=str(choice(ALIVE_IMG)),
-            caption=ALIVE_MSG,
-            parse_mode=ParseMode.MARKDOWN,
-        )
-    except Exception as e:
-        LOGGER.warning("[ERROR] - Bot isn't able to send a message to the support_chat!")
-        print(e)
- 
+print("[INFO]: Getting Bot Info...")
+BOT_ID = dispatcher.bot.id
+BOT_NAME = dispatcher.bot.first_name
+BOT_USERNAME = dispatcher.bot.username
 # <=======================================================================================================>
 
 # <================================================== CONVERT LISTS =====================================================>
