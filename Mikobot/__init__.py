@@ -220,8 +220,8 @@ async def send_booting_message():
 
 
 # <================================================= EXTBOT ======================================================>
-loop.run_until_complete(
-    asyncio.gather(dispatcher.bot.initialize(), send_booting_message())
+#loop.run_until_complete(
+    #asyncio.gather(dispatcher.bot.initialize(), send_booting_message())
 )
 # <=======================================================================================================>
 
