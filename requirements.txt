@@ -57,7 +57,7 @@ psutil==6.1.0
 pyjokes
 psycopg2-binary==2.9.10
 pynewtonmath==1.0.1
-pymongo==4.9.2
+pymongo==4.11
 pyrate-limiter==3.7.0
 pytz==2024.1
 python-arq==6.0.7
